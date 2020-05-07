@@ -25,10 +25,11 @@ profiles$Basin <- factor(profiles$Basin)
 # ----------------------------
 
 # set model
-form <- val ~ s(x, y, k = 20) +
-              s(yday, bs = "cc", k = 6, by = Basin) +
-              s(Basin, bs = "re") +
-              s(Year, k = 5, bs = "tp", m = 1, by = Basin)
+form <- as.formula(
+          sprintf("val ~ s(x, y, k = 20) +
+                   s(yday, bs = 'cc', k = 6, by = Basin) +
+                   s(Basin, bs = 're') +
+                   s(Year, k = %i, bs = 'tp', m = 1, by = Basin)", length(unique(profiles$Year))))
 
 #form <- val ~ te(x, y, Year, k = c(20, 5), d = c(2,1), m = c(2,1), bs = c("tp", "tp")) +
 #              te(x, y, yday, k = c(10, 6), d = c(2,1), bs = c("tp", "cc"))
