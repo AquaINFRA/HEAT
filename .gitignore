@@ -1,17 +1,10 @@
-Makefile
-documentation/*
-analysis/*
+# History files
+.Rhistory
+
+# Session Data files
+.RData
+
+analysis*/*
 data/*
 
-scripts/Oxydebt/working.R
-scripts/Oxydebt/*_convert_plots_to_png.R
-
 .Rproj.user
-*.Rproj
-
-# file types to ignore
-*.pdf
-*.asc
-
-# do not track plots file for now
-scripts/OxygenDebt/output_3_plots.R
