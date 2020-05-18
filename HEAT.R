@@ -32,7 +32,6 @@ ipak(packages)
 # SC
 # IW
 
-
 # Links to Unit, Data and Config files ----------------------------------------- 
 #unitsFile <- "https://www.dropbox.com/s/tpzirhsr11yuwb4/AssessmentUnit_20112016.zip"
 #stationSamplesFile <- "https://www.dropbox.com/s/ehbb50myea9ebx8/StationSamplesICE.zip"
@@ -72,7 +71,10 @@ st_is_valid(units)
 units <- st_transform(units, crs = 3035)
 
 # Calculate area
-#units$Area <- st_area(units)
+units$UnitArea <- st_area(units)
+
+#setDT(units)
+#setkey(units, UnitID)
 
 # Identify invalid geometries
 st_is_valid(units)
@@ -176,11 +178,11 @@ coalesce <- function(x) {
 }
 wk$DIN..umol.l. <- apply(wk[, list(Nitrate..umol.l., Nitrite..umol.l., Ammonium..umol.l.)], 1, coalesce)
 
-# Filter stations rows and columns --> UnitID, GridID, Period, Month, Depth, ES
-wk0 <- wk[Depth..m.db..PRIMARYVAR.DOUBLE <= 10 & (Month >= 12 | Month <= 2) & (Period >= 2011 & Period <= 2016) & !is.na(DIN..umol.l.), .(IndicatorID = 1, UnitID, GridID = GridID.30k, Period, Month, StationID, Depth = Depth..m.db..PRIMARYVAR.DOUBLE, ES = DIN..umol.l.)]
+# Filter stations rows and columns --> UnitID, GridID, GridArea, Period, Month, Depth, ES
+wk0 <- wk[Depth..m.db..PRIMARYVAR.DOUBLE <= 10 & (Month >= 12 | Month <= 2) & (Period >= 2011 & Period <= 2016) & !is.na(DIN..umol.l.), .(IndicatorID = 1, UnitID, GridID = ifelse(UnitID == 3, GridID.10k, GridID.30k), GridArea = ifelse(UnitID == 3, Area.10k, Area.30k), Period, Month, StationID, Depth = Depth..m.db..PRIMARYVAR.DOUBLE, ES = DIN..umol.l.)]
 
-# Calculate station mean --> UnitID, GridID, Period, Month, ES, SD, N
-wk1 <- wk0[, .(ES = mean(ES), SD = sd(ES), N = .N), keyby = .(IndicatorID, UnitID, GridID, Period, Month, StationID)]
+# Calculate station mean --> UnitID, GridID, GridArea, Period, Month, ES, SD, N
+wk1 <- wk0[, .(ES = mean(ES), SD = sd(ES), N = .N), keyby = .(IndicatorID, UnitID, GridID, GridArea,Period, Month, StationID)]
 
 # Calculate annual mean --> UnitID, Period, ES, SD, N, NM
 wk2 <- wk1[, .(ES = mean(ES), SD = sd(ES), N = .N, NM = uniqueN(Month)), keyby = .(IndicatorID, UnitID, Period)]
@@ -201,16 +203,29 @@ wk3[, EQRS := ifelse(EQR <= EQR_PB, (EQR - 0) * (0.2 - 0) / (EQR_PB - 0) + 0,
                                     ifelse(EQR <= EQR_HG, (EQR - EQR_GM) * (0.8 - 0.6) / (EQR_HG - EQR_GM) + 0.6,
                                            (EQR - EQR_HG) * (1 - 0.8) / (1 - EQR_HG) + 0.8))))]
 
-# Calculate General temporal confidence (GTC) - number of annual observations
+# Calculate General Temporal Confidence (GTC) - number of annual observations
 wk3[, GTC := ifelse(N > GTC_HM, 100, ifelse(N < GTC_ML, 0, 50))]
 
-# Calculate Specific temporal confidence (STC) - number of annual missing months
+# Calculate Specific Temporal Confidence (STC) - number of annual missing months
 # !!! 3 month hardcoded for now which need to be change dynamically in config table to indicator months
 wk3[, STC := ifelse(3 - NM <= STCA_HM, 100, ifelse(3 -NM > STCA_ML, 0, 50))]
 
-# Calculate General spatial confidence (GSC) - number of annual observations per grid cell ... and then what? annual average?
+# Calculate Total Temporal Confidence (TTC)
+wk3[, TTC := (GTC + STC) / 2]
 
-# Calculate Specific spatial confidence (SSC) - area of sampled grid unit cells as a procentage to total unit area
+# Calculate General Spatial Confidence (GSC) - number of annual observations per grid cell ... and then what? annual average?
+
+# Calculate Specific Spatial Confidence (SSC) - area of sampled grid unit cells as a procentage to total unit area
+a <- wk1[, .N, keyby = .(IndicatorID, UnitID, Period, GridID, GridArea)]
+b <- a[, .(GridArea = sum(as.numeric(GridArea))), keyby = .(IndicatorID, UnitID, Period)]
+c <- as.data.table(units)[, .(UnitArea = as.numeric(UnitArea)), keyby = .(UnitID)]
+d <- c[b, on = .(UnitID = UnitID)]
+wk3 <- wk3[d[,.(UnitID, Period, UnitArea, GridArea)], on = .(UnitID = UnitID, Period = Period)]
+wk3[, SSC := ifelse(GridArea / UnitArea * 100 > SSC_HM, 100, ifelse(GridArea / UnitArea * 100 < SSC_ML, 0, 50))]
+rm(a,b,c,d)
+
+# Calculate Total Confidence (TC)
+wk3[, TC := (TTC + SSC) / 2]
 
 # Calculate assessment ES --> UnitID, Period, ES, SD, N, N_MIN, NM, NS
 wk4 <- wk2[, .(Period = min(Period) * 10000 + max(Period), ES = mean(ES), SD = sd(ES), N = .N, N_MIN = min(N), NM = sum(NM), NS = sum(N)), .(IndicatorID, UnitID)]
@@ -242,5 +257,25 @@ wk5[, GTC := ifelse(N_MIN > GTC_HM, 100, ifelse(N_MIN < GTC_ML, 0, 50))]
 
 # Calculate Specific temporal confidence (STC) - number of missing months in assessment period
 # !!! 18 month hardcoded for now which need to be change dynamically in config table to indicator years and months
-wk5[, STC := ifelse(18 - NM <= STC_HM, 100, ifelse(18 -NM > STC_ML, 0, 50))]
+wk5[, STC := ifelse(18 - NM <= STC_HM, 100, ifelse(18 - NM > STC_ML, 0, 50))]
 
+# Calculate Total Temporal Confidence (TTC)
+wk5[, TTC := (GTC + STC) / 2]
+
+# Calculate General spatial confidence (GSC) - number of annual observations per grid cell ... and then what? annual average?
+
+# Calculate Specific spatial confidence (SSC) - area of sampled grid unit cells as a procentage to total unit area
+a <- wk1[, .N, keyby = .(IndicatorID, UnitID, GridID, GridArea)]
+b <- a[, .(GridArea = sum(as.numeric(GridArea))), keyby = .(IndicatorID, UnitID)]
+c <- as.data.table(units)[, .(UnitArea = as.numeric(UnitArea)), keyby = .(UnitID)]
+d <- c[b, on = .(UnitID = UnitID)]
+wk5 <- wk5[d[,.(UnitID, UnitArea, GridArea)], on = .(UnitID = UnitID)]
+wk5[, SSC := ifelse(GridArea / UnitArea * 100 > SSC_HM, 100, ifelse(GridArea / UnitArea * 100 < SSC_ML, 0, 50))]
+rm(a,b,c,d)
+
+# Calculate Total Confidence (TC)
+wk5[, TC := (TTC + SSC) / 2]
+
+# Write result to files
+fwrite(wk3, file = "assessment/20112016/Annual.csv")
+fwrite(wk5, file = "assessment/20112016/Assessment.csv")
