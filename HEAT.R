@@ -14,7 +14,7 @@ outputPath <- "Output"
 
 # Define assessment period - Uncomment the period you want to run the assessment for!
 assessmentPeriod <- "2011-2016"
-#assessmentPeriod <- "2016-2021"
+assessmentPeriod <- "2016-2021"
 
 # Create paths
 dir.create(inputPath, showWarnings = FALSE, recursive = TRUE)
@@ -41,10 +41,12 @@ if (assessmentPeriod == "2011-2016"){
           "https://www.dropbox.com/s/66rkujevbkvic2q/StationSamplesCTD.txt.gz?dl=1")
 } else {
   # Assessment Period 2016-2021
-  
-  
-  
-  
+  urls <- c("https://www.dropbox.com/s/4jbqffm2nstma9v/AssessmentUnits.zip?dl=1",
+            "https://www.dropbox.com/s/s5pzd8cvksfffgn/Indicators.csv?dl=1",
+            "https://www.dropbox.com/s/28wr662sz6jxjox/IndicatorUnits.csv?dl=1",
+            "https://www.dropbox.com/s/cs4boo7247p6e13/UnitGridSize.csv?dl=1",
+            "https://www.dropbox.com/s/vp04vrl2gk5vxx1/StationSamplesICE.txt.gz?dl=1",
+            "https://www.dropbox.com/s/89i1w79lmlab425/StationSamplesCTD.txt.gz?dl=1")
 }
 
 files <- sapply(urls, download.file.unzip.maybe, path = inputPath)
