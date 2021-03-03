@@ -9,3 +9,6 @@ analysis*/*
 data/*
 
 .Rproj.user
+
+Input/*
+Output/*
