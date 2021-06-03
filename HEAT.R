@@ -397,10 +397,19 @@ wk5[, EQRS := ifelse(EQR <= EQR_PB, (EQR - 0) * (0.2 - 0) / (EQR_PB - 0) + 0,
                                    ifelse(EQR <= EQR_HG, (EQR - EQR_GM) * (0.8 - 0.6) / (EQR_HG - EQR_GM) + 0.6,
                                           (EQR - EQR_HG) * (1 - 0.8) / (1 - EQR_HG) + 0.8))))]
 
+# Assign Statis and Confidence Classes
 wk5[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
                            ifelse(EQRS >= 0.6, "Good",
                                   ifelse(EQRS >= 0.4, "Moderate",
                                          ifelse(EQRS >= 0.2, "Poor","Bad"))))]
+wk5[, TC_Class := ifelse(TC >= 75, "High",
+                        ifelse(TC >= 50, "Moderate", "Low"))]
+
+wk5[, SC_Class := ifelse(SC >= 75, "High",
+                        ifelse(SC >= 50, "Moderate", "Low"))]
+
+wk5[, C_Class := ifelse(C >= 75, "High",
+                        ifelse(C >= 50, "Moderate", "Low"))]
 
 # Criteria ---------------------------------------------------------------------
 
@@ -423,6 +432,8 @@ wk9[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
                            ifelse(EQRS >= 0.6, "Good",
                                   ifelse(EQRS >= 0.4, "Moderate",
                                          ifelse(EQRS >= 0.2, "Poor","Bad"))))]
+wk9[, C_Class := ifelse(C >= 75, "High",
+                        ifelse(C >= 50, "Moderate", "Low"))]
 
 # Write results
 fwrite(wk3, file = file.path(outputPath, "Annual_Indicator.csv"))
@@ -434,17 +445,28 @@ EQRS_Class_colors <- c("#3BB300", "#99FF66", "#FFCABF", "#FF8066", "#FF0000")
 EQRS_Class_limits <- c("High", "Good", "Moderate", "Poor", "Bad")
 EQRS_Class_labels <- c(">= 0.8 - 1.0 (High)", ">= 0.6 - 0.8 (Good)", ">= 0.4 - 0.6 (Moderate)", ">= 0.2 - 0.4 (Poor)", ">= 0.0 - 0.2 (Bad)")
 
-#basemap <- get_map(location=c(lon = -1, lat = 53), zoom = 5)
+C_Class_colors <- c("#3BB300", "#FFCABF", "#FF0000")
+C_Class_limits <- c("High", "Moderate", "Low")
+C_Class_labels <- c(">= 75 % (High)", "50 - 74 % (Moderate)", "< 50 % (Low)")
 
-# Assessment map
+# Assessment map Status + Confidence
 wk <- merge(units, wk9, all.x = TRUE)
 
+# Status map
 ggplot(wk) +
   ggtitle(label = paste0("Eutrophication Status ", assessmentPeriod)) +
   geom_sf(aes(fill = EQRS_Class)) +
   scale_fill_manual(name = "EQRS", values = EQRS_Class_colors, limits = EQRS_Class_limits, labels = EQRS_Class_labels)
 
-ggsave(file.path(outputPath, "Assessment_Map.png"), width = 12, height = 9, dpi = 300)
+ggsave(file.path(outputPath, "Assessment_Map_EQRS.png"), width = 12, height = 9, dpi = 300)
+
+# Confidence map
+ggplot(wk) +
+  ggtitle(label = paste0("Eutrophication Confidence ", assessmentPeriod)) +
+  geom_sf(aes(fill = C_Class)) +
+  scale_fill_manual(name = "C", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
+
+ggsave(file.path(outputPath, "Assessment_Map_C.png"), width = 12, height = 9, dpi = 300)
 
 # Create Assessment Indicator maps
 for (i in 1:nrow(indicators)) {
@@ -459,22 +481,68 @@ for (i in 1:nrow(indicators)) {
   indicatorDepthMax <- indicators[i, DepthMax]
   indicatorYearMin <- indicators[i, YearMin]
   indicatorMetric <- indicators[i, Metric]
+
+  wk <- wk5[IndicatorID == indicatorID] %>% setkey(UnitID)
   
+  wk <- merge(units, wk, by = "UnitID", all.x = TRUE)  
+    
+  # Status map (EQRS)
   title <- paste0("Eutrophication Status ", indicatorYearMin, "-", indicatorYearMax)
   subtitle <- paste0(indicatorName, " (", indicatorCode, ")", "\n")
   subtitle <- paste0(subtitle, "Months: ", indicatorMonthMin, "-", indicatorMonthMax, ", ")
   subtitle <- paste0(subtitle, "Depths: ", indicatorDepthMin, "-", indicatorDepthMax, ", ")
   subtitle <- paste0(subtitle, "Metric: ", indicatorMetric)
-  fileName <- gsub(":", "", paste0("Assessment_Indicator_Map_", indicatorCode, ".png"))
-  
-  wk <- wk5[IndicatorID == indicatorID] %>% setkey(UnitID)
-
-  wk <- merge(units, wk, by = "UnitID", all.x = TRUE)
+  fileName <- gsub(":", "", paste0("Assessment_Indicator_Map_", indicatorCode, "_EQRS", ".png"))
   
   ggplot(wk) +
     labs(title = title , subtitle = subtitle) +
     geom_sf(aes(fill = EQRS_Class)) +
     scale_fill_manual(name = "EQRS", values = EQRS_Class_colors, limits = EQRS_Class_limits, labels = EQRS_Class_labels)
+  
+  ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
+
+  # Temporal Confidence map (TC)
+  title <- paste0("Eutrophication Temporal Confidence ", indicatorYearMin, "-", indicatorYearMax)
+  subtitle <- paste0(indicatorName, " (", indicatorCode, ")", "\n")
+  subtitle <- paste0(subtitle, "Months: ", indicatorMonthMin, "-", indicatorMonthMax, ", ")
+  subtitle <- paste0(subtitle, "Depths: ", indicatorDepthMin, "-", indicatorDepthMax, ", ")
+  subtitle <- paste0(subtitle, "Metric: ", indicatorMetric)
+  fileName <- gsub(":", "", paste0("Assessment_Indicator_Map_", indicatorCode, "_TC", ".png"))
+  
+  ggplot(wk) +
+    labs(title = title , subtitle = subtitle) +
+    geom_sf(aes(fill = TC_Class)) +
+    scale_fill_manual(name = "TC", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
+  
+  ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
+  
+  # Confidence map (SC)
+  title <- paste0("Eutrophication Spatial Confidence ", indicatorYearMin, "-", indicatorYearMax)
+  subtitle <- paste0(indicatorName, " (", indicatorCode, ")", "\n")
+  subtitle <- paste0(subtitle, "Months: ", indicatorMonthMin, "-", indicatorMonthMax, ", ")
+  subtitle <- paste0(subtitle, "Depths: ", indicatorDepthMin, "-", indicatorDepthMax, ", ")
+  subtitle <- paste0(subtitle, "Metric: ", indicatorMetric)
+  fileName <- gsub(":", "", paste0("Assessment_Indicator_Map_", indicatorCode, "_SC", ".png"))
+  
+  ggplot(wk) +
+    labs(title = title , subtitle = subtitle) +
+    geom_sf(aes(fill = SC_Class)) +
+    scale_fill_manual(name = "SC", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
+  
+  ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
+  
+  # Confidence map (C)
+  title <- paste0("Eutrophication Confidence ", indicatorYearMin, "-", indicatorYearMax)
+  subtitle <- paste0(indicatorName, " (", indicatorCode, ")", "\n")
+  subtitle <- paste0(subtitle, "Months: ", indicatorMonthMin, "-", indicatorMonthMax, ", ")
+  subtitle <- paste0(subtitle, "Depths: ", indicatorDepthMin, "-", indicatorDepthMax, ", ")
+  subtitle <- paste0(subtitle, "Metric: ", indicatorMetric)
+  fileName <- gsub(":", "", paste0("Assessment_Indicator_Map_", indicatorCode, "_C", ".png"))
+  
+  ggplot(wk) +
+    labs(title = title , subtitle = subtitle) +
+    geom_sf(aes(fill = C_Class)) +
+    scale_fill_manual(name = "C", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
   
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
 }
