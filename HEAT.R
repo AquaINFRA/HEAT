@@ -14,7 +14,7 @@ outputPath <- "Output"
 
 # Define assessment period - Uncomment the period you want to run the assessment for!
 assessmentPeriod <- "2011-2016"
-assessmentPeriod <- "2016-2021"
+#assessmentPeriod <- "2016-2021"
 
 # Create paths
 dir.create(inputPath, showWarnings = FALSE, recursive = TRUE)
@@ -123,13 +123,15 @@ make.gridunits <- function(units, gridSize) {
 
 gridunits10 <- make.gridunits(units, 10000)
 gridunits30 <- make.gridunits(units, 30000)
+gridunits60 <- make.gridunits(units, 60000)
 
 unitGridSize <-  fread(input = unitGridSizeFile) %>% setkey(UnitID)
 
 a <- merge(unitGridSize[GridSize == 10000], gridunits10 %>% select(UnitID, GridID, GridArea = Area))
 b <- merge(unitGridSize[GridSize == 30000], gridunits30 %>% select(UnitID, GridID, GridArea = Area))
-gridunits <- st_as_sf(rbindlist(list(a,b)))
-rm(a,b)
+c <- merge(unitGridSize[GridSize == 60000], gridunits60 %>% select(UnitID, GridID, GridArea = Area))
+gridunits <- st_as_sf(rbindlist(list(a,b,c)))
+rm(a,b,c)
 
 # Plot
 #ggplot() + geom_sf(data = units) + coord_sf()
