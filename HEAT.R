@@ -312,66 +312,62 @@ wk3 <- wk3[d[,.(IndicatorID, UnitID, Period, UnitArea, GridArea)], on = .(Indica
 wk3[, SSC := ifelse(GridArea / UnitArea * 100 > SSC_HM, 100, ifelse(GridArea / UnitArea * 100 < SSC_ML, 0, 50))]
 rm(a,b,c,d)
 
-# Calculate assessment ES --> UnitID, Period, ES, SD, N, GTC, STC, GSC, SSC
+# Calculate assessment ES --> UnitID, Period, ES, SD, N, N_OBS, GTC, STC, SSC
 wk4 <- wk3[, .(Period = min(Period) * 10000 + max(Period), ES = mean(ES), SD = sd(ES), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
 
-# Add Year Count where STC = 100
+# Add Year Count where STC = 100 --> NSTC100
 wk4 <- wk3[STC == 100, .(NSTC100 = .N), .(IndicatorID, UnitID)][wk4, on = .(IndicatorID, UnitID)]
+
+# Adjust Specific Spatial Confidence if number of years where STC = 100 is at least half of the number of years with meassurements
 wk4[, STC := ifelse(!is.na(NSTC100) & NSTC100 >= N/2, 100, STC)]
-
-wk4 <- wk4[, TC := (GTC + STC) / 2]
-
-wk4 <- wk4[, SC := SSC]
-
-wk4 <- wk4[, C := (TC + SC) / 2]
 
 # Combine with indicator and indicator unit configuration tables
 wk5 <- indicators[indicatorUnits[wk4]]
 
-# Standard Error
-wk5[, SE := SD / sqrt(N)]
-
-# 95 % Confidence Interval
-wk5[, CI := qnorm(0.975) * SE]
-
 #-------------------------------------------------------------------------------
-# Accuracy Confidence Assessment
+# Confidence Assessment
 # ------------------------------------------------------------------------------
 
-# Accuracy Confidence Level for Non-Problem Area
-wk5[, ACL_NPA := ifelse(Response == 1, pnorm(ET, ES, SD), pnorm(ES, ET, SD))]
+# Calculate Temporal Confidence averaging General and Specific Temporal Confidence 
+wk5 <- wk5[, TC := (GTC + STC) / 2]
 
-# Accuracy Confidence Level for Problem Area
-wk5[, ACL_PA := 1 - ACL_NPA]
+wk5[, TC_Class := ifelse(TC >= 75, "High", ifelse(TC >= 50, "Moderate", "Low"))]
 
-# Accuracy Confidence Level Area Class
-wk5[, ACLAC := ifelse(ACL_NPA > 0.5, 1, ifelse(ACL_NPA < 0.5, 3, 2))]
+# Calculate Spatial Confidence as the Specific Spatial Confidence 
+wk5 <- wk5[, SC := SSC]
 
-# Accuracy Confidence Level
-wk5[, ACL := ifelse(ACL_NPA > ACL_PA, ACL_NPA, ACL_PA)]
+wk5[, SC_Class := ifelse(SC >= 75, "High", ifelse(SC >= 50, "Moderate", "Low"))]
 
-# Accuracy Confidence Level Class
-wk5[, ACLC := ifelse(ACL > 0.9, 100, ifelse(ACL < 0.7, 0, 50))]
+# Standard Error - using number of years in the assessment period and the associated standard deviation
+#wk5[, SE := SD / sqrt(N)]
 
-# ------------------------------------------------------------------------------
+# Accuracy Confidence for Non-Problem Area
+#wk5[, AC_NPA := ifelse(Response == 1, pnorm(ET, ES, SD), pnorm(ES, ET, SD))]
 
-# Standard Error using number of observations behind the annual mean !!!
-wk5[, SE_OBS := SD / sqrt(N_OBS)]
+# Standard Error - using number of observations behind the annual mean - to be used in Accuracy Confidence Calculation!!!
+wk5[, AC_SE := SD / sqrt(N_OBS)]
 
-# Accuracy Confidence Level for Non-Problem Area
-wk5[, ACL_NPA_OBS := ifelse(Response == 1, pnorm(ET, ES, SE_OBS), pnorm(ES, ET, SE_OBS))]
+# Accuracy Confidence for Non-Problem Area
+wk5[, AC_NPA := ifelse(Response == 1, pnorm(ET, ES, AC_SE), pnorm(ES, ET, AC_SE))]
 
-# Accuracy Confidence Level for Problem Area
-wk5[, ACL_PA_OBS := 1 - ACL_NPA_OBS]
+# Accuracy Confidence for Problem Area
+wk5[, AC_PA := 1 - AC_NPA]
 
-# Accuracy Confidence Level Area Class
-wk5[, ACLAC_OBS := ifelse(ACL_NPA_OBS > 0.5, 1, ifelse(ACL_NPA_OBS < 0.5, 3, 2))]
+# Accuracy Confidence Area Class - Not sure what this should be used for?
+#wk5[, ACAC := ifelse(AC_NPA > 0.5, "NPA", ifelse(AC_NPA < 0.5, "PA", "PPA"))]
 
-# Accuracy Confidence Level
-wk5[, ACL_OBS := ifelse(ACL_NPA_OBS > ACL_PA_OBS, ACL_NPA_OBS, ACL_PA_OBS)]
+# Accuracy Confidence
+wk5[, AC := ifelse(AC_NPA > AC_PA, AC_NPA, AC_PA)]
 
-# Accuracy Confidence Level Class
-wk5[, ACLC_OBS := ifelse(ACL_OBS > 0.9, 100, ifelse(ACL_OBS < 0.7, 0, 50))]
+# Accuracy Confidence Class
+wk5[, ACC := ifelse(AC > 0.9, 100, ifelse(AC < 0.7, 0, 50))]
+
+wk5[, ACC_Class := ifelse(ACC >= 75, "High", ifelse(ACC >= 50, "Moderate", "Low"))]
+
+# Calculate Overall Confidence
+wk5 <- wk5[, C := (TC + SC + ACC) / 3]
+
+wk5[, C_Class := ifelse(C >= 75, "High", ifelse(C >= 50, "Moderate", "Low"))]
 
 # ------------------------------------------------------------------------------
 
@@ -397,19 +393,11 @@ wk5[, EQRS := ifelse(EQR <= EQR_PB, (EQR - 0) * (0.2 - 0) / (EQR_PB - 0) + 0,
                                    ifelse(EQR <= EQR_HG, (EQR - EQR_GM) * (0.8 - 0.6) / (EQR_HG - EQR_GM) + 0.6,
                                           (EQR - EQR_HG) * (1 - 0.8) / (1 - EQR_HG) + 0.8))))]
 
-# Assign Statis and Confidence Classes
+# Assign Status and Confidence Classes
 wk5[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
                            ifelse(EQRS >= 0.6, "Good",
                                   ifelse(EQRS >= 0.4, "Moderate",
                                          ifelse(EQRS >= 0.2, "Poor","Bad"))))]
-wk5[, TC_Class := ifelse(TC >= 75, "High",
-                        ifelse(TC >= 50, "Moderate", "Low"))]
-
-wk5[, SC_Class := ifelse(SC >= 75, "High",
-                        ifelse(SC >= 50, "Moderate", "Low"))]
-
-wk5[, C_Class := ifelse(C >= 75, "High",
-                        ifelse(C >= 50, "Moderate", "Low"))]
 
 # Criteria ---------------------------------------------------------------------
 
@@ -428,6 +416,7 @@ wk8 <- wk6[, .(.N, ER = max(ER), EQR = min(EQR), EQRS = min(EQRS), C = mean(C)),
 
 wk9 <- wk7[wk8, on = .(UnitID = UnitID), nomatch=0]
 
+# Assign Status and Confidence Classes
 wk9[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
                            ifelse(EQRS >= 0.6, "Good",
                                   ifelse(EQRS >= 0.4, "Moderate",
@@ -516,7 +505,7 @@ for (i in 1:nrow(indicators)) {
   
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
   
-  # Confidence map (SC)
+  # Spatial Confidence map (SC)
   title <- paste0("Eutrophication Spatial Confidence ", indicatorYearMin, "-", indicatorYearMax)
   subtitle <- paste0(indicatorName, " (", indicatorCode, ")", "\n")
   subtitle <- paste0(subtitle, "Months: ", indicatorMonthMin, "-", indicatorMonthMax, ", ")
@@ -528,6 +517,21 @@ for (i in 1:nrow(indicators)) {
     labs(title = title , subtitle = subtitle) +
     geom_sf(aes(fill = SC_Class)) +
     scale_fill_manual(name = "SC", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
+  
+  ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
+  
+  # Accuracy Confidence Class map (ACC)
+  title <- paste0("Eutrophication Accuracy Class Confidence ", indicatorYearMin, "-", indicatorYearMax)
+  subtitle <- paste0(indicatorName, " (", indicatorCode, ")", "\n")
+  subtitle <- paste0(subtitle, "Months: ", indicatorMonthMin, "-", indicatorMonthMax, ", ")
+  subtitle <- paste0(subtitle, "Depths: ", indicatorDepthMin, "-", indicatorDepthMax, ", ")
+  subtitle <- paste0(subtitle, "Metric: ", indicatorMetric)
+  fileName <- gsub(":", "", paste0("Assessment_Indicator_Map_", indicatorCode, "_ACC", ".png"))
+  
+  ggplot(wk) +
+    labs(title = title , subtitle = subtitle) +
+    geom_sf(aes(fill = ACC_Class)) +
+    scale_fill_manual(name = "ACC", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
   
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
   
