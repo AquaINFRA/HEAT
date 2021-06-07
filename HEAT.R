@@ -421,8 +421,27 @@ wk9[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
                            ifelse(EQRS >= 0.6, "Good",
                                   ifelse(EQRS >= 0.4, "Moderate",
                                          ifelse(EQRS >= 0.2, "Poor","Bad"))))]
+wk9[, EQRS_1_Class := ifelse(EQRS_1 >= 0.8, "High",
+                           ifelse(EQRS_1 >= 0.6, "Good",
+                                  ifelse(EQRS_1 >= 0.4, "Moderate",
+                                         ifelse(EQRS_1 >= 0.2, "Poor","Bad"))))]
+wk9[, EQRS_2_Class := ifelse(EQRS_2 >= 0.8, "High",
+                           ifelse(EQRS_2 >= 0.6, "Good",
+                                  ifelse(EQRS_2 >= 0.4, "Moderate",
+                                         ifelse(EQRS_2 >= 0.2, "Poor","Bad"))))]
+wk9[, EQRS_3_Class := ifelse(EQRS_3 >= 0.8, "High",
+                           ifelse(EQRS_3 >= 0.6, "Good",
+                                  ifelse(EQRS_3 >= 0.4, "Moderate",
+                                         ifelse(EQRS_3 >= 0.2, "Poor","Bad"))))]
+
 wk9[, C_Class := ifelse(C >= 75, "High",
                         ifelse(C >= 50, "Moderate", "Low"))]
+wk9[, C_1_Class := ifelse(C_1 >= 75, "High",
+                        ifelse(C_1 >= 50, "Moderate", "Low"))]
+wk9[, C_2_Class := ifelse(C_2 >= 75, "High",
+                        ifelse(C_2 >= 50, "Moderate", "Low"))]
+wk9[, C_3_Class := ifelse(C_3 >= 75, "High",
+                        ifelse(C_3 >= 50, "Moderate", "Low"))]
 
 # Write results
 fwrite(wk3, file = file.path(outputPath, "Annual_Indicator.csv"))
@@ -444,21 +463,55 @@ C_Class_labels <- c(">= 75 % (High)", "50 - 74 % (Moderate)", "< 50 % (Low)")
 # Assessment map Status + Confidence
 wk <- merge(units, wk9, all.x = TRUE)
 
-# Status map
+# Status maps
 ggplot(wk) +
   ggtitle(label = paste0("Eutrophication Status ", assessmentPeriod)) +
   geom_sf(aes(fill = EQRS_Class)) +
   scale_fill_manual(name = "EQRS", values = EQRS_Class_colors, limits = EQRS_Class_limits, labels = EQRS_Class_labels)
-
 ggsave(file.path(outputPath, "Assessment_Map_EQRS.png"), width = 12, height = 9, dpi = 300)
 
-# Confidence map
+ggplot(wk) +
+  ggtitle(label = paste0("Eutrophication Status ", assessmentPeriod)) +
+  geom_sf(aes(fill = EQRS_1_Class)) +
+  scale_fill_manual(name = "EQRS_1", values = EQRS_Class_colors, limits = EQRS_Class_limits, labels = EQRS_Class_labels)
+ggsave(file.path(outputPath, "Assessment_Map_EQRS_1.png"), width = 12, height = 9, dpi = 300)
+
+ggplot(wk) +
+  ggtitle(label = paste0("Eutrophication Status ", assessmentPeriod)) +
+  geom_sf(aes(fill = EQRS_2_Class)) +
+  scale_fill_manual(name = "EQRS_2", values = EQRS_Class_colors, limits = EQRS_Class_limits, labels = EQRS_Class_labels)
+ggsave(file.path(outputPath, "Assessment_Map_EQRS_2.png"), width = 12, height = 9, dpi = 300)
+
+ggplot(wk) +
+  ggtitle(label = paste0("Eutrophication Status ", assessmentPeriod)) +
+  geom_sf(aes(fill = EQRS_3_Class)) +
+  scale_fill_manual(name = "EQRS_3", values = EQRS_Class_colors, limits = EQRS_Class_limits, labels = EQRS_Class_labels)
+ggsave(file.path(outputPath, "Assessment_Map_EQRS_3.png"), width = 12, height = 9, dpi = 300)
+
+# Confidence maps
 ggplot(wk) +
   ggtitle(label = paste0("Eutrophication Confidence ", assessmentPeriod)) +
   geom_sf(aes(fill = C_Class)) +
   scale_fill_manual(name = "C", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
-
 ggsave(file.path(outputPath, "Assessment_Map_C.png"), width = 12, height = 9, dpi = 300)
+
+ggplot(wk) +
+  ggtitle(label = paste0("Eutrophication Confidence ", assessmentPeriod)) +
+  geom_sf(aes(fill = C_1_Class)) +
+  scale_fill_manual(name = "C_1", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
+ggsave(file.path(outputPath, "Assessment_Map_C_1.png"), width = 12, height = 9, dpi = 300)
+
+ggplot(wk) +
+  ggtitle(label = paste0("Eutrophication Confidence ", assessmentPeriod)) +
+  geom_sf(aes(fill = C_2_Class)) +
+  scale_fill_manual(name = "C_2", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
+ggsave(file.path(outputPath, "Assessment_Map_C_2.png"), width = 12, height = 9, dpi = 300)
+
+ggplot(wk) +
+  ggtitle(label = paste0("Eutrophication Confidence ", assessmentPeriod)) +
+  geom_sf(aes(fill = C_3_Class)) +
+  scale_fill_manual(name = "C_3", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
+ggsave(file.path(outputPath, "Assessment_Map_C_3.png"), width = 12, height = 9, dpi = 300)
 
 # Create Assessment Indicator maps
 for (i in 1:nrow(indicators)) {
