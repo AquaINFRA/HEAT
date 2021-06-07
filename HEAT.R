@@ -430,13 +430,16 @@ fwrite(wk5, file = file.path(outputPath, "Assessment_Indicator.csv"))
 fwrite(wk9, file = file.path(outputPath, "Assessment.csv"))
 
 # Create plots
-EQRS_Class_colors <- c("#3BB300", "#99FF66", "#FFCABF", "#FF8066", "#FF0000")
+#EQRS_Class_colors <- c("#3BB300", "#99FF66", "#FFCABF", "#FF8066", "#FF0000")
+EQRS_Class_colors <- c(rgb(119,184,143,max=255), rgb(186,215,194,max=255), rgb(235,205,197,max=255), rgb(216,161,151,max=255), rgb(199,122,112,max=255))
 EQRS_Class_limits <- c("High", "Good", "Moderate", "Poor", "Bad")
 EQRS_Class_labels <- c(">= 0.8 - 1.0 (High)", ">= 0.6 - 0.8 (Good)", ">= 0.4 - 0.6 (Moderate)", ">= 0.2 - 0.4 (Poor)", ">= 0.0 - 0.2 (Bad)")
 
-C_Class_colors <- c("#3BB300", "#FFCABF", "#FF0000")
+#C_Class_colors <- c("#3BB300", "#FFCABF", "#FF0000")
+C_Class_colors <- c(rgb(252,231,218,max=255), rgb(245,183,142,max=255), rgb(204,100,23,max=255))
 C_Class_limits <- c("High", "Moderate", "Low")
 C_Class_labels <- c(">= 75 % (High)", "50 - 74 % (Moderate)", "< 50 % (Low)")
+
 
 # Assessment map Status + Confidence
 wk <- merge(units, wk9, all.x = TRUE)
