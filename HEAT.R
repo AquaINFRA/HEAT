@@ -133,18 +133,8 @@ c <- merge(unitGridSize[GridSize == 60000], gridunits60 %>% select(UnitID, GridI
 gridunits <- st_as_sf(rbindlist(list(a,b,c)))
 rm(a,b,c)
 
-# Plot
-#ggplot() + geom_sf(data = units) + coord_sf()
-#ggplot() + geom_sf(data = gridunits10) + coord_sf()
-#ggplot() + geom_sf(data = gridunits30) + coord_sf()
-#ggplot() + geom_sf(data = gridunits) + coord_sf()
-
 # Read stationSamples ----------------------------------------------------------
 stationSamples <- fread(input = stationSamplesICEFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-
-# !!! We could separate stations from samples here, do the spatial and then rejoin samples again ... migth be more rubust
-#stationSamples[, StationID := .GRP, by = .(Cruise, StationNumber, Year, Month, Day, Hour, Minute, Latitude..degrees_north., Longitude..degrees_east.)]
-#stationSamples[, .N, .(ID, Cruise, StationNumber, Year, Month, Day, Hour, Minute, Latitude..degrees_north., Longitude..degrees_east.)]
 
 # Make stations spatial keeping original latitude/longitude
 stationSamples <- st_as_sf(stationSamples, coords = c("Longitude..degrees_east.", "Latitude..degrees_north."), remove = FALSE, crs = 4326)
@@ -152,16 +142,13 @@ stationSamples <- st_as_sf(stationSamples, coords = c("Longitude..degrees_east."
 # Transform projection into ETRS_1989_LAEA
 stationSamples <- st_transform(stationSamples, crs = 3035)
 
-# Classify stations into assessment units
-#stationSamples$UnitID <- st_intersects(stationSamples, units) %>% as.numeric()
-
 # Classify stations into 10 and 30k gridunits
-#stationSamples <- st_join(stationSamples, gridunits10 %>% select(GridID.10k = GridID, Area.10k = Area), join = st_intersects)
-#stationSamples <- st_join(stationSamples, gridunits30 %>% select(GridID.30k = GridID, Area.30k = Area), join = st_intersects)
 stationSamples <- st_join(stationSamples, st_cast(gridunits), join = st_intersects)
 
 # Remove spatial column
 stationSamples <- st_set_geometry(stationSamples, NULL)
+
+stationSamples <- as.data.table(stationSamples)
 
 # Read indicator configs -------------------------------------------------------
 indicators <- fread(input = indicatorsFile) %>% setkey(IndicatorID) 
