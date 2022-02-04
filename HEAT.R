@@ -5,16 +5,16 @@ ipak <- function(pkg){
     install.packages(new.pkg, dependencies = TRUE)
   sapply(pkg, require, character.only = TRUE)
 }
-packages <- c("sf", "data.table", "tidyverse", "ggplot2", "ggmap", "mapview")
+packages <- c("sf", "data.table", "tidyverse", "readxl", "ggplot2", "ggmap", "mapview", "httr")
 ipak(packages)
 
-# Define paths
-inputPath <- "Input"
-outputPath <- "Output"
+# Define assessment period i.e. uncomment the period you want to run the assessment for!
+#assessmentPeriod <- "2011-2016" # HOLAS II
+assessmentPeriod <- "2016-2021" # HOLAS III
 
-# Define assessment period - Uncomment the period you want to run the assessment for!
-assessmentPeriod <- "2011-2016"
-#assessmentPeriod <- "2016-2021"
+# Define paths
+inputPath <- file.path("Input", assessmentPeriod)
+outputPath <- file.path("Output", assessmentPeriod)
 
 # Create paths
 dir.create(inputPath, showWarnings = FALSE, recursive = TRUE)
@@ -31,31 +31,33 @@ download.file.unzip.maybe <- function(url, refetch = FALSE, path = ".") {
   }
 }
 
+urls <- c()
+unitsFile <- file.path(inputPath, "")
+configurationFile <- file.path(inputPath, "")
+stationSamplesBOTFile <- file.path(inputPath, "")
+stationSamplesCTDFile <- file.path(inputPath, "")
+
 if (assessmentPeriod == "2011-2016"){
-  # Assessment Period 2011-2016
-  urls <- c("https://www.dropbox.com/s/poruz8srxfqiflm/AssessmentUnits.zip?dl=1",
-          "https://www.dropbox.com/s/05mjl0haig72wrj/Indicators.csv?dl=1",
-          "https://www.dropbox.com/s/uikixp822dq3u92/IndicatorUnits.csv?dl=1",
-          "https://www.dropbox.com/s/lbo4d24lauyz6gn/UnitGridSize.csv?dl=1",
-          "https://www.dropbox.com/s/xqlqhypxbz7mm0c/StationSamplesICE.txt.gz?dl=1",
-          "https://www.dropbox.com/s/66rkujevbkvic2q/StationSamplesCTD.txt.gz?dl=1")
-} else {
-  # Assessment Period 2016-2021
-  urls <- c("https://www.dropbox.com/s/4jbqffm2nstma9v/AssessmentUnits.zip?dl=1",
-            "https://www.dropbox.com/s/s5pzd8cvksfffgn/Indicators.csv?dl=1",
-            "https://www.dropbox.com/s/28wr662sz6jxjox/IndicatorUnits.csv?dl=1",
-            "https://www.dropbox.com/s/cs4boo7247p6e13/UnitGridSize.csv?dl=1",
-            "https://www.dropbox.com/s/vp04vrl2gk5vxx1/StationSamplesICE.txt.gz?dl=1",
-            "https://www.dropbox.com/s/89i1w79lmlab425/StationSamplesCTD.txt.gz?dl=1")
+  urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
+            "https://www.dropbox.com/s/nzcllbb1vf7plvq/Configuration2011-2016.xlsx?dl=1",
+            "https://www.dropbox.com/s/3eqvdr9b95oo4iw/StationSamplesBOT2011-2016.txt.gz?dl=1",
+            "https://www.dropbox.com/s/ttccw0dc2yfj6ar/StationSamplesCTD2011-2016.txt.gz?dl=1")
+  unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
+  configurationFile <- file.path(inputPath, "Configuration2011-2016.xlsx")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamplesBOT2011-2016.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamplesCTD2011-2016.txt.gz")
+} else if (assessmentPeriod == "2016-2021") {
+  urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
+            "https://www.dropbox.com/s/0gzg3om1lblmqcf/Configuration2016-2021.xlsx?dl=1",
+            "https://www.dropbox.com/s/i20493v350ciwht/StationSamplesBOT2016-2021.txt.gz?dl=1",
+            "https://www.dropbox.com/s/qjxe31g5cog75ue/StationSamplesCTD2016-2021.txt.gz?dl=1")
+  unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
+  configurationFile <- file.path(inputPath, "Configuration2016-2021.xlsx")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamplesBOT2016-2021.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamplesCTD2016-2021.txt.gz")
 }
 
 files <- sapply(urls, download.file.unzip.maybe, path = inputPath)
-
-unitsFile <- file.path(inputPath, paste0("AssessmentUnits.shp"))
-indicatorsFile <- file.path(inputPath, "Indicators.csv")
-indicatorUnitsFile <- file.path(inputPath, "IndicatorUnits.csv")
-unitGridSizeFile <- file.path(inputPath, "UnitGridSize.csv")
-stationSamplesICEFile <- file.path(inputPath, "StationSamplesICE.txt.gz")
 
 # Assessment Units + Grid Units-------------------------------------------------
 
@@ -125,7 +127,7 @@ gridunits10 <- make.gridunits(units, 10000)
 gridunits30 <- make.gridunits(units, 30000)
 gridunits60 <- make.gridunits(units, 60000)
 
-unitGridSize <-  fread(input = unitGridSizeFile) %>% setkey(UnitID)
+unitGridSize <- as.data.table(read_excel(configurationFile, sheet = "UnitGridSize")) %>% setkey(UnitID)
 
 a <- merge(unitGridSize[GridSize == 10000], gridunits10 %>% select(UnitID, GridID, GridArea = Area))
 b <- merge(unitGridSize[GridSize == 30000], gridunits30 %>% select(UnitID, GridID, GridArea = Area))
@@ -133,28 +135,49 @@ c <- merge(unitGridSize[GridSize == 60000], gridunits60 %>% select(UnitID, GridI
 gridunits <- st_as_sf(rbindlist(list(a,b,c)))
 rm(a,b,c)
 
-# Read stationSamples ----------------------------------------------------------
-stationSamples <- fread(input = stationSamplesICEFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+gridunits <- st_cast(gridunits)
+
+st_write(gridunits, file.path(outputPath, "gridunits.shp"), delete_layer = TRUE)
+
+# Plot
+ggplot() + geom_sf(data = units) + coord_sf()
+ggsave(file.path(outputPath, "Assessment_Units.png"), width = 12, height = 9, dpi = 300)
+ggplot() + geom_sf(data = gridunits10) + coord_sf()
+ggsave(file.path(outputPath, "Assessment_GridUnits10.png"), width = 12, height = 9, dpi = 300)
+ggplot() + geom_sf(data = gridunits30) + coord_sf()
+ggsave(file.path(outputPath, "Assessment_GridUnits30.png"), width = 12, height = 9, dpi = 300)
+ggplot() + geom_sf(data = gridunits60) + coord_sf()
+ggsave(file.path(outputPath, "Assessment_GridUnits60.png"), width = 12, height = 9, dpi = 300)
+ggplot() + geom_sf(data = st_cast(gridunits)) + coord_sf()
+ggsave(file.path(outputPath, "Assessment_GridUnits.png"), width = 12, height = 9, dpi = 300)
+
+# Read station samples ---------------------------------------------------------
+stationSamples <- fread(input = stationSamplesBOTFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+
+# Classify station samples into grid units -------------------------------------
+
+# Extract unique stations i.e. longitude/latitude pairs
+stations <- unique(stationSamples[, .(Longitude..degrees_east., Latitude..degrees_north.)])
 
 # Make stations spatial keeping original latitude/longitude
-stationSamples <- st_as_sf(stationSamples, coords = c("Longitude..degrees_east.", "Latitude..degrees_north."), remove = FALSE, crs = 4326)
+stations <- st_as_sf(stations, coords = c("Longitude..degrees_east.", "Latitude..degrees_north."), remove = FALSE, crs = 4326)
 
 # Transform projection into ETRS_1989_LAEA
-stationSamples <- st_transform(stationSamples, crs = 3035)
+stations <- st_transform(stations, crs = 3035)
 
-# Classify stations into 10 and 30k gridunits
-stationSamples <- st_join(stationSamples, st_cast(gridunits), join = st_intersects)
+# Classify stations into grid units
+stations <- st_join(stations, st_cast(gridunits), join = st_intersects)
 
 # Remove spatial column
-stationSamples <- st_set_geometry(stationSamples, NULL)
+stations <- st_set_geometry(stations, NULL)
 
-stationSamples <- as.data.table(stationSamples)
+# Merge stations back into station samples
+stationSamples <- as.data.table(stations)[stationSamples, on = .(Longitude..degrees_east., Latitude..degrees_north.)]
 
 # Read indicator configs -------------------------------------------------------
-indicators <- fread(input = indicatorsFile) %>% setkey(IndicatorID) 
-indicatorUnits <- fread(input = indicatorUnitsFile) %>% setkey(IndicatorID, UnitID)
+indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators")) %>% setkey(IndicatorID)
+indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits")) %>% setkey(IndicatorID, UnitID)
 
-wk1list = list()
 wk2list = list()
 
 # Loop indicators --------------------------------------------------------------
@@ -187,29 +210,20 @@ for(i in 1:nrow(indicators)){
         sum(x, na.rm = TRUE)
       }
     })
-  }
-  else if (name == 'Dissolved Inorganic Phosphorus') {
+  } else if (name == 'Dissolved Inorganic Phosphorus') {
     wk[,ES := Phosphate..umol.l.]
-  }
-  else if (name == 'Chlorophyll a') {
+  } else if (name == 'Chlorophyll a') {
     wk[, ES := Chlorophyll.a..ug.l.]
-  }
-  else if (name == 'Secchi Depth') {
-    wk[, ES := Secchi..m..METAVAR.DOUBLE]
-  }
-  else if (name == "Total Nitrogen") {
+  } else if (name == "Total Nitrogen") {
     wk[, ES := Total.Nitrogen..umol.l.]
-  }
-  else if (name == "Total Phosphorus") {
+  } else if (name == "Total Phosphorus") {
     wk[, ES := Total.Phosphorus..umol.l.]
-  }
-  else {
+  } else if (name == 'Secchi Depth') {
+    wk[, ES := Secchi..m..METAVAR.DOUBLE]
+  } else {
     next
   }
-  
-  # Add unit grid size
-  wk <- wk[unitGridSize, on="UnitID", nomatch=0]
-  
+
   # Filter stations rows and columns --> UnitID, GridID, GridArea, Period, Month, StationID, Depth, Temperature, Salinity, ES
   if (month.min > month.max) {
     wk0 <- wk[
@@ -234,17 +248,42 @@ for(i in 1:nrow(indicators)){
   
   # Calculate annual mean --> UnitID, Period, ES, SD, N, NM
   wk2 <- wk1[, .(ES = mean(ES), SD = sd(ES), N = .N, NM = uniqueN(Month)), keyby = .(IndicatorID, UnitID, Period)]
+  
+  # Calculate grid area --> UnitID, Period, ES, SD, N, NM, GridArea
+  a <- wk1[, .N, keyby = .(IndicatorID, UnitID, Period, GridID, GridArea)] # UnitGrids
+  b <- a[, .(GridArea = sum(as.numeric(GridArea))), keyby = .(IndicatorID, UnitID, Period)] #GridAreas
+  wk2 <- merge(wk2, b, by = c("IndicatorID", "UnitID", "Period"), all.x = TRUE)
+  rm(a,b)
 
-  wk1list[[i]] <- wk1
   wk2list[[i]] <- wk2
 }
 
-# Combine station and annual indicator results
-wk1 <- rbindlist(wk1list)
+# Combine annual indicator results
 wk2 <- rbindlist(wk2list)
+
+# ------------------------------------------------------------------------------
 
 # Combine with indicator and indicator unit configuration tables
 wk3 <- indicators[indicatorUnits[wk2]]
+
+# Calculate General Temporal Confidence (GTC) - Confidence in number of annual observations
+wk3[, GTC := ifelse(N > GTC_HM, 100, ifelse(N < GTC_ML, 0, 50))]
+
+# Calculate Number of Months Potential
+wk3[, NMP := ifelse(MonthMin > MonthMax, 12 - MonthMin + 1 + MonthMax, MonthMax - MonthMin + 1)]
+
+# Calculate Specific Temporal Confidence (STC) - Confidence in number of annual missing months
+wk3[, STC := ifelse(NMP - NM <= STC_HM, 100, ifelse(NMP - NM >= STC_ML, 0, 50))]
+
+# Calculate General Spatial Confidence (GSC) - Confidence in number of annual observations per number of grids
+#wk3 <- wk3[as.data.table(gridunits)[, .(NG = as.numeric(sum(GridArea) / mean(GridSize^2))), .(UnitID)], on = .(UnitID = UnitID), nomatch=0]
+#wk3[, GSC := ifelse(N / NG > GSC_HM, 100, ifelse(N / NG < GSC_ML, 0, 50))]
+
+# Calculate Specific Spatial Confidence (SSC) - Confidence in area of sampled grid units as a percentage to the total unit area
+wk3 <- merge(wk3, as.data.table(units)[, .(UnitArea = as.numeric(UnitArea)), keyby = .(UnitID)], by = c("UnitID"), all.x = TRUE)
+wk3[, SSC := ifelse(GridArea / UnitArea * 100 > SSC_HM, 100, ifelse(GridArea / UnitArea * 100 < SSC_ML, 0, 50))]
+
+# ------------------------------------------------------------------------------
 
 # Standard Error
 wk3[, SE := SD / sqrt(N)]
@@ -279,25 +318,7 @@ wk3[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
                                   ifelse(EQRS >= 0.4, "Moderate",
                                          ifelse(EQRS >= 0.2, "Poor","Bad"))))]
 
-# Calculate General Temporal Confidence (GTC) - Confidence in number of annual observations
-wk3[, GTC := ifelse(N > GTC_HM, 100, ifelse(N < GTC_ML, 0, 50))]
-
-# Calculate Number of Months Potential
-wk3[, NMP := ifelse(MonthMin > MonthMax, 12 - MonthMin + 1 + MonthMax, MonthMax - MonthMin + 1)]
-
-# Calculate Specific Temporal Confidence (STC) - Confidence in number of annual missing months
-wk3[, STC := ifelse(NMP - NM <= STC_HM, 100, ifelse(NMP - NM >= STC_ML, 0, 50))]
-
-# Calculate General Spatial Confidence (GSC) - Confidence in number of annual observations per number of grids 
-
-# Calculate Specific Spatial Confidence (SSC) - Confidence in area of sampled grid units as a percentage to the total unit area
-a <- wk1[, .N, keyby = .(IndicatorID, UnitID, Period, GridID, GridArea)] # UnitGrids
-b <- a[, .(GridArea = sum(as.numeric(GridArea))), keyby = .(IndicatorID, UnitID, Period)] #GridAreas
-c <- as.data.table(units)[, .(UnitArea = as.numeric(UnitArea)), keyby = .(UnitID)] # UnitAreas
-d <- c[b, on = .(UnitID = UnitID)] # UnitAreas ~ GridAreas
-wk3 <- wk3[d[,.(IndicatorID, UnitID, Period, UnitArea, GridArea)], on = .(IndicatorID = IndicatorID, UnitID = UnitID, Period = Period)]
-wk3[, SSC := ifelse(GridArea / UnitArea * 100 > SSC_HM, 100, ifelse(GridArea / UnitArea * 100 < SSC_ML, 0, 50))]
-rm(a,b,c,d)
+# ------------------------------------------------------------------------------
 
 # Calculate assessment ES --> UnitID, Period, ES, SD, N, N_OBS, GTC, STC, SSC
 wk4 <- wk3[, .(Period = min(Period) * 10000 + max(Period), ES = mean(ES), SD = sd(ES), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
@@ -446,7 +467,6 @@ C_Class_colors <- c(rgb(252,231,218,max=255), rgb(245,183,142,max=255), rgb(204,
 C_Class_limits <- c("High", "Moderate", "Low")
 C_Class_labels <- c(">= 75 % (High)", "50 - 74 % (Moderate)", "< 50 % (Low)")
 
-
 # Assessment map Status + Confidence
 wk <- merge(units, wk9, all.x = TRUE)
 
@@ -530,7 +550,6 @@ for (i in 1:nrow(indicators)) {
     labs(title = title , subtitle = subtitle) +
     geom_sf(aes(fill = EQRS_Class)) +
     scale_fill_manual(name = "EQRS", values = EQRS_Class_colors, limits = EQRS_Class_limits, labels = EQRS_Class_labels)
-  
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
 
   # Temporal Confidence map (TC)
@@ -545,7 +564,6 @@ for (i in 1:nrow(indicators)) {
     labs(title = title , subtitle = subtitle) +
     geom_sf(aes(fill = TC_Class)) +
     scale_fill_manual(name = "TC", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
-  
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
   
   # Spatial Confidence map (SC)
@@ -560,7 +578,6 @@ for (i in 1:nrow(indicators)) {
     labs(title = title , subtitle = subtitle) +
     geom_sf(aes(fill = SC_Class)) +
     scale_fill_manual(name = "SC", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
-  
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
   
   # Accuracy Confidence Class map (ACC)
@@ -575,7 +592,6 @@ for (i in 1:nrow(indicators)) {
     labs(title = title , subtitle = subtitle) +
     geom_sf(aes(fill = ACC_Class)) +
     scale_fill_manual(name = "ACC", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
-  
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
   
   # Confidence map (C)
@@ -590,7 +606,6 @@ for (i in 1:nrow(indicators)) {
     labs(title = title , subtitle = subtitle) +
     geom_sf(aes(fill = C_Class)) +
     scale_fill_manual(name = "C", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
-  
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
 }
 
@@ -637,3 +652,4 @@ for (i in 1:nrow(indicators)) {
     }
   }
 }
+
