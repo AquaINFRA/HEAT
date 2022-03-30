@@ -9,8 +9,8 @@ packages <- c("sf", "data.table", "tidyverse", "readxl", "ggplot2", "ggmap", "ma
 ipak(packages)
 
 # Define assessment period i.e. uncomment the period you want to run the assessment for!
-#assessmentPeriod <- "2011-2016" # HOLAS II
-assessmentPeriod <- "2016-2021" # HOLAS III
+assessmentPeriod <- "2011-2016" # HOLAS II
+#assessmentPeriod <- "2016-2021" # HOLAS III
 
 # Define paths
 inputPath <- file.path("Input", assessmentPeriod)
@@ -48,7 +48,7 @@ if (assessmentPeriod == "2011-2016"){
   stationSamplesCTDFile <- file.path(inputPath, "StationSamplesCTD2011-2016.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
   urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
-            "https://www.dropbox.com/s/0gzg3om1lblmqcf/Configuration2016-2021.xlsx?dl=1",
+            "https://www.dropbox.com/s/tp5yh0v92faica2/Configuration2016-2021.xlsx?dl=1",
             "https://www.dropbox.com/s/i20493v350ciwht/StationSamplesBOT2016-2021.txt.gz?dl=1",
             "https://www.dropbox.com/s/qjxe31g5cog75ue/StationSamplesCTD2016-2021.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
@@ -137,7 +137,7 @@ rm(a,b,c)
 
 gridunits <- st_cast(gridunits)
 
-st_write(gridunits, file.path(outputPath, "gridunits.shp"), delete_layer = TRUE)
+#st_write(gridunits, file.path(outputPath, "gridunits.shp"), delete_layer = TRUE)
 
 # Plot
 ggplot() + geom_sf(data = units) + coord_sf()
@@ -166,7 +166,7 @@ stations <- st_as_sf(stations, coords = c("Longitude..degrees_east.", "Latitude.
 stations <- st_transform(stations, crs = 3035)
 
 # Classify stations into grid units
-stations <- st_join(stations, st_cast(gridunits), join = st_intersects)
+stations <- st_join(stations, gridunits, join = st_intersects)
 
 # Remove spatial column
 stations <- st_set_geometry(stations, NULL)
@@ -177,6 +177,7 @@ stationSamples <- as.data.table(stations)[stationSamples, on = .(Longitude..degr
 # Read indicator configs -------------------------------------------------------
 indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators")) %>% setkey(IndicatorID)
 indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits")) %>% setkey(IndicatorID, UnitID)
+indicatorUnitResults <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnitResults")) %>% setkey(IndicatorID, UnitID, Period)
 
 wk2list = list()
 
@@ -212,7 +213,7 @@ for(i in 1:nrow(indicators)){
     })
   } else if (name == 'Dissolved Inorganic Phosphorus') {
     wk[,ES := Phosphate..umol.l.]
-  } else if (name == 'Chlorophyll a') {
+  } else if (name == 'Chlorophyll a (In-Situ)') {
     wk[, ES := Chlorophyll.a..ug.l.]
   } else if (name == "Total Nitrogen") {
     wk[, ES := Total.Nitrogen..umol.l.]
@@ -263,6 +264,21 @@ wk2 <- rbindlist(wk2list)
 
 # ------------------------------------------------------------------------------
 
+# Combine with indicator results reported
+wk2 <- rbindlist(list(wk2, indicatorUnitResults), fill = TRUE)
+
+# Calculate and add combined annual Chlorophyll a (In-Situ/EO/FB) indicator
+wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = mean(ES), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
+wk2 <- rbindlist(list(wk2, wk2_CPHL), fill = TRUE)
+
+# Calculate and add combined annual Cyanobacteria Bloom Index (BM/CSA) indicator
+wk2_CBI <- wk2[IndicatorID %in% c(601, 602), .(IndicatorID = 6, ES = mean(ES), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
+wk2 <- rbindlist(list(wk2, wk2_CBI), fill = TRUE)
+
+setkey(wk2, IndicatorID, UnitID, Period)
+
+# ------------------------------------------------------------------------------
+
 # Combine with indicator and indicator unit configuration tables
 wk3 <- indicators[indicatorUnits[wk2]]
 
@@ -297,17 +313,17 @@ wk3[, ER := ifelse(Response == 1, ES / ET, ET / ES)]
 # Calculate (BEST)
 wk3[, BEST := ifelse(Response == 1, ET / (1 + ACDEV / 100), ET / (1 - ACDEV / 100))]
 
-# Calculate Ecological Quality Ratio (ERQ)
-wk3[, EQR := ifelse(Response == 1, ifelse(BEST > ES, 1, BEST / ES), ifelse(ES > BEST, 1, ES / BEST))]
+# Calculate Ecological Quality Ratio (EQR)
+wk3[is.na(EQR), EQR := ifelse(Response == 1, ifelse(BEST > ES, 1, BEST / ES), ifelse(ES > BEST, 1, ES / BEST))]
 
 # Calculate Ecological Quality Ratio Boundaries (ERQ_HG/GM/MP/PB)
-wk3[, EQR_GM := ifelse(Response == 1, 1 / (1 + ACDEV / 100), 1 - ACDEV / 100)]
-wk3[, EQR_HG := 0.5 * 0.95 + 0.5 * EQR_GM]
-wk3[, EQR_PB := 2 * EQR_GM - 0.95]
-wk3[, EQR_MP := 0.5 * EQR_GM + 0.5 * EQR_PB]
+wk3[is.na(EQR_GM), EQR_GM := ifelse(Response == 1, 1 / (1 + ACDEV / 100), 1 - ACDEV / 100)]
+wk3[is.na(EQR_HG), EQR_HG := 0.5 * 0.95 + 0.5 * EQR_GM]
+wk3[is.na(EQR_PB), EQR_PB := 2 * EQR_GM - 0.95]
+wk3[is.na(EQR_MP), EQR_MP := 0.5 * EQR_GM + 0.5 * EQR_PB]
 
 # Calculate Ecological Quality Ratio Scaled (EQRS)
-wk3[, EQRS := ifelse(EQR <= EQR_PB, (EQR - 0) * (0.2 - 0) / (EQR_PB - 0) + 0,
+wk3[is.na(EQRS), EQRS := ifelse(EQR <= EQR_PB, (EQR - 0) * (0.2 - 0) / (EQR_PB - 0) + 0,
                      ifelse(EQR <= EQR_MP, (EQR - EQR_PB) * (0.4 - 0.2) / (EQR_MP - EQR_PB) + 0.2,
                             ifelse(EQR <= EQR_GM, (EQR - EQR_MP) * (0.6 - 0.4) / (EQR_GM - EQR_MP) + 0.4,
                                    ifelse(EQR <= EQR_HG, (EQR - EQR_GM) * (0.8 - 0.6) / (EQR_HG - EQR_GM) + 0.6,
@@ -320,8 +336,13 @@ wk3[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
 
 # ------------------------------------------------------------------------------
 
-# Calculate assessment ES --> UnitID, Period, ES, SD, N, N_OBS, GTC, STC, SSC
-wk4 <- wk3[, .(Period = min(Period) * 10000 + max(Period), ES = mean(ES), SD = sd(ES), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
+# Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
+wk4 <- wk3[, .(Period = ifelse(min(Period) > 9999, min(Period), min(Period) * 10000 + max(Period)), ES = mean(ES), SD = sd(ES), ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
+
+wk4[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
+                           ifelse(EQRS >= 0.6, "Good",
+                                  ifelse(EQRS >= 0.4, "Moderate",
+                                         ifelse(EQRS >= 0.2, "Poor","Bad"))))]
 
 # Add Year Count where STC = 100 --> NSTC100
 wk4 <- wk3[STC == 100, .(NSTC100 = .N), .(IndicatorID, UnitID)][wk4, on = .(IndicatorID, UnitID)]
@@ -332,9 +353,7 @@ wk4[, STC := ifelse(!is.na(NSTC100) & NSTC100 >= N/2, 100, STC)]
 # Combine with indicator and indicator unit configuration tables
 wk5 <- indicators[indicatorUnits[wk4]]
 
-#-------------------------------------------------------------------------------
-# Confidence Assessment
-# ------------------------------------------------------------------------------
+# Confidence Assessment---------------------------------------------------------
 
 # Calculate Temporal Confidence averaging General and Specific Temporal Confidence 
 wk5 <- wk5[, TC := (GTC + STC) / 2]
@@ -377,43 +396,13 @@ wk5 <- wk5[, C := (TC + SC + ACC) / 3]
 
 wk5[, C_Class := ifelse(C >= 75, "High", ifelse(C >= 50, "Moderate", "Low"))]
 
-# ------------------------------------------------------------------------------
-
-# Calculate Eutrophication Ratio (ER)
-wk5[, ER := ifelse(Response == 1, ES / ET, ET / ES)]
-
-# Calculate (BEST)
-wk5[, BEST := ifelse(Response == 1, ET / (1 + ACDEV / 100), ET / (1 - ACDEV / 100))]
-
-# Calculate Ecological Quality Ratio (ERQ)
-wk5[, EQR := ifelse(Response == 1, ifelse(BEST > ES, 1, BEST / ES), ifelse(ES > BEST, 1, ES / BEST))]
-
-# Calculate Ecological Quality Ratio Boundaries (ERQ_HG/GM/MP/PB)
-wk5[, EQR_GM := ifelse(Response == 1, 1 / (1 + ACDEV / 100), 1 - ACDEV / 100)]
-wk5[, EQR_HG := 0.5 * 0.95 + 0.5 * EQR_GM]
-wk5[, EQR_PB := 2 * EQR_GM - 0.95]
-wk5[, EQR_MP := 0.5 * EQR_GM + 0.5 * EQR_PB]
-
-# Calculate Ecological Quality Ratio Scaled (EQRS)
-wk5[, EQRS := ifelse(EQR <= EQR_PB, (EQR - 0) * (0.2 - 0) / (EQR_PB - 0) + 0,
-                     ifelse(EQR <= EQR_MP, (EQR - EQR_PB) * (0.4 - 0.2) / (EQR_MP - EQR_PB) + 0.2,
-                            ifelse(EQR <= EQR_GM, (EQR - EQR_MP) * (0.6 - 0.4) / (EQR_GM - EQR_MP) + 0.4,
-                                   ifelse(EQR <= EQR_HG, (EQR - EQR_GM) * (0.8 - 0.6) / (EQR_HG - EQR_GM) + 0.6,
-                                          (EQR - EQR_HG) * (1 - 0.8) / (1 - EQR_HG) + 0.8))))]
-
-# Assign Status and Confidence Classes
-wk5[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
-                           ifelse(EQRS >= 0.6, "Good",
-                                  ifelse(EQRS >= 0.4, "Moderate",
-                                         ifelse(EQRS >= 0.2, "Poor","Bad"))))]
-
 # Criteria ---------------------------------------------------------------------
 
 # Criteria result as a simple average of the indicators in each category per unit - CategoryID, UnitID, N, ER, EQR, EQRS, C
-wk6 <- wk5[!is.na(ER), .(.N, ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), C = mean(C)), .(CriteriaID, UnitID)]
+wk6 <- wk5[!is.na(CriteriaID) & !is.na(EQR), .(.N, ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), C = mean(C)), .(CriteriaID, UnitID)]
 
 # Criteria result as a weighted average of the indicators in each category per unit - CategoryID, UnitID, N, ER, EQR, EQRS, C
-#wk6 <- wk5[!is.na(ER), .(.N, ER = weighted.mean(ER, IW, na.rm = TRUE), EQR = weighted.mean(EQR, IW, na.rm = TRUE), EQRS = weighted.mean(EQRS, IW, na.rm = TRUE), C = weighted.mean(C, IW, na.rm = TRUE)), .(CriteriaID, UnitID)]
+#wk6 <- wk5[!is.na(CriteriaID) & !is.na(EQR), .(.N, ER = weighted.mean(ER, IW, na.rm = TRUE), EQR = weighted.mean(EQR, IW, na.rm = TRUE), EQRS = weighted.mean(EQRS, IW, na.rm = TRUE), C = weighted.mean(C, IW, na.rm = TRUE)), .(CriteriaID, UnitID)]
 
 wk7 <- dcast(wk6, UnitID ~ CriteriaID, value.var = c("N","ER","EQR","EQRS","C"))
 
@@ -457,12 +446,10 @@ fwrite(wk5, file = file.path(outputPath, "Assessment_Indicator.csv"))
 fwrite(wk9, file = file.path(outputPath, "Assessment.csv"))
 
 # Create plots
-#EQRS_Class_colors <- c("#3BB300", "#99FF66", "#FFCABF", "#FF8066", "#FF0000")
 EQRS_Class_colors <- c(rgb(119,184,143,max=255), rgb(186,215,194,max=255), rgb(235,205,197,max=255), rgb(216,161,151,max=255), rgb(199,122,112,max=255))
 EQRS_Class_limits <- c("High", "Good", "Moderate", "Poor", "Bad")
 EQRS_Class_labels <- c(">= 0.8 - 1.0 (High)", ">= 0.6 - 0.8 (Good)", ">= 0.4 - 0.6 (Moderate)", ">= 0.2 - 0.4 (Poor)", ">= 0.0 - 0.2 (Bad)")
 
-#C_Class_colors <- c("#3BB300", "#FFCABF", "#FF0000")
 C_Class_colors <- c(rgb(252,231,218,max=255), rgb(245,183,142,max=255), rgb(204,100,23,max=255))
 C_Class_limits <- c("High", "Moderate", "Low")
 C_Class_labels <- c(">= 75 % (High)", "50 - 74 % (Moderate)", "< 50 % (Low)")
