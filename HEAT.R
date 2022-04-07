@@ -9,8 +9,8 @@ packages <- c("sf", "data.table", "tidyverse", "readxl", "ggplot2", "ggmap", "ma
 ipak(packages)
 
 # Define assessment period i.e. uncomment the period you want to run the assessment for!
-assessmentPeriod <- "2011-2016" # HOLAS II
-#assessmentPeriod <- "2016-2021" # HOLAS III
+#assessmentPeriod <- "2011-2016" # HOLAS II
+assessmentPeriod <- "2016-2021" # HOLAS III
 
 # Define paths
 inputPath <- file.path("Input", assessmentPeriod)
@@ -47,11 +47,11 @@ if (assessmentPeriod == "2011-2016"){
   stationSamplesBOTFile <- file.path(inputPath, "StationSamplesBOT2011-2016.txt.gz")
   stationSamplesCTDFile <- file.path(inputPath, "StationSamplesCTD2011-2016.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
-  urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
+  urls <- c("https://www.dropbox.com/s/8g3ue0v0qmnhqut/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro3.zip?dl=1",
             "https://www.dropbox.com/s/tp5yh0v92faica2/Configuration2016-2021.xlsx?dl=1",
             "https://www.dropbox.com/s/i20493v350ciwht/StationSamplesBOT2016-2021.txt.gz?dl=1",
             "https://www.dropbox.com/s/qjxe31g5cog75ue/StationSamplesCTD2016-2021.txt.gz?dl=1")
-  unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
+  unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration2016-2021.xlsx")
   stationSamplesBOTFile <- file.path(inputPath, "StationSamplesBOT2016-2021.txt.gz")
   stationSamplesCTDFile <- file.path(inputPath, "StationSamplesCTD2016-2021.txt.gz")
@@ -61,32 +61,55 @@ files <- sapply(urls, download.file.unzip.maybe, path = inputPath)
 
 # Assessment Units + Grid Units-------------------------------------------------
 
-# Read assessment unit from shape file
-units <- st_read(unitsFile)
+if (assessmentPeriod == "2011-2016") {
+  # Read assessment unit from shape file
+  units <- st_read(unitsFile)
+  
+  # Filter for open sea assessment units
+  units <- units[units$Code %like% 'SEA',]
+  
+  # Correct Description column name - temporary solution!
+  colnames(units)[2] <- "Description"
+  
+  # Correct Åland Sea ascii character - temporary solution!
+  units[14,2] <- 'Åland Sea'
+  
+  # Include stations from position 55.86667+-0.01667 12.75+-0.01667 which will include the Danish station KBH/DMU 431 and the Swedish station Wlandskrona into assessment unit 3/SEA-003
+  units[3,] <- st_union(units[3,],st_as_sfc("POLYGON((12.73333 55.85,12.73333 55.88334,12.76667 55.88334,12.76667 55.85,12.73333 55.85))", crs = 4326))
+  
+  # Assign IDs
+  units$UnitID = 1:nrow(units)
+  
+  # Transform projection into ETRS_1989_LAEA
+  units <- st_transform(units, crs = 3035)
+  
+  # Calculate area
+  units$UnitArea <- st_area(units)
+} else if (assessmentPeriod == "2016-2021") {
+  # Read assessment unit from shape file
+  units <- st_read(unitsFile)
+  
+  # Filter for open sea assessment units
+  units <- units[units$HELCOM_ID %like% 'SEA',]
+  
+  # Include stations from position 55.86667+-0.01667 12.75+-0.01667 which will include the Danish station KBH/DMU 431 and the Swedish station Wlandskrona into assessment unit 3/SEA-003
+  units[3,] <- st_union(units[3,],st_transform(st_as_sfc("POLYGON((12.73333 55.85,12.73333 55.88334,12.76667 55.88334,12.76667 55.85,12.73333 55.85))", crs = 4326), crs = 3035))
+  
+  # Order, Rename and Remove columns
+  units <- as.data.table(units)[order(HELCOM_ID), .(Code = HELCOM_ID, Description = Name, GEOM = geometry)] %>%
+    st_sf()
+  
+  # Assign IDs
+  units$UnitID = 1:nrow(units)
 
-# Filter for open sea assessment units
-units <- units[units$Code %like% 'SEA',]
-
-# Correct Description column name - temporary solution!
-colnames(units)[2] <- "Description"
-
-# Correct Åland Sea ascii character - temporary solution!
-units[14,2] <- 'Åland Sea'
-
-# Include stations from position 55.86667+-0.01667 12.75+-0.01667 which will include the Danish station KBH/DMU 431 and the Swedish station Wlandskrona into assessment unit 3/SEA-003
-units[3,] <- st_union(units[3,],st_as_sfc("POLYGON((12.73333 55.85,12.73333 55.88334,12.76667 55.88334,12.76667 55.85,12.73333 55.85))", crs = 4326))
-
-# Assign IDs
-units$UnitID = 1:nrow(units)
-
-# Identify invalid geometries
-st_is_valid(units)
-
-# Transform projection into ETRS_1989_LAEA
-units <- st_transform(units, crs = 3035)
-
-# Calculate area
-units$UnitArea <- st_area(units)
+  # "1,2,3,4,5,6,7,71,8,9,10,11,12,131,132,14,15,16,17"
+  
+  # Identify invalid geometries
+  st_is_valid(units)
+  
+  # Calculate area
+  units$UnitArea <- st_area(units)
+}
 
 # Identify invalid geometries
 st_is_valid(units)
@@ -397,6 +420,9 @@ wk5 <- wk5[, C := (TC + SC + ACC) / 3]
 wk5[, C_Class := ifelse(C >= 75, "High", ifelse(C >= 50, "Moderate", "Low"))]
 
 # Criteria ---------------------------------------------------------------------
+
+# Check indicator weights
+indicators[indicatorUnits][!is.na(CriteriaID), .(IWs = sum(IW, na.rm = TRUE)), .(CriteriaID, UnitID)]
 
 # Criteria result as a simple average of the indicators in each category per unit - CategoryID, UnitID, N, ER, EQR, EQRS, C
 wk6 <- wk5[!is.na(CriteriaID) & !is.na(EQR), .(.N, ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), C = mean(C)), .(CriteriaID, UnitID)]
