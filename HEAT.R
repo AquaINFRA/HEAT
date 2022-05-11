@@ -36,25 +36,30 @@ unitsFile <- file.path(inputPath, "")
 configurationFile <- file.path(inputPath, "")
 stationSamplesBOTFile <- file.path(inputPath, "")
 stationSamplesCTDFile <- file.path(inputPath, "")
+stationSamplesPMPFile <- file.path(inputPath, "")
 
 if (assessmentPeriod == "2011-2016"){
   urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
             "https://www.dropbox.com/s/nzcllbb1vf7plvq/Configuration2011-2016.xlsx?dl=1",
-            "https://www.dropbox.com/s/3eqvdr9b95oo4iw/StationSamplesBOT2011-2016.txt.gz?dl=1",
-            "https://www.dropbox.com/s/ttccw0dc2yfj6ar/StationSamplesCTD2011-2016.txt.gz?dl=1")
+            "https://www.dropbox.com/s/3vb45x15le7ihxa/StationSamples2011-2016BOT.txt.gz?dl=1",
+            "https://www.dropbox.com/s/unm5bics6229qbo/StationSamples2011-2016CTD.txt.gz?dl=1",
+            "https://www.dropbox.com/s/sx5u9lrk9pnrx0v/StationSamples2011-2016PMP.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
   configurationFile <- file.path(inputPath, "Configuration2011-2016.xlsx")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamplesBOT2011-2016.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamplesCTD2011-2016.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2011-2016PMP.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
   urls <- c("https://www.dropbox.com/s/8g3ue0v0qmnhqut/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro3.zip?dl=1",
             "https://www.dropbox.com/s/tp5yh0v92faica2/Configuration2016-2021.xlsx?dl=1",
-            "https://www.dropbox.com/s/i20493v350ciwht/StationSamplesBOT2016-2021.txt.gz?dl=1",
-            "https://www.dropbox.com/s/qjxe31g5cog75ue/StationSamplesCTD2016-2021.txt.gz?dl=1")
+            "https://www.dropbox.com/s/skv0kfpq5w32kt1/StationSamples2016-2021BOT.txt.gz?dl=1",
+            "https://www.dropbox.com/s/mbpaxniqhi88m6u/StationSamples2016-2021CTD.txt.gz?dl=1",
+            "https://www.dropbox.com/s/xtn23w8j04y6ljn/StationSamples2016-2021PMP.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration2016-2021.xlsx")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamplesBOT2016-2021.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamplesCTD2016-2021.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2016-2021PMP.txt.gz")
 }
 
 files <- sapply(urls, download.file.unzip.maybe, path = inputPath)
@@ -102,8 +107,6 @@ if (assessmentPeriod == "2011-2016") {
   # Assign IDs
   units$UnitID = 1:nrow(units)
 
-  # "1,2,3,4,5,6,7,71,8,9,10,11,12,131,132,14,15,16,17"
-  
   # Identify invalid geometries
   st_is_valid(units)
   
@@ -174,8 +177,31 @@ ggsave(file.path(outputPath, "Assessment_GridUnits60.png"), width = 12, height =
 ggplot() + geom_sf(data = st_cast(gridunits)) + coord_sf()
 ggsave(file.path(outputPath, "Assessment_GridUnits.png"), width = 12, height = 9, dpi = 300)
 
-# Read station samples ---------------------------------------------------------
-stationSamples <- fread(input = stationSamplesBOTFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+# Read station sample data -----------------------------------------------------
+
+# Ocean hydro chemistry - Bottle and low resolution CTD data
+stationSamplesBOT <- fread(input = stationSamplesBOTFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+stationSamplesBOT[, Type := "B"]
+
+# Ocean hydro chemistry - High resolution CTD data
+stationSamplesCTD <- fread(input = stationSamplesCTDFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+stationSamplesCTD[, Type := "C"]
+
+# Ocean hydro chemistry - Pump data
+stationSamplesPMP <- fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+stationSamplesPMP[, Type := "P"]
+
+# Combine station samples
+stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP), use.names = TRUE, fill = TRUE)
+
+# Remove original data tables
+rm(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP)
+
+# Unique stations by natural key
+uniqueN(stationSamples, by = c("Cruise", "Station", "Type", "Year", "Month", "Day", "Hour", "Minute", "Longitude..degrees_east.", "Latitude..degrees_north."))
+
+# Assign station ID by natural key
+stationSamples[, StationID := .GRP, by = .(Cruise, Station, Type, Year, Month, Day, Hour, Minute, Longitude..degrees_east., Latitude..degrees_north.)]
 
 # Classify station samples into grid units -------------------------------------
 
@@ -191,11 +217,14 @@ stations <- st_transform(stations, crs = 3035)
 # Classify stations into grid units
 stations <- st_join(stations, gridunits, join = st_intersects)
 
-# Remove spatial column
-stations <- st_set_geometry(stations, NULL)
+# Delete stations not classified
+stations <- na.omit(stations)
 
-# Merge stations back into station samples
-stationSamples <- as.data.table(stations)[stationSamples, on = .(Longitude..degrees_east., Latitude..degrees_north.)]
+# Remove spatial column and nake into data table
+stations <- st_set_geometry(stations, NULL) %>% as.data.table()
+
+# Merge stations back into station samples - getting rid of station samples not classified into assessment units
+stationSamples <- stations[stationSamples, on = .(Longitude..degrees_east., Latitude..degrees_north.), nomatch = 0]
 
 # Read indicator configs -------------------------------------------------------
 indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators")) %>% setkey(IndicatorID)
@@ -226,7 +255,7 @@ for(i in 1:nrow(indicators)){
   
   # Create Indicator
   if (name == 'Dissolved Inorganic Nitrogen') {
-    wk$ES <- apply(wk[, list(Nitrate..umol.l., Nitrite..umol.l., Ammonium..umol.l.)], 1, function(x){
+    wk$ES <- apply(wk[, list(Nitrate.Nitrogen..NO3.N...umol.l., Nitrite.Nitrogen..NO2.N...umol.l., Ammonium.Nitrogen..NH4.N...umol.l.)], 1, function(x) {
       if (all(is.na(x)) | is.na(x[1])) {
         NA
       }
@@ -234,16 +263,24 @@ for(i in 1:nrow(indicators)){
         sum(x, na.rm = TRUE)
       }
     })
+    wk$ESQ <- apply(wk[, .(QV.ODV.Nitrate.Nitrogen..NO3.N...umol.l., QV.ODV.Nitrite.Nitrogen..NO2.N...umol.l., QV.ODV.Ammonium.Nitrogen..NH4.N...umol.l.)], 1, function(x){
+      max(x, na.rm = TRUE)
+    })
   } else if (name == 'Dissolved Inorganic Phosphorus') {
-    wk[,ES := Phosphate..umol.l.]
+    wk[, ES := Phosphate.Phosphorus..PO4.P...umol.l.]
+    wk[, ESQ := QV.ODV.Phosphate.Phosphorus..PO4.P...umol.l.]
   } else if (name == 'Chlorophyll a (In-Situ)') {
     wk[, ES := Chlorophyll.a..ug.l.]
+    wk[, ESQ := QV.ODV.Chlorophyll.a..ug.l.]
   } else if (name == "Total Nitrogen") {
-    wk[, ES := Total.Nitrogen..umol.l.]
+    wk[, ES := Total.Nitrogen..N...umol.l.]
+    wk[, ESQ := QV.ODV.Total.Nitrogen..N...umol.l.]
   } else if (name == "Total Phosphorus") {
-    wk[, ES := Total.Phosphorus..umol.l.]
+    wk[, ES := Total.Phosphorus..P...umol.l.]
+    wk[, ESQ := QV.ODV.Total.Phosphorus..P...umol.l.]
   } else if (name == 'Secchi Depth') {
-    wk[, ES := Secchi..m..METAVAR.DOUBLE]
+    wk[, ES := Secchi.Depth..m..METAVAR.FLOAT]
+    wk[, ESQ := QV.ODV.Secchi.Depth..m.]
   } else {
     next
   }
@@ -253,20 +290,25 @@ for(i in 1:nrow(indicators)){
     wk0 <- wk[
       (Period >= year.min & Period <= year.max) &
         (Month >= month.min | Month <= month.max) &
-        (Depth..m.db..PRIMARYVAR.DOUBLE >= depth.min & Depth..m.db..PRIMARYVAR.DOUBLE <= depth.max) &
-        !is.na(ES) & 
+        (Depth..m. >= depth.min & Depth..m. <= depth.max) &
+        !is.na(ES) &
+        ESQ <= 1 &
         !is.na(UnitID),
-      .(IndicatorID = indicatorID, UnitID, GridSize, GridID, GridArea, Period, Month, StationID, Depth = Depth..m.db..PRIMARYVAR.DOUBLE, Temperature = Temperature..degC., Salinity = Salinity..., ES)]
+      .(IndicatorID = indicatorID, UnitID, GridSize, GridID, GridArea, Period, Month, StationID, Depth = Depth..m., Temperature = Temperature..degC., Salinity = Practical.Salinity..dmnless., ES)]
   } else {
     wk0 <- wk[
       (Period >= year.min & Period <= year.max) &
         (Month >= month.min & Month <= month.max) &
-        (Depth..m.db..PRIMARYVAR.DOUBLE >= depth.min & Depth..m.db..PRIMARYVAR.DOUBLE <= depth.max) &
-        !is.na(ES) & 
+        (Depth..m. >= depth.min & Depth..m. <= depth.max) &
+        !is.na(ES) &
+        ESQ <= 1 &
         !is.na(UnitID),
-      .(IndicatorID = indicatorID, UnitID, GridSize, GridID, GridArea, Period, Month, StationID, Depth = Depth..m.db..PRIMARYVAR.DOUBLE, Temperature = Temperature..degC., Salinity = Salinity..., ES)]
+      .(IndicatorID = indicatorID, UnitID, GridSize, GridID, GridArea, Period, Month, StationID, Depth = Depth..m., Temperature = Temperature..degC., Salinity = Practical.Salinity..dmnless., ES)]
   }
 
+  # Calculate station depth mean
+  wk0 <- wk0[, .(ES = mean(ES), SD = sd(ES), N = .N), keyby = .(IndicatorID, UnitID, GridID, GridArea, Period, Month, StationID, Depth)]
+  
   # Calculate station mean --> UnitID, GridID, GridArea, Period, Month, ES, SD, N
   wk1 <- wk0[, .(ES = mean(ES), SD = sd(ES), N = .N), keyby = .(IndicatorID, UnitID, GridID, GridArea, Period, Month, StationID)]
   
@@ -481,7 +523,7 @@ C_Class_limits <- c("High", "Moderate", "Low")
 C_Class_labels <- c(">= 75 % (High)", "50 - 74 % (Moderate)", "< 50 % (Low)")
 
 # Assessment map Status + Confidence
-wk <- merge(units, wk9, all.x = TRUE)
+wk <- merge(units, wk9, all.x = TRUE, by = "UnitID")
 
 # Status maps
 ggplot(wk) +
