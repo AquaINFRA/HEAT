@@ -188,16 +188,14 @@ stationSamplesCTD <- fread(input = stationSamplesCTDFile, sep = "\t", na.strings
 stationSamplesCTD[, Type := "C"]
 
 # Ocean hydro chemistry - Pump data
-#stationSamplesPMP <- fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-#stationSamplesPMP[, Type := "P"]
+stationSamplesPMP <- fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+stationSamplesPMP[, Type := "P"]
 
 # Combine station samples
-#stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP), use.names = TRUE, fill = TRUE)
-stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD), use.names = TRUE, fill = TRUE)
+stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP), use.names = TRUE, fill = TRUE)
 
 # Remove original data tables
-#rm(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP)
-rm(stationSamplesBOT, stationSamplesCTD)
+rm(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP)
 
 # Unique stations by natural key
 uniqueN(stationSamples, by = c("Cruise", "Station", "Type", "Year", "Month", "Day", "Hour", "Minute", "Longitude..degrees_east.", "Latitude..degrees_north."))
@@ -228,6 +226,11 @@ stations <- st_set_geometry(stations, NULL) %>% as.data.table()
 # Merge stations back into station samples - getting rid of station samples not classified into assessment units
 stationSamples <- stations[stationSamples, on = .(Longitude..degrees_east., Latitude..degrees_north.), nomatch = 0]
 
+# Output station samples mapped to assessment units for contracting parties to check i.e. acceptance level 1
+fwrite(stationSamples[Type == 'B'], file.path(outputPath, "StationSamples2016-2021BOT.csv"))
+fwrite(stationSamples[Type == 'C'], file.path(outputPath, "StationSamples2016-2021CTD.csv"))
+fwrite(stationSamples[Type == 'P'], file.path(outputPath, "StationSamples2016-2021PMP.csv"))
+
 # Read indicator configs -------------------------------------------------------
 indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators")) %>% setkey(IndicatorID)
 indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits")) %>% setkey(IndicatorID, UnitID)
@@ -250,7 +253,7 @@ for(i in 1:nrow(indicators)){
   response <- indicators[i, Response]
 
   # Copy data
-  wk <- as.data.table(stationSamples)  
+  wk <- as.data.table(stationSamples[Type != 'P'])  
   
   # Create Period
   wk[, Period := ifelse(month.min > month.max & Month >= month.min, Year + 1, Year)]
