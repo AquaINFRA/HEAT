@@ -5,7 +5,7 @@ ipak <- function(pkg){
     install.packages(new.pkg, dependencies = TRUE)
   sapply(pkg, require, character.only = TRUE)
 }
-packages <- c("sf", "data.table", "tidyverse", "readxl", "ggplot2", "ggmap", "mapview", "httr")
+packages <- c("sf", "data.table", "tidyverse", "readxl", "ggplot2", "ggmap", "mapview", "httr", "R.utils")
 ipak(packages)
 
 # Define assessment period i.e. uncomment the period you want to run the assessment for!
@@ -188,14 +188,16 @@ stationSamplesCTD <- fread(input = stationSamplesCTDFile, sep = "\t", na.strings
 stationSamplesCTD[, Type := "C"]
 
 # Ocean hydro chemistry - Pump data
-stationSamplesPMP <- fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-stationSamplesPMP[, Type := "P"]
+#stationSamplesPMP <- fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+#stationSamplesPMP[, Type := "P"]
 
 # Combine station samples
-stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP), use.names = TRUE, fill = TRUE)
+#stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP), use.names = TRUE, fill = TRUE)
+stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD), use.names = TRUE, fill = TRUE)
 
 # Remove original data tables
-rm(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP)
+#rm(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP)
+rm(stationSamplesBOT, stationSamplesCTD)
 
 # Unique stations by natural key
 uniqueN(stationSamples, by = c("Cruise", "Station", "Type", "Year", "Month", "Day", "Hour", "Minute", "Longitude..degrees_east.", "Latitude..degrees_north."))
