@@ -50,16 +50,16 @@ if (assessmentPeriod == "2011-2016"){
   stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD.txt.gz")
   stationSamplesPMPFile <- file.path(inputPath, "StationSamples2011-2016PMP.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
-  urls <- c("https://www.dropbox.com/s/8g3ue0v0qmnhqut/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro3.zip?dl=1",
+  urls <- c("https://www.dropbox.com/s/qw4gsrj3yeri5k2/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip?dl=1",
             "https://www.dropbox.com/s/tp5yh0v92faica2/Configuration2016-2021.xlsx?dl=1",
-            "https://www.dropbox.com/s/skv0kfpq5w32kt1/StationSamples2016-2021BOT.txt.gz?dl=1",
-            "https://www.dropbox.com/s/mbpaxniqhi88m6u/StationSamples2016-2021CTD.txt.gz?dl=1",
-            "https://www.dropbox.com/s/xtn23w8j04y6ljn/StationSamples2016-2021PMP.txt.gz?dl=1")
+            "https://www.dropbox.com/s/rnyb6b1m4d2viji/StationSamples2016-2021BOT_2022-09-08.txt.gz?dl=1",
+            "https://www.dropbox.com/s/jx89gi9hrdqhj1d/StationSamples2016-2021CTD_2022-09-08.txt.gz?dl=1",
+            "https://www.dropbox.com/s/zcuy1cpcx6jg047/StationSamples2016-2021PMP_2022-09-08.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration2016-2021.xlsx")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD.txt.gz")
-  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2016-2021PMP.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-09-08.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD_2022-09-08.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2016-2021PMP_2022-09-08.txt.gz")
 }
 
 files <- sapply(urls, download.file.unzip.maybe, path = inputPath)
@@ -92,7 +92,7 @@ if (assessmentPeriod == "2011-2016") {
   units$UnitArea <- st_area(units)
 } else if (assessmentPeriod == "2016-2021") {
   # Read assessment unit from shape file
-  units <- st_read(unitsFile)
+  units <- st_read(unitsFile) %>% st_zm()
   
   # Filter for open sea assessment units
   units <- units[units$HELCOM_ID %like% 'SEA',]
