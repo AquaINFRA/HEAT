@@ -12,6 +12,9 @@ ipak(packages)
 #assessmentPeriod <- "2011-2016" # HOLAS II
 assessmentPeriod <- "2016-2021" # HOLAS III
 
+# Set flag to determined if the combined chlorophyll a in-situ/satellite indicator is a simple mean or a weighted mean based on confidence measures
+combined_Chlorophylla_IsWeighted <- TRUE
+
 # Define paths
 inputPath <- file.path("Input", assessmentPeriod)
 outputPath <- file.path("Output", assessmentPeriod)
@@ -342,8 +345,18 @@ wk2 <- rbindlist(wk2list)
 wk2 <- rbindlist(list(wk2, indicatorUnitResults), fill = TRUE)
 
 # Calculate and add combined annual Chlorophyll a (In-Situ/EO/FB) indicator
-wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = mean(ES), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
-wk2 <- rbindlist(list(wk2, wk2_CPHL), fill = TRUE)
+if(combined_Chlorophylla_IsWeighted) {
+  # Calculate combined chlorophyll a indicator as a weighted average
+  wk2[IndicatorID == 501, W := ifelse(UnitID %in% c(12), 0.70, ifelse(UnitID %in% c(13, 14), 0.40, 0.55))]
+  wk2[IndicatorID == 502, W := ifelse(UnitID %in% c(12, 13, 14), 0.30, 0.45)]
+  wk2[IndicatorID == 503, W := ifelse(UnitID %in% c(13, 14), 0.30, 0.00)]
+  wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = weighted.mean(ES, W), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
+  wk2 <- rbindlist(list(wk2, wk2_CPHL), fill = TRUE)
+} else {
+  # Calculate combined chlorophyll a indicator as a simple average
+  wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = mean(ES), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
+  wk2 <- rbindlist(list(wk2, wk2_CPHL), fill = TRUE)
+}
 
 # Calculate and add combined annual Cyanobacteria Bloom Index (BM/CSA) indicator
 wk2_CBI <- wk2[IndicatorID %in% c(601, 602), .(IndicatorID = 6, ES = mean(ES), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
