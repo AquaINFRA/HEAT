@@ -253,7 +253,11 @@ for(i in 1:nrow(indicators)){
   response <- indicators[i, Response]
 
   # Copy data
-  wk <- as.data.table(stationSamples[Type != 'P'])  
+  if (name == 'Chlorophyll a (FB)') {
+    wk <- as.data.table(stationSamples[Type == 'P'])     
+  } else {
+    wk <- as.data.table(stationSamples[Type != 'P'])     
+  }
   
   # Create Period
   wk[, Period := ifelse(month.min > month.max & Month >= month.min, Year + 1, Year)]
@@ -274,7 +278,7 @@ for(i in 1:nrow(indicators)){
   } else if (name == 'Dissolved Inorganic Phosphorus') {
     wk[, ES := Phosphate.Phosphorus..PO4.P...umol.l.]
     wk[, ESQ := QV.ODV.Phosphate.Phosphorus..PO4.P...umol.l.]
-  } else if (name == 'Chlorophyll a (In-Situ)') {
+  } else if (name == 'Chlorophyll a (In-Situ)' | name == 'Chlorophyll a (FB)') {
     wk[, ES := Chlorophyll.a..ug.l.]
     wk[, ESQ := QV.ODV.Chlorophyll.a..ug.l.]
   } else if (name == "Total Nitrogen") {

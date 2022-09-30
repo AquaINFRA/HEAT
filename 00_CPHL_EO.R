@@ -19,6 +19,6 @@ dt1[, year := as.numeric(substr(date, 1, 4))]
 dt1[, month := as.numeric(substr(date, 6, 7))]
 dt1[, day := as.numeric(substr(date, 9, 10))]
 
-dt2 <- dt1[month >= 6 & month <= 9, .(ES = exp(mean(log(geomean))), SD = sd(geomean), N = .N * uniqueN(grid_id)), keyby = .(UnitID = unit_id, Period = year)]
+dt2 <- dt1[month >= 6 & month <= 9, .(ES = exp(mean(log(geomean))), SD = sd(geomean), N = .N * uniqueN(grid_id), NM = uniqueN(month)), keyby = .(UnitID = unit_id, Period = year)]
 
 fwrite(dt2, file.path(inputPath, "Indicator_CPHL_EO_02_2016-2021.csv"))
