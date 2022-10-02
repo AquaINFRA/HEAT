@@ -60,9 +60,9 @@ if (assessmentPeriod == "2011-2016"){
             "https://www.dropbox.com/s/hs8tj2vxh1s1cdp/StationSamples2016-2021PMP_2022-10-01.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration2016-2021.xlsx")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-09-08.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD_2022-09-08.txt.gz")
-  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2016-2021PMP_2022-09-08.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-10-01.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD_2022-10-01.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2016-2021PMP_2022-10-01.txt.gz")
 }
 
 files <- sapply(urls, download.file.unzip.maybe, path = inputPath)
