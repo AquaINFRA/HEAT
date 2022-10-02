@@ -55,9 +55,9 @@ if (assessmentPeriod == "2011-2016"){
 } else if (assessmentPeriod == "2016-2021") {
   urls <- c("https://www.dropbox.com/s/qw4gsrj3yeri5k2/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip?dl=1",
             "https://www.dropbox.com/s/tp5yh0v92faica2/Configuration2016-2021.xlsx?dl=1",
-            "https://www.dropbox.com/s/rnyb6b1m4d2viji/StationSamples2016-2021BOT_2022-09-08.txt.gz?dl=1",
-            "https://www.dropbox.com/s/jx89gi9hrdqhj1d/StationSamples2016-2021CTD_2022-09-08.txt.gz?dl=1",
-            "https://www.dropbox.com/s/zcuy1cpcx6jg047/StationSamples2016-2021PMP_2022-09-08.txt.gz?dl=1")
+            "https://www.dropbox.com/s/604kgmgt9ibfuzv/StationSamples2016-2021BOT_2022-10-01.txt.gz?dl=1",
+            "https://www.dropbox.com/s/stt9uess2njoft5/StationSamples2016-2021CTD_2022-10-01.txt.gz?dl=1",
+            "https://www.dropbox.com/s/hs8tj2vxh1s1cdp/StationSamples2016-2021PMP_2022-10-01.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration2016-2021.xlsx")
   stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-09-08.txt.gz")
