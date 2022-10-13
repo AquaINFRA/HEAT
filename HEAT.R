@@ -44,14 +44,14 @@ stationSamplesPMPFile <- file.path(inputPath, "")
 if (assessmentPeriod == "2011-2016"){
   urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
             "https://www.dropbox.com/s/nzcllbb1vf7plvq/Configuration2011-2016.xlsx?dl=1",
-            "https://www.dropbox.com/s/3vb45x15le7ihxa/StationSamples2011-2016BOT.txt.gz?dl=1",
-            "https://www.dropbox.com/s/unm5bics6229qbo/StationSamples2011-2016CTD.txt.gz?dl=1",
-            "https://www.dropbox.com/s/sx5u9lrk9pnrx0v/StationSamples2011-2016PMP.txt.gz?dl=1")
+            "https://www.dropbox.com/s/8t1c39mipu2xuqy/StationSamples2011-2016BOT_2022-06-10.txt.gz?dl=1",
+            "https://www.dropbox.com/s/ssy8040xexcjcfh/StationSamples2011-2016CTD_2022-06-10.txt.gz?dl=1",
+            "https://www.dropbox.com/s/6l9x10mpak9xw47/StationSamples2011-2016PMP_2022-06-10.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
   configurationFile <- file.path(inputPath, "Configuration2011-2016.xlsx")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD.txt.gz")
-  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2011-2016PMP.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT_2022-06-10.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD_2022-06-10.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2011-2016PMP_2022-06-10.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
   urls <- c("https://www.dropbox.com/s/qw4gsrj3yeri5k2/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip?dl=1",
             "https://www.dropbox.com/s/tp5yh0v92faica2/Configuration2016-2021.xlsx?dl=1",
