@@ -9,8 +9,9 @@
 # load packages etc.
 header("data")
 
-# start timer
-t0 <- proc.time()
+# Define paths
+inputPath <<- file.path("OxygenDebt/Input", assessmentPeriod)
+outputPath <<- file.path("OxygenDebt/Output", assessmentPeriod)
 
 # ----------------------------
 #
@@ -19,7 +20,7 @@ t0 <- proc.time()
 # ----------------------------
 
 # read helcom and drop non SEA areas
-helcom <- rgdal::readOGR("data/OxygenDebt/shapefiles", "AssessmentUnit_20112016Polygon", verbose = FALSE)
+helcom <- rgdal::readOGR(inputPath, "AssessmentUnits", verbose = FALSE)
 helcom <- helcom[grep("^SEA-", helcom$Code),]
 # transform to utm34
 helcom <- sp::spTransform(helcom, sp::CRS("+proj=utm +zone=34 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
@@ -28,7 +29,7 @@ helcom <- sp::spTransform(helcom, sp::CRS("+proj=utm +zone=34 +datum=WGS84 +unit
 helcom_balsem <- rgeos::gUnaryUnion(rgeos::gBuffer(helcom, byid = TRUE, width = 10))
 
 # read baltsem, and cut over helcom
-baltsem <- rgdal::readOGR("data/OxygenDebt/shapefiles", "Baltsem_utm34", verbose = FALSE)
+baltsem <- rgdal::readOGR(inputPath, "Baltsem_utm34", verbose = FALSE)
 helcom_balsem <- rgeos::gIntersection(baltsem, helcom_balsem, byid = TRUE)
 for (i in 1:length(helcom_balsem)) helcom_balsem@polygons[[i]]@ID <- paste(i)
 data <-
@@ -64,14 +65,7 @@ if (FALSE) {
 }
 
 # write
-rgdal::writeOGR(helcom_balsem["Basin"], "data/OxygenDebt/shapefiles", "helcom_areas", driver = "ESRI Shapefile", overwrite_layer = TRUE)
+rgdal::writeOGR(helcom_balsem["Basin"], outputPath, "oxy_areas", driver = "ESRI Shapefile", overwrite_layer = TRUE)
 
 # add to zip
-zip("data/OxygenDebt/zips/helcom_areas.zip",
-    paste0("data/OxygenDebt/shapefiles/",
-           dir("data/OxygenDebt/shapefiles", pattern = "^helcom_areas*"))
-    )
-
-# done -------------------
-
-message(sprintf("time elapsed: %.2f seconds", (proc.time() - t0)["elapsed"]))
+zip(file.path(outputPath, "oxy_areas.zip"), file.path(outputPath, dir(outputPath, pattern = "^oxy_areas*")))

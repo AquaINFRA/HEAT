@@ -9,29 +9,41 @@
 # load packages etc.
 header("output")
 
+# Define paths
+inputPath <<- file.path("OxygenDebt/Input", assessmentPeriod)
+outputPath <<- file.path("OxygenDebt/Output", assessmentPeriod)
+
 # start timer
 t0 <- proc.time()
 
 # get assessment period
-config <- jsonlite::fromJSON("data/OxygenDebt/config.json")
+#config <- jsonlite::fromJSON("data/OxygenDebt/config.json")
+if (assessmentPeriod == "2011-2016"){
+  years <- c(2011, 2012, 2013, 2014, 2015, 2016)
+} else if (assessmentPeriod == "2016-2021") {
+  years <- c(2016, 2017, 2018, 2019, 2020, 2021)
+}
 
 # load gam predictions ('pars')
-check <- load("analysis/output/OxygenDebt/gam_predictions.RData")
+check <- load(file.path(outputPath, "oxy_gam_predictions.RData"))
 if (check != "surfaces") {
   stop("Error loading gam predictions!\n\tTry rerunning model_3_spatial_predictions.R")
 }
 rm(check)
 
 # read in regression parameters
-aux_info <- read.csv("data/OxygenDebt/auxilliary.csv")
+aux <- read.csv(file.path(inputPath, "Auxilliary.csv"))
 
 # load baltic inflow data
-mbi <- read.csv("data/OxygenDebt/MajorBalticInflows.csv")
-mbi_years <- min(mbi$year_end, na.rm = TRUE):max(mbi$year_end, na.rm = TRUE)
-mbi <- mbi[mbi$year_end %in% mbi_years,]
-mbi <- tapply(mbi$intensity, factor(mbi$year_end, levels = mbi_years), sum)
-mbi[is.na(mbi)] <- 0
+mbi <- read.csv(file.path(inputPath, "MajorBalticInflows.csv"))
+mbi <- tapply(mbi$intensity, mbi$year_end, sum)
+mbi <- data.frame(year = as.numeric(names(mbi)),
+                  mbi = c(unname(mbi)))
 
+# add in Ninput
+# load nutrient data
+Ninput <- read.csv(file.path(inputPath, "Nitrogen.csv"))
+Ninput <- dplyr::rename(Ninput, year = Year)
 
 make_datnew <- function(Basin) {
 
@@ -72,10 +84,8 @@ make_datnew <- function(Basin) {
       O2debt = NA,
       hypoxic_volume = NA,
       cod_rep_volume = NA,
-      hypoxic_area = NA,
-      mbi = 0,
-      Ninput = NA
-    )
+      hypoxic_area = NA
+  )
 
   # brunt vaisala approx
   # this is the one used in PNAS 2014 paper:
@@ -92,10 +102,21 @@ make_datnew <- function(Basin) {
   datnew$O2debt_volsp <- datnew$O2debt / (datnew$Lhalo_volume + datnew$bottom_volume) * 1000
 
   # major baltic inflows
-  datnew$mbi[datnew$year %in% as.numeric(names(mbi))] <- mbi[as.numeric(names(mbi)) %in% datnew$year]
+  datnew <- dplyr::left_join(datnew, mbi)
+  datnew$mbi[is.na(datnew$mbi)] <- 0
 
+  # nitrogen input
+  if (Basin == "Baltic Proper") {
+    datnew <- dplyr::left_join(datnew, dplyr::rename(Ninput, Ninput = BAP)[c("year", "Ninput")])
+    datnew$offset <- 6.895179
+    datnew$bvmean <- 0.0350
+  } else {
+    datnew <- dplyr::left_join(datnew, dplyr::rename(Ninput, Ninput = BOB)[c("year", "Ninput")])
+    datnew$offset <- 3.893
+    datnew$bvmean <- 0.0696
+  }
   # subset to assessment period
-  datnew <- datnew[datnew$year %in% config$years,]
+  datnew <- datnew[datnew$year %in% years,]
 
   # return
   datnew
@@ -103,64 +124,38 @@ make_datnew <- function(Basin) {
 
 
 get_aux <- function(Basin) {
-  aux_info[aux_info$Basin == Basin,]
-}
-
-
-
-if (FALSE) {
-  newdata <- make_datnew("Baltic Proper")
-
-  # uncorrected oxygen debt
-  x <- datnew$year
-  y <- datnew$O2debt_volsp
-  smoothy <-
-    sapply(seq_along(y),
-           function(i) {
-             if (is.na(y[i])) return(NA)
-             id <- -2:2 + i;
-             id <- id[id > 0];
-             mean(y[id], na.rm = TRUE)
-           })
-  plot(x, y,
-       main = "Uncorrected",
-       pch = 16, col = "darkblue", cex = 1.2,
-       ylab = "", las = 1)
-  lines(x, smoothy, lwd = 3)
-}
-
-if (FALSE) {
-  newdata <- make_datnew("Baltic Proper")
-  aux <- get_aux("Baltic Proper")
-
-  # corrected oxygen debt - what I think it should be
-  x <- datnew$year
-  y <- datnew$O2debt_volsp -
-         aux$a_MBI * datnew$mbi * datnew$Nbv -
-         aux$a_salinity * (datnew$bottom_salinity + datnew$Lhalo_salinity)/10 * datnew$Nbv
-
-  plot(x, y,
-       main = "Corrected",
-       pch = 16, col = "darkblue", cex = 1.2,
-       ylab = "Volume specific O2 debt", las = 1)
-
-  mean(y)
+  aux[aux$Basin == Basin,]
 }
 
 # create table of indicators by year and by year and basin
 
-basins <- unique(surfaces$Basin)
-#basins <- c("Baltic Proper", "Bornholm Basin")
+#basins <- unique(surfaces$Basin)
+basins <- c("Baltic Proper", "Bornholm Basin")
+#Basin <- "Bornholm Basin"
 
 ES_y <-
   sapply(basins,
          function(Basin) {
            newdata <- make_datnew(Basin)
            aux <- get_aux(Basin)
-           newdata$O2debt_volsp
+
+           o2N <-
+             cbind(dplyr::select(newdata, year),
+                   mbi = -1 * newdata$mbi,
+                   bv = newdata$Nbv,
+                   N = newdata$Ninput / (newdata$Lhalo_volume + newdata$bottom_volume) / 50,
+                   sal = -1 * (newdata$Lhalo_salinity + newdata$bottom_salinity) / (newdata$Lhalo_volume + newdata$bottom_volume) * 1000,
+                   o2 = (newdata$Lhalo_O2debt + newdata$bottom_O2debt) / (newdata$Lhalo_volume + newdata$bottom_volume) * 1000
+             )
+
+           X <- with(o2N, cbind(bv, N*bv, mbi*bv, sal*bv))
+           pred <- c(X %*% unlist(aux[,c("a_0", "a_N", "a_MBI", "a_salinity")]))
+           res <- o2N$o2 - pred
+
+           (with(o2N, N*bv) *  aux$a_N + res)/o2N$bv * newdata$bvmean + newdata$offset
          })
 ES_y <- t(ES_y)
-colnames(ES_y) <- config$years
+colnames(ES_y) <- years
 names(dimnames(ES_y)) <- c("Basin", "Year")
 out_y <- do.call(expand.grid, c(dimnames(ES_y), KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE))
 
@@ -179,7 +174,7 @@ ES_SD <- apply(ES_y, 1, sd)
 out$ES_SD <- c(ES_SD)
 
 # read profile fits
-profiles <- read.csv("analysis/output/OxygenDebt/profiles.csv")
+profiles <- read.csv(file.path(outputPath, "oxy_profiles.csv"))
 
 # add in auxilliary information
 ES_N_y <- with(profiles, tapply(O2def_slope_below_halocline, list(Basin, Year), function(x) sum(!is.na(x))))
@@ -190,9 +185,9 @@ out$ES_N <- c(ES_N[basins])
 
 # now expand to AssessmentUnitID
 library(sp)
-helcom <- rgdal::readOGR("data/OxygenDebt/shapefiles", "helcom_areas", verbose = FALSE)
+helcom <- rgdal::readOGR(file.path(outputPath), "oxy_areas", verbose = FALSE)
 helcom <- helcom[helcom$Basin %in% out$Basin,]
-SEA <- rgdal::readOGR("data/OxygenDebt/shapefiles", "AssessmentUnit_20112016Polygon", verbose = FALSE)
+SEA <- rgdal::readOGR(file.path(inputPath), "AssessmentUnits", verbose = FALSE)
 SEA <- SEA[grep("SEA", SEA$Code),]
 SEA <- spTransform(SEA, CRS(proj4string(helcom)))
 
@@ -238,10 +233,9 @@ if (FALSE) {
   out_y
 }
 
-
 # write out
-write.csv(out, file = "analysis/output/OxygenDebt/uncorrected_indicator_table.csv", row.names = FALSE)
-write.csv(out_y, file = "analysis/output/OxygenDebt/uncorrected_indicator_table_by_year.csv", row.names = FALSE)
+write.csv(out, file = file.path(outputPath, "oxy_corrected_indicator_table.csv"), row.names = FALSE)
+write.csv(out_y, file = file.path(outputPath, "oxy_corrected_indicator_table_by_year.csv"), row.names = FALSE)
 
 # done -------------------
 

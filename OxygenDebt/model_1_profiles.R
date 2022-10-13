@@ -10,15 +10,15 @@
 # load packages etc.
 header("model")
 
+# Define paths
+inputPath <<- file.path("OxygenDebt/Input", assessmentPeriod)
+outputPath <<- file.path("OxygenDebt/Output", assessmentPeriod)
+
 # start timer
 t0 <- proc.time()
 
-# create directories
-if (!dir.exists("analysis/output")) dir.create("analysis/output")
-if (!dir.exists("analysis/output/OxygenDebt")) dir.create("analysis/output/OxygenDebt")
-
 # read in data
-oxy <- read.csv("analysis/input/OxygenDebt/oxy_clean.csv")
+oxy <- fread(file.path(outputPath, "oxy_clean.csv"))
 
 # run all fits
 profiles <-
@@ -30,10 +30,12 @@ profiles <-
 out <- unique(dplyr::select(oxy, -Depth, -Type,
                                  -Temperature, -Salinity, -Oxygen, -Hydrogen_Sulphide,
                                  -Oxygen_ml, -Oxygen_deficit, -censor))
+
 rownames(out) <- paste(out$ID)
 
 # join this onto the profiles
-profiles <- cbind.data.frame(profiles, out[paste(profiles$ID),-1])
+profiles <- merge(profiles, out)
+
 
 # select which data are reliable -----
 drop_sal <- profiles$sali_dif.se > 2.5 | # only use profiles that are based on an estimate of the salinity difference estimate with +- 5 accuracy
@@ -59,17 +61,12 @@ drop_O2def <- profiles$O2def_slope_below_halocline > 1.5
 
 profiles$O2def_slope_below_halocline[drop_O2def] <- NA
 
-
 # write out
-write.csv(file = "analysis/output/OxygenDebt/profiles.csv", profiles, row.names = FALSE)
+fwrite(profiles, file.path(outputPath, "oxy_profiles.csv"))
 
 # done -------------------
 
 message(sprintf("time elapsed: %.2f seconds", (proc.time() - t0)["elapsed"]))
-
-
-
-
 
 # checks -----------------
 

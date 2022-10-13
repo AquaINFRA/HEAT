@@ -9,14 +9,23 @@
 # load packages etc.
 header("model")
 
+# Define paths
+inputPath <<- file.path("OxygenDebt/Input", assessmentPeriod)
+outputPath <<- file.path("OxygenDebt/Output", assessmentPeriod)
+
 # start timer
 t0 <- proc.time()
 
 # get assessment period
-config <- jsonlite::fromJSON("data/OxygenDebt/config.json")
+#config <- jsonlite::fromJSON(file.path(inputPath, "config.json"))
+if (assessmentPeriod == "2011-2016"){
+  years <- c(2011, 2012, 2013, 2014, 2015, 2016)
+} else if (assessmentPeriod == "2016-2021") {
+  years <- c(2016, 2017, 2018, 2019, 2020, 2021)
+}
 
 # load gam fits ('gams')
-check <- load("analysis/output/OxygenDebt/gam_fits.RData")
+check <- load(file.path(outputPath, "oxy_gam_fits.RData"))
 if (check != "gams") {
   stop("Error loading gam fits!\n\tTry rerunning model_2_spatial_profiles.R")
 }
@@ -24,10 +33,10 @@ rm(check)
 
 
 # read helcom assessment areas
-helcom <- rgdal::readOGR("data/OxygenDebt/shapefiles", "helcom_areas", verbose = FALSE)
+helcom <- rgdal::readOGR(file.path(outputPath), "oxy_areas", verbose = FALSE)
 
 # read depth layer (spatial points) for prediction
-bathy <- rgdal::readOGR("data/OxygenDebt/shapefiles", "helcom_bathymetry", verbose = FALSE)
+bathy <- rgdal::readOGR(file.path(outputPath), "oxy_bathymetry", verbose = FALSE)
 
 # drop regions not in models!
 if ("Basin" %in% names(gams[[1]]$var.summary)) {
@@ -59,7 +68,7 @@ if (FALSE) {
 # create prediction data for each year
 surfaces <-
   do.call(rbind,
-    lapply(config$years, function(y) cbind(surfaces, Year = y))
+    lapply(years, function(y) cbind(surfaces, Year = y))
   )
 
 # do predictions
@@ -242,7 +251,7 @@ if (FALSE) {
 
 # write out --------------
 
-save(surfaces, file = "analysis/output/OxygenDebt/gam_predictions.RData")
+save(surfaces, file = file.path(outputPath, "oxy_gam_predictions.RData"))
 
 
 # done -------------------

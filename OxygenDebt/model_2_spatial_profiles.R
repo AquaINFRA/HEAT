@@ -9,11 +9,16 @@
 # load packages etc.
 header("model")
 
+# Define paths
+inputPath <<- file.path("OxygenDebt/Input", assessmentPeriod)
+outputPath <<- file.path("OxygenDebt/Output", assessmentPeriod)
+
 # start timer
 t0 <- proc.time()
 
 # read profile fits
-profiles <- read.csv("analysis/output/OxygenDebt/profiles.csv")
+profiles <- read.csv(file.path(outputPath, "oxy_profiles.csv"))
+#profiles <- fread(file.path(outputPath, "oxy_profiles.csv"))
 
 # convert to factor
 profiles$Basin <- factor(profiles$Basin)
@@ -59,7 +64,7 @@ gams$O2def_slope_below_halocline <- fitfunc2("O2def_slope_below_halocline")
 
 
 # save
-save(gams, file = "analysis/output/OxygenDebt/gam_fits.RData")
+save(gams, file = file.path(outputPath, "oxy_gam_fits.RData"))
 
 # done -------------------
 

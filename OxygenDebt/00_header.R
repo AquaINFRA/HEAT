@@ -1,6 +1,6 @@
 # ----------------------------
 #
-#   load packages and clear workspace
+#   load packages and clear work space
 #
 # ----------------------------
 
@@ -32,13 +32,17 @@ function(phase = c("data", "input", "model", "output"))
 
   # load utils into oxydebt_funs namespace
   tmp <-
-    sapply(dir("scripts/OxygenDebt/utils"),
+    sapply(dir("OxygenDebt/Utils"),
            function(x) {
-           sys.source(paste0("scripts/OxygenDebt/utils/", x), envir = environment(header))
+           sys.source(paste0("OxygenDebt/Utils/", x), envir = environment(header))
            })
 
   # clear workspace -------------------
   rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
+  
+  # Define assessment period i.e. uncomment the period you want to run the assessment for!
+  assessmentPeriod <<- "2011-2016" # HOLAS II
+  #assessmentPeriod <<- "2016-2021" # HOLAS III
 }
 
 

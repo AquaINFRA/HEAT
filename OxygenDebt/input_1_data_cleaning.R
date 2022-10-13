@@ -2,13 +2,17 @@
 #
 #   Prepare compiled data for analysis
 #
-#     * read compiled data from folder - 'input/OxygenDebt'
-#     * prepare data for analysis and write to folder - 'model/OxygenDebt'
+#     * read compiled data from output folder
+#     * prepare data for analysis and write to output folder
 #
 # ----------------------------
 
 # load packages etc.
 header("input")
+
+# Define paths
+inputPath <<- file.path("OxygenDebt/Input", assessmentPeriod)
+outputPath <<- file.path("OxygenDebt/Output", assessmentPeriod)
 
 # start timer
 t0 <- proc.time()
@@ -19,7 +23,7 @@ t0 <- proc.time()
 #
 # ----------------------------
 
-oxy <- read.csv("analysis/input/OxygenDebt/oxy.csv")
+oxy <- fread(file.path(outputPath, "oxy.csv"))
 
 # ----------------------------
 #
@@ -84,7 +88,7 @@ oxy$Basin <- factor(oxy$Basin)
 
 # write data --------------------
 
-write.csv(oxy, "analysis/input/OxygenDebt/oxy_clean.csv", row.names = FALSE)
+fwrite(oxy, file.path(outputPath, "oxy_clean.csv"))
 
 # done -------------------
 
