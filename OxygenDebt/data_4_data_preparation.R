@@ -16,8 +16,8 @@ library(data.table)
 library(sf)
 
 if (assessmentPeriod == '2011-2016') {
-  ctd <- fread(input = file.path(inputPath, "StationSamples2011-2016CTD_2022-06-10.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-  bot <- fread(input = file.path(inputPath, "StationSamples2011-2016BOT_2022-06-10.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+  ctd <- fread(input = file.path(inputPath, "StationSamples2011-2016CTD_2022-10-01.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+  bot <- fread(input = file.path(inputPath, "StationSamples2011-2016BOT_2022-10-01.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
   } else if (assessmentPeriod == "2016-2021") {
   ctd <- fread(input = file.path(inputPath, "StationSamples2016-2021CTD_2022-10-01.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
   bot <- fread(input = file.path(inputPath, "StationSamples2016-2021BOT_2022-10-01.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
