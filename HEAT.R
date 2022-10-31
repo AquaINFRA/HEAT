@@ -9,6 +9,7 @@ packages <- c("sf", "data.table", "tidyverse", "readxl", "ggplot2", "ggmap", "ma
 ipak(packages)
 
 # Define assessment period i.e. uncomment the period you want to run the assessment for!
+#assessmentPeriod <- "1877-9999"
 #assessmentPeriod <- "2011-2016" # HOLAS II
 assessmentPeriod <- "2016-2021" # HOLAS III
 
@@ -41,7 +42,18 @@ stationSamplesBOTFile <- file.path(inputPath, "")
 stationSamplesCTDFile <- file.path(inputPath, "")
 stationSamplesPMPFile <- file.path(inputPath, "")
 
-if (assessmentPeriod == "2011-2016"){
+if (assessmentPeriod == "1877-9999"){
+  urls <- c("https://www.dropbox.com/s/qw4gsrj3yeri5k2/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip?dl=1",
+            "https://www.dropbox.com/s/q42p5jneai2c4lh/Configuration1877-9999.xlsx?dl=1",
+            "https://www.dropbox.com/s/j3xxpebw0qxcdr9/StationSamples1877-9999BOT_2022-10-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/akg3ma9djzmm8f1/StationSamples1877-9999CTD_2022-10-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/ttbi14nst20rlq5/StationSamples1877-9999PMP_2022-10-30.txt.gz?dl=1")
+  unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
+  configurationFile <- file.path(inputPath, "Configuration1877-9999.xlsx")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples1877-9999BOT_2022-10-30.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples1877-9999CTD_2022-10-30.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples1877-9999PMP_2022-10-30.txt.gz")
+} else if (assessmentPeriod == "2011-2016"){
   urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
             "https://www.dropbox.com/s/nzcllbb1vf7plvq/Configuration2011-2016.xlsx?dl=1",
             "https://www.dropbox.com/s/pluf2i2clssrv8f/StationSamples2011-2016BOT_2022-10-01.txt.gz?dl=1",
@@ -93,7 +105,7 @@ if (assessmentPeriod == "2011-2016") {
   
   # Calculate area
   units$UnitArea <- st_area(units)
-} else if (assessmentPeriod == "2016-2021") {
+} else {
   # Read assessment unit from shape file
   units <- st_read(unitsFile) %>% st_zm()
   
@@ -230,9 +242,9 @@ stations <- st_set_geometry(stations, NULL) %>% as.data.table()
 stationSamples <- stations[stationSamples, on = .(Longitude..degrees_east., Latitude..degrees_north.), nomatch = 0]
 
 # Output station samples mapped to assessment units for contracting parties to check i.e. acceptance level 1
-fwrite(stationSamples[Type == 'B'], file.path(outputPath, "StationSamples2016-2021BOT.csv"))
-fwrite(stationSamples[Type == 'C'], file.path(outputPath, "StationSamples2016-2021CTD.csv"))
-fwrite(stationSamples[Type == 'P'], file.path(outputPath, "StationSamples2016-2021PMP.csv"))
+fwrite(stationSamples[Type == 'B'], file.path(outputPath, "StationSamplesBOT.csv"))
+fwrite(stationSamples[Type == 'C'], file.path(outputPath, "StationSamplesCTD.csv"))
+fwrite(stationSamples[Type == 'P'], file.path(outputPath, "StationSamplesPMP.csv"))
 
 # Read indicator configs -------------------------------------------------------
 indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators")) %>% setkey(IndicatorID)
