@@ -248,8 +248,8 @@ fwrite(stationSamples[Type == 'P'], file.path(outputPath, "StationSamplesPMP.csv
 
 # Read indicator configs -------------------------------------------------------
 indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators")) %>% setkey(IndicatorID)
-indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits")) %>% setkey(IndicatorID, UnitID)
-indicatorUnitResults <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnitResults")) %>% setkey(IndicatorID, UnitID, Period)
+indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
+indicatorUnitResults <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnitResults", col_types = "numeric")) %>% setkey(IndicatorID, UnitID, Period)
 
 wk2list = list()
 
@@ -362,16 +362,16 @@ if(combined_Chlorophylla_IsWeighted) {
   wk2[IndicatorID == 501, W := ifelse(UnitID %in% c(12), 0.70, ifelse(UnitID %in% c(13, 14), 0.40, 0.55))]
   wk2[IndicatorID == 502, W := ifelse(UnitID %in% c(12, 13, 14), 0.30, 0.45)]
   wk2[IndicatorID == 503, W := ifelse(UnitID %in% c(13, 14), 0.30, 0.00)]
-  wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = weighted.mean(ES, W), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
+  wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = weighted.mean(ES, W, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), GridArea = max(GridArea, na.rm = TRUE), EQR = mean(EQR, na.rm = TRUE), EQRS = mean(EQRS, na.rm = TRUE)), by = .(UnitID, Period)]
   wk2 <- rbindlist(list(wk2, wk2_CPHL), fill = TRUE)
 } else {
   # Calculate combined chlorophyll a indicator as a simple average
-  wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = mean(ES), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
+  wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = mean(ES, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), GridArea = max(GridArea, na.rm = TRUE), EQR = mean(EQR, na.rm = TRUE), EQRS = mean(EQRS, na.rm = TRUE)), by = .(UnitID, Period)]
   wk2 <- rbindlist(list(wk2, wk2_CPHL), fill = TRUE)
 }
 
 # Calculate and add combined annual Cyanobacteria Bloom Index (BM/CSA) indicator
-wk2_CBI <- wk2[IndicatorID %in% c(601, 602), .(IndicatorID = 6, ES = mean(ES), SD = NA, N = sum(N), NM = max(NM), GridArea = max(GridArea), EQR = mean(EQR), EQRS = mean(EQRS)), by = .(UnitID, Period)]
+wk2_CBI <- wk2[IndicatorID %in% c(601, 602), .(IndicatorID = 6, ES = mean(ES, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), GridArea = max(GridArea, na.rm = TRUE), EQR = mean(EQR, na.rm = TRUE), EQRS = mean(EQRS, na.rm = TRUE)), by = .(UnitID, Period)]
 wk2 <- rbindlist(list(wk2, wk2_CBI), fill = TRUE)
 
 setkey(wk2, IndicatorID, UnitID, Period)
@@ -382,13 +382,13 @@ setkey(wk2, IndicatorID, UnitID, Period)
 wk3 <- indicators[indicatorUnits[wk2]]
 
 # Calculate General Temporal Confidence (GTC) - Confidence in number of annual observations
-wk3[, GTC := ifelse(N > GTC_HM, 100, ifelse(N < GTC_ML, 0, 50))]
+wk3[is.na(GTC), GTC := ifelse(N > GTC_HM, 100, ifelse(N < GTC_ML, 0, 50))]
 
 # Calculate Number of Months Potential
 wk3[, NMP := ifelse(MonthMin > MonthMax, 12 - MonthMin + 1 + MonthMax, MonthMax - MonthMin + 1)]
 
 # Calculate Specific Temporal Confidence (STC) - Confidence in number of annual missing months
-wk3[, STC := ifelse(NMP - NM <= STC_HM, 100, ifelse(NMP - NM >= STC_ML, 0, 50))]
+wk3[is.na(STC), STC := ifelse(NMP - NM <= STC_HM, 100, ifelse(NMP - NM >= STC_ML, 0, 50))]
 
 # Calculate General Spatial Confidence (GSC) - Confidence in number of annual observations per number of grids
 #wk3 <- wk3[as.data.table(gridunits)[, .(NG = as.numeric(sum(GridArea) / mean(GridSize^2))), .(UnitID)], on = .(UnitID = UnitID), nomatch=0]
@@ -396,7 +396,7 @@ wk3[, STC := ifelse(NMP - NM <= STC_HM, 100, ifelse(NMP - NM >= STC_ML, 0, 50))]
 
 # Calculate Specific Spatial Confidence (SSC) - Confidence in area of sampled grid units as a percentage to the total unit area
 wk3 <- merge(wk3, as.data.table(units)[, .(UnitArea = as.numeric(UnitArea)), keyby = .(UnitID)], by = c("UnitID"), all.x = TRUE)
-wk3[, SSC := ifelse(GridArea / UnitArea * 100 > SSC_HM, 100, ifelse(GridArea / UnitArea * 100 < SSC_ML, 0, 50))]
+wk3[is.na(SSC), SSC := ifelse(GridArea / UnitArea * 100 > SSC_HM, 100, ifelse(GridArea / UnitArea * 100 < SSC_ML, 0, 50))]
 
 # ------------------------------------------------------------------------------
 
