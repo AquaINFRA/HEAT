@@ -44,16 +44,16 @@ if (assessmentPeriod == "2011-2016"){
             "https://www.dropbox.com/s/d7yyrd77f5gc2sc/Baltsem_utm34.zip?dl=1",
             "https://www.dropbox.com/s/nz4ffydakewl7so/BALTIC_BATHY_BALTSEM.zip?dl=1",
             "https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
-            "https://www.dropbox.com/s/pluf2i2clssrv8f/StationSamples2011-2016BOT_2022-10-01.txt.gz?dl=1",
-            "https://www.dropbox.com/s/eljxsjb482yajh9/StationSamples2011-2016CTD_2022-10-01.txt.gz?dl=1")
+            "https://www.dropbox.com/s/txm63nuqyu2kgtw/StationSamples2011-2016BOT_2022-11-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/264vysa89dfmszv/StationSamples2011-2016CTD_2022-11-30.txt.gz?dl=1")
   auxilliaryFile <- file.path(inputPath, "Auxilliary.csv")
   nitrogenFile <- file.path(inputPath, "Nitrogen.csv")
   majorBalticInflowsFile <- file.path(inputPath, "MajorBalticInflows.csv")
   baltsemUnitsFile <- file.path(inputPath, "Baltsem_utm34.shp")
   baltsemBathymetricFile <- file.path(inputPath, "BALTIC_BATHY_BALTSEM.csv")
   unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT_2022-10-01.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD_2022-10-01.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT_2022-11-30.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD_2022-11-30.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
   urls <- c("https://www.dropbox.com/s/r14qdxdic8l39tq/Auxilliary.csv?dl=1",
             "https://www.dropbox.com/s/xgt9gp4syz71d6j/Nitrogen.csv?dl=1",
@@ -61,16 +61,16 @@ if (assessmentPeriod == "2011-2016"){
             "https://www.dropbox.com/s/d7yyrd77f5gc2sc/Baltsem_utm34.zip?dl=1",
             "https://www.dropbox.com/s/nz4ffydakewl7so/BALTIC_BATHY_BALTSEM.zip?dl=1",
             "https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
-            "https://www.dropbox.com/s/604kgmgt9ibfuzv/StationSamples2016-2021BOT_2022-10-01.txt.gz?dl=1",
-            "https://www.dropbox.com/s/stt9uess2njoft5/StationSamples2016-2021CTD_2022-10-01.txt.gz?dl=1")
+            "https://www.dropbox.com/s/dn6zud3ugr1a2tx/StationSamples2016-2021BOT_2022-11-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/pbjw7fdmoo4tqmh/StationSamples2016-2021CTD_2022-11-30.txt.gz?dl=1")
   auxilliaryFile <- file.path(inputPath, "Auxilliary.csv")
   nitrogenFile <- file.path(inputPath, "Nitrogen.csv")
   majorBalticInflowsFile <- file.path(inputPath, "MajorBalticInflows.csv")
   baltsemUnitsFile <- file.path(inputPath, "Baltsem_utm34.shp")
   baltsemBathymetricFile <- file.path(inputPath, "BALTIC_BATHY_BALTSEM.csv")
   unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-10-01.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD_2022-10-01.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-11-30.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD_2022-11-30.txt.gz")
 }
 
 files <- sapply(urls, download.file.unzip.maybe, path = inputPath)

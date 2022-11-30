@@ -45,36 +45,36 @@ stationSamplesPMPFile <- file.path(inputPath, "")
 if (assessmentPeriod == "1877-9999"){
   urls <- c("https://www.dropbox.com/s/qw4gsrj3yeri5k2/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip?dl=1",
             "https://www.dropbox.com/s/q42p5jneai2c4lh/Configuration1877-9999.xlsx?dl=1",
-            "https://www.dropbox.com/s/j3xxpebw0qxcdr9/StationSamples1877-9999BOT_2022-10-30.txt.gz?dl=1",
-            "https://www.dropbox.com/s/akg3ma9djzmm8f1/StationSamples1877-9999CTD_2022-10-30.txt.gz?dl=1",
-            "https://www.dropbox.com/s/ttbi14nst20rlq5/StationSamples1877-9999PMP_2022-10-30.txt.gz?dl=1")
+            "https://www.dropbox.com/s/ns8ehosnx5qnfc3/StationSamples1877-9999BOT_2022-11-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/kggxp7zz5kx1tg6/StationSamples1877-9999CTD_2022-11-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/uvd0tw3lkys9oj0/StationSamples1877-9999PMP_2022-11-30.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration1877-9999.xlsx")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamples1877-9999BOT_2022-10-30.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamples1877-9999CTD_2022-10-30.txt.gz")
-  stationSamplesPMPFile <- file.path(inputPath, "StationSamples1877-9999PMP_2022-10-30.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples1877-9999BOT_2022-11-30.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples1877-9999CTD_2022-11-30.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples1877-9999PMP_2022-11-30.txt.gz")
 } else if (assessmentPeriod == "2011-2016"){
   urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
             "https://www.dropbox.com/s/nzcllbb1vf7plvq/Configuration2011-2016.xlsx?dl=1",
-            "https://www.dropbox.com/s/pluf2i2clssrv8f/StationSamples2011-2016BOT_2022-10-01.txt.gz?dl=1",
-            "https://www.dropbox.com/s/eljxsjb482yajh9/StationSamples2011-2016CTD_2022-10-01.txt.gz?dl=1",
-            "https://www.dropbox.com/s/8cfu8ux44czegqq/StationSamples2011-2016PMP_2022-10-01.txt.gz?dl=1")
+            "https://www.dropbox.com/s/txm63nuqyu2kgtw/StationSamples2011-2016BOT_2022-11-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/264vysa89dfmszv/StationSamples2011-2016CTD_2022-11-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/nl92z87ylpasnka/StationSamples2011-2016PMP_2022-11-30.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
   configurationFile <- file.path(inputPath, "Configuration2011-2016.xlsx")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT_2022-10-01.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD_2022-10-01.txt.gz")
-  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2011-2016PMP_2022-10-01.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT_2022-11-30.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD_2022-11-30.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2011-2016PMP_2022-11-30.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
   urls <- c("https://www.dropbox.com/s/qw4gsrj3yeri5k2/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip?dl=1",
             "https://www.dropbox.com/s/tp5yh0v92faica2/Configuration2016-2021.xlsx?dl=1",
-            "https://www.dropbox.com/s/604kgmgt9ibfuzv/StationSamples2016-2021BOT_2022-10-01.txt.gz?dl=1",
-            "https://www.dropbox.com/s/stt9uess2njoft5/StationSamples2016-2021CTD_2022-10-01.txt.gz?dl=1",
-            "https://www.dropbox.com/s/hs8tj2vxh1s1cdp/StationSamples2016-2021PMP_2022-10-01.txt.gz?dl=1")
+            "https://www.dropbox.com/s/dn6zud3ugr1a2tx/StationSamples2016-2021BOT_2022-11-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/pbjw7fdmoo4tqmh/StationSamples2016-2021CTD_2022-11-30.txt.gz?dl=1",
+            "https://www.dropbox.com/s/4me275q2h8c8i13/StationSamples2016-2021PMP_2022-11-30.txt.gz?dl=1")
   unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration2016-2021.xlsx")
-  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-10-01.txt.gz")
-  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD_2022-10-01.txt.gz")
-  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2016-2021PMP_2022-10-01.txt.gz")
+  stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-11-30.txt.gz")
+  stationSamplesCTDFile <- file.path(inputPath, "StationSamples2016-2021CTD_2022-11-30.txt.gz")
+  stationSamplesPMPFile <- file.path(inputPath, "StationSamples2016-2021PMP_2022-11-30.txt.gz")
 }
 
 files <- sapply(urls, download.file.unzip.maybe, path = inputPath)
