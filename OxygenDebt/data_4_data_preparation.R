@@ -16,11 +16,11 @@ library(data.table)
 library(sf)
 
 if (assessmentPeriod == '2011-2016') {
-  ctd <- fread(input = file.path(inputPath, "StationSamples2011-2016CTD_2022-11-30.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-  bot <- fread(input = file.path(inputPath, "StationSamples2011-2016BOT_2022-11-30.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+  ctd <- fread(input = file.path(inputPath, "StationSamples2011-2016CTD_2022-12-09.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+  bot <- fread(input = file.path(inputPath, "StationSamples2011-2016BOT_2022-12-09.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
   } else if (assessmentPeriod == "2016-2021") {
-  ctd <- fread(input = file.path(inputPath, "StationSamples2016-2021CTD_2022-11-30.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-  bot <- fread(input = file.path(inputPath, "StationSamples2016-2021BOT_2022-11-30.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+  ctd <- fread(input = file.path(inputPath, "StationSamples2016-2021CTD_2022-12-09.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+  bot <- fread(input = file.path(inputPath, "StationSamples2016-2021BOT_2022-12-09.txt.gz"), sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
   }
 
 ctd <- ctd[QV.ODV.Depth..m. <= 1 & QV.ODV.Temperature..degC. <=1 & QV.ODV.Practical.Salinity..dmnless. <=1 & QV.ODV.Dissolved.Oxygen..ml.l. <= 1,.(Cruise, Year, Month, Day, Hour, Minute, Latitude = Latitude..degrees_north., Longitude = Longitude..degrees_east., Depth = Depth..m., Temperature = Temperature..degC., Salinity = Practical.Salinity..dmnless., Oxygen = Dissolved.Oxygen..ml.l.)]
