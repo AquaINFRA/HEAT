@@ -254,7 +254,7 @@ indicatorUnitResults <- as.data.table(read_excel(configurationFile, sheet = "Ind
 wk2list = list()
 
 # Loop indicators --------------------------------------------------------------
-for(i in 1:nrow(indicators)){
+for(i in 1:nrow(indicators[IndicatorID < 1000,])){
   indicatorID <- indicators[i, IndicatorID]
   criteriaID <- indicators[i, CriteriaID]
   name <- indicators[i, Name]
