@@ -610,7 +610,7 @@ ggplot(wk) +
 ggsave(file.path(outputPath, "Assessment_Map_C_3.png"), width = 12, height = 9, dpi = 300)
 
 # Create Assessment Indicator maps
-for (i in 1:nrow(indicators)) {
+for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
   indicatorID <- indicators[i, IndicatorID]
   indicatorCode <- indicators[i, Code]
   indicatorName <- indicators[i, Name]
@@ -699,7 +699,7 @@ for (i in 1:nrow(indicators)) {
 }
 
 # Create Annual Indicator bar charts
-for (i in 1:nrow(indicators)) {
+for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
   indicatorID <- indicators[i, IndicatorID]
   indicatorCode <- indicators[i, Code]
   indicatorName <- indicators[i, Name]
