@@ -351,32 +351,8 @@ for(i in 1:nrow(indicators[IndicatorID < 1000,])){
 # Combine annual indicator results
 wk2 <- rbindlist(wk2list)
 
-# ------------------------------------------------------------------------------
-
 # Combine with indicator results reported
 wk2 <- rbindlist(list(wk2, indicatorUnitResults), fill = TRUE)
-
-# Calculate and add combined annual Chlorophyll a (In-Situ/EO/FB) indicator
-if(combined_Chlorophylla_IsWeighted) {
-  # Calculate combined chlorophyll a indicator as a weighted average
-  wk2[IndicatorID == 501, W := ifelse(UnitID %in% c(12), 0.70, ifelse(UnitID %in% c(13, 14), 0.40, 0.55))]
-  wk2[IndicatorID == 502, W := ifelse(UnitID %in% c(12, 13, 14), 0.30, 0.45)]
-  wk2[IndicatorID == 503, W := ifelse(UnitID %in% c(13, 14), 0.30, 0.00)]
-  wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = weighted.mean(ES, W, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), GridArea = max(GridArea, na.rm = TRUE), EQR = mean(EQR, na.rm = TRUE), EQRS = mean(EQRS, na.rm = TRUE)), by = .(UnitID, Period)]
-  wk2 <- rbindlist(list(wk2, wk2_CPHL), fill = TRUE)
-} else {
-  # Calculate combined chlorophyll a indicator as a simple average
-  wk2_CPHL <- wk2[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = mean(ES, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), GridArea = max(GridArea, na.rm = TRUE), EQR = mean(EQR, na.rm = TRUE), EQRS = mean(EQRS, na.rm = TRUE)), by = .(UnitID, Period)]
-  wk2 <- rbindlist(list(wk2, wk2_CPHL), fill = TRUE)
-}
-
-# Calculate and add combined annual Cyanobacteria Bloom Index (BM/CSA) indicator
-wk2_CBI <- wk2[IndicatorID %in% c(601, 602), .(IndicatorID = 6, ES = mean(ES, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), GridArea = max(GridArea, na.rm = TRUE), EQR = mean(EQR, na.rm = TRUE), EQRS = mean(EQRS, na.rm = TRUE)), by = .(UnitID, Period)]
-wk2 <- rbindlist(list(wk2, wk2_CBI), fill = TRUE)
-
-setkey(wk2, IndicatorID, UnitID, Period)
-
-# ------------------------------------------------------------------------------
 
 # Combine with indicator and indicator unit configuration tables
 wk3 <- indicators[indicatorUnits[wk2]]
@@ -398,12 +374,10 @@ wk3[is.na(STC), STC := ifelse(NMP - NM <= STC_HM, 100, ifelse(NMP - NM >= STC_ML
 wk3 <- merge(wk3, as.data.table(units)[, .(UnitArea = as.numeric(UnitArea)), keyby = .(UnitID)], by = c("UnitID"), all.x = TRUE)
 wk3[is.na(SSC), SSC := ifelse(GridArea / UnitArea * 100 > SSC_HM, 100, ifelse(GridArea / UnitArea * 100 < SSC_ML, 0, 50))]
 
-# ------------------------------------------------------------------------------
-
-# Standard Error
+# Calculate Standard Error
 wk3[, SE := SD / sqrt(N)]
 
-# 95 % Confidence Interval
+# Calculate 95 % Confidence Interval
 wk3[, CI := qnorm(0.975) * SE]
 
 # Calculate Eutrophication Ratio (ER)
@@ -423,11 +397,32 @@ wk3[is.na(EQR_MP), EQR_MP := 0.5 * EQR_GM + 0.5 * EQR_PB]
 
 # Calculate Ecological Quality Ratio Scaled (EQRS)
 wk3[is.na(EQRS), EQRS := ifelse(EQR <= EQR_PB, (EQR - 0) * (0.2 - 0) / (EQR_PB - 0) + 0,
-                     ifelse(EQR <= EQR_MP, (EQR - EQR_PB) * (0.4 - 0.2) / (EQR_MP - EQR_PB) + 0.2,
-                            ifelse(EQR <= EQR_GM, (EQR - EQR_MP) * (0.6 - 0.4) / (EQR_GM - EQR_MP) + 0.4,
-                                   ifelse(EQR <= EQR_HG, (EQR - EQR_GM) * (0.8 - 0.6) / (EQR_HG - EQR_GM) + 0.6,
-                                          (EQR - EQR_HG) * (1 - 0.8) / (1 - EQR_HG) + 0.8))))]
+                                ifelse(EQR <= EQR_MP, (EQR - EQR_PB) * (0.4 - 0.2) / (EQR_MP - EQR_PB) + 0.2,
+                                       ifelse(EQR <= EQR_GM, (EQR - EQR_MP) * (0.6 - 0.4) / (EQR_GM - EQR_MP) + 0.4,
+                                              ifelse(EQR <= EQR_HG, (EQR - EQR_GM) * (0.8 - 0.6) / (EQR_HG - EQR_GM) + 0.6,
+                                                     (EQR - EQR_HG) * (1 - 0.8) / (1 - EQR_HG) + 0.8))))]
 
+# Calculate and add combined annual Chlorophyll a (In-Situ/EO/FB) indicator
+if(combined_Chlorophylla_IsWeighted) {
+  # Calculate combined chlorophyll a indicator as a weighted average
+  wk3[IndicatorID == 501, W := ifelse(UnitID %in% c(12), 0.70, ifelse(UnitID %in% c(13, 14), 0.40, 0.55))]
+  wk3[IndicatorID == 502, W := ifelse(UnitID %in% c(12, 13, 14), 0.30, 0.45)]
+  wk3[IndicatorID == 503, W := ifelse(UnitID %in% c(13, 14), 0.30, 0.00)]
+  wk3_CPHL <- wk3[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = weighted.mean(ES, W, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), ER = weighted.mean(ER, W, na.rm = TRUE), EQR = weighted.mean(EQR, W, na.rm = TRUE), EQRS = weighted.mean(EQRS, W, na.rm = TRUE), GTC = weighted.mean(GTC, W, na.rm = TRUE), NMP = max(NMP, na.rm = TRUE), STC = weighted.mean(STC, W, na.rm = TRUE), SSC = weighted.mean(SSC, W, na.rm = TRUE)), by = .(UnitID, Period)]
+  wk3 <- rbindlist(list(wk3, wk3_CPHL), fill = TRUE)
+} else {
+  # Calculate combined chlorophyll a indicator as a simple average
+  wk3_CPHL <- wk3[IndicatorID %in% c(501, 502, 503), .(IndicatorID = 5, ES = mean(ES, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), ER = mean(ER, na.rm = TRUE), EQR = mean(EQR, na.rm = TRUE), EQRS = mean(EQRS, na.rm = TRUE), GTC = mean(GTC, na.rm = TRUE), NMP = max(NMP, na.rm = TRUE), STC = mean(STC, na.rm = TRUE), SSC = mean(SSC, na.rm = TRUE)), by = .(UnitID, Period)]
+  wk3 <- rbindlist(list(wk3, wk3_CPHL), fill = TRUE)
+}
+
+# Calculate and add combined annual Cyanobacteria Bloom Index (BM/CSA) indicator
+wk3_CBI <- wk3[IndicatorID %in% c(601, 602), .(IndicatorID = 6, ES = mean(ES, na.rm = TRUE), SD = NA, N = sum(N, na.rm = TRUE), NM = max(NM, na.rm = TRUE), ER = mean(ER, na.rm = TRUE), EQR = mean(EQR, na.rm = TRUE), EQRS = mean(EQRS, na.rm = TRUE), GTC = mean(GTC, na.rm = TRUE), NMP = max(NMP, na.rm = TRUE), STC = mean(STC, na.rm = TRUE), SSC = mean(SSC, na.rm = TRUE)), by = .(UnitID, Period)]
+wk3 <- rbindlist(list(wk3, wk3_CBI), fill = TRUE)
+
+setkey(wk3, IndicatorID, UnitID, Period)
+
+# Classify Ecological Quality Ratio Scaled (EQRS_Class)
 wk3[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
                            ifelse(EQRS >= 0.6, "Good",
                                   ifelse(EQRS >= 0.4, "Moderate",
