@@ -38,14 +38,14 @@ stationSamplesBOTFile <- file.path(inputPath, "")
 stationSamplesCTDFile <- file.path(inputPath, "")
 
 if (assessmentPeriod == "2011-2016"){
-  urls <- c("https://www.dropbox.com/s/r14qdxdic8l39tq/Auxilliary.csv?dl=1",
-            "https://www.dropbox.com/s/xgt9gp4syz71d6j/Nitrogen.csv?dl=1",
-            "https://www.dropbox.com/s/421phd1b9aszc0z/MajorBalticInflows.csv?dl=1",
-            "https://www.dropbox.com/s/d7yyrd77f5gc2sc/Baltsem_utm34.zip?dl=1",
-            "https://www.dropbox.com/s/nz4ffydakewl7so/BALTIC_BATHY_BALTSEM.zip?dl=1",
-            "https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
-            "https://www.dropbox.com/s/ee6ngcmyjakhbrt/StationSamples2011-2016BOT_2022-12-09.txt.gz?dl=1",
-            "https://www.dropbox.com/s/qxooza0yuie3tlk/StationSamples2011-2016CTD_2022-12-09.txt.gz?dl=1")
+  urls <- c("https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/Auxilliary.csv",
+            "https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/Nitrogen.csv",
+            "https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/MajorBalticInflows.csv",
+            "https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/Baltsem_utm34.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/BALTIC_BATHY_BALTSEM.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/AssessmentUnits.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2011-2016BOT_2022-12-09.txt.gz",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2011-2016CTD_2022-12-09.txt.gz")
   auxilliaryFile <- file.path(inputPath, "Auxilliary.csv")
   nitrogenFile <- file.path(inputPath, "Nitrogen.csv")
   majorBalticInflowsFile <- file.path(inputPath, "MajorBalticInflows.csv")
@@ -55,14 +55,14 @@ if (assessmentPeriod == "2011-2016"){
   stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT_2022-12-09.txt.gz")
   stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD_2022-12-09.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
-  urls <- c("https://www.dropbox.com/s/r14qdxdic8l39tq/Auxilliary.csv?dl=1",
-            "https://www.dropbox.com/s/xgt9gp4syz71d6j/Nitrogen.csv?dl=1",
-            "https://www.dropbox.com/s/421phd1b9aszc0z/MajorBalticInflows.csv?dl=1",
-            "https://www.dropbox.com/s/d7yyrd77f5gc2sc/Baltsem_utm34.zip?dl=1",
-            "https://www.dropbox.com/s/nz4ffydakewl7so/BALTIC_BATHY_BALTSEM.zip?dl=1",
-            "https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
-            "https://www.dropbox.com/s/rymfxidvimqbpxl/StationSamples2016-2021BOT_2022-12-09.txt.gz?dl=1",
-            "https://www.dropbox.com/s/drk5clui9s3pc8v/StationSamples2016-2021CTD_2022-12-09.txt.gz?dl=1")
+  urls <- c("https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/Auxilliary.csv",
+            "https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/Nitrogen.csv",
+            "https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/MajorBalticInflows.csv",
+            "https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/Baltsem_utm34.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/OxygenDebt/BALTIC_BATHY_BALTSEM.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/AssessmentUnits.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2016-2021BOT_2022-12-09.txt.gz",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2016-2021CTD_2022-12-09.txt.gz")
   auxilliaryFile <- file.path(inputPath, "Auxilliary.csv")
   nitrogenFile <- file.path(inputPath, "Nitrogen.csv")
   majorBalticInflowsFile <- file.path(inputPath, "MajorBalticInflows.csv")
