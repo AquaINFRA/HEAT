@@ -117,6 +117,9 @@ def check_one_process(url, inputs, name_of_main_output):
     print('  Result content: %s...' % str(final_result.content)[0:200])
     return href
 
+
+assessment_period = "2016-2021"
+
 ##############
 ### heat_1 ###
 ##############
@@ -124,7 +127,7 @@ name = "heat_1"
 print('\nCalling %s...' % name)
 inputs = { 
     "inputs": {
-        "assessment_period": "2016-2021"
+        "assessment_period": assessment_period
     }
 }
 
@@ -139,7 +142,7 @@ name = "heat_2"
 print('\nCalling %s...' % name)
 inputs = { 
     "inputs": {
-        "assessment_period": "2016-2021"
+        "assessment_period": assessment_period
     }
 }
 
@@ -154,7 +157,7 @@ name = "heat_3"
 print('\nCalling %s...' % name)
 inputs = { 
     "inputs": {
-        "assessment_period": "2016-2021",
+        "assessment_period": assessment_period,
         "combined_Chlorophylla_IsWeighted": True,
         "station_samples": resultlink_heat2
     }
@@ -170,7 +173,7 @@ name = "heat_4"
 print('\nCalling %s...' % name)
 inputs = { 
     "inputs": {
-        "assessment_period": "2016-2021",
+        "assessment_period": assessment_period,
         "annual_indicators": resultlink_heat3
     }
 }
@@ -185,7 +188,7 @@ name = "heat_5"
 print('\nCalling %s...' % name)
 inputs = { 
     "inputs": {
-        "assessment_period": "2016-2021",
+        "assessment_period": assessment_period,
         "assessment_indicators": resultlink_heat4
     }
 }
