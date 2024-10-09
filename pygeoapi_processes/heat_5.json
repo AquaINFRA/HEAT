@@ -1,6 +1,6 @@
 {
     "version": "0.0.1",
-    "id": "assessment",
+    "id": "heat_5",
     "use_case": "HELCOM HEAT",
     "title": {"en": "HELCOM HEAT (5): Compute the Assessment"},
     "description": {
