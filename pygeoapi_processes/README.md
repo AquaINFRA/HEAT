@@ -133,6 +133,6 @@ StationSamples2016-2021PMP_2022-12-09.txt.gz
 
 * Install the following R packages: `tidyverse`, `R.utils` (TODO: any others?)
 * Start pygeoapi following their documentation
-
+* Now you should be able to call the processes using any HTTP client, for example curl. Example requests can be found on top of heat `heat_*.py` file. For the first process, call `curl -X POST "http://localhost:5000/processes/heat_1/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\"}}"`.
 
 

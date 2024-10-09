@@ -7,7 +7,7 @@ import json
 import os
 import sys
 import traceback
-from pygeoapi.process.helcom_heat.utils import call_r_script
+from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
