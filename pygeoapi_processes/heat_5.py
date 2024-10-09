@@ -60,6 +60,12 @@ class HEAT5Processor(BaseProcessor):
         assessment_period = data.get('assessment_period')
         assessment_indicators_csv_url = data.get('assessment_indicators')
 
+        # Check user inputs:
+        if assessment_indicators_csv_url is None:
+            raise ProcessorExecuteError('Missing parameter "assessment_indicators". Please provide a URL to your input data.')
+        if assessment_period is None:
+            raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
+
         # Check validity of argument:
         valid_assessment_periods = ["1877-9999", "2011-2016", "2016-2021"]
         if not assessment_period in valid_assessment_periods:

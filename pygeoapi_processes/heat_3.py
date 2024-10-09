@@ -60,28 +60,34 @@ class HEAT3Processor(BaseProcessor):
         samples_url = data.get('station_samples')
         combined_Chlorophylla_IsWeighted = data.get('combined_Chlorophylla_IsWeighted')
 
-        # TODO download samples
-        download_dir = self.config["download_dir"].rstrip('/')
-
-        in_relevant_stationsamples_filepath = None
-        if samples_url is not None:
-            LOGGER.info('Client requested sample data: %s' % samples_url)
-            # TODO: Check if the url is OURS!!
-            in_relevant_stationsamples_filename = samples_url.split('/')[-1]
-            in_relevant_stationsamples_filepath = download_dir+'/'+in_relevant_stationsamples_filename
-            if os.path.exists(in_relevant_stationsamples_filepath):
-                LOGGER.debug('Found: %s' % in_relevant_stationsamples_filepath)
-            else:
-                LOGGER.debug('Downloading sample data: %s from %s' % (in_relevant_stationsamples_filename, samples_url))
-                resp = requests.get(samples_url)
-                with open(in_relevant_stationsamples_filepath, 'w') as myfile:
-                    myfile.write(resp.content)
-                    LOGGER.debug('Downloaded: %s' % in_relevant_stationsamples_filepath)
+        # Check user inputs:
+        if samples_url is None:
+            raise ProcessorExecuteError('Missing parameter "station_samples". Please provide a URL to your input data.')
+        if assessment_period is None:
+            raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
+        if combined_Chlorophylla_IsWeighted is None:
+            raise ProcessorExecuteError('Missing parameter "combined_Chlorophylla_IsWeighted". Please provide an boolean.')
 
         # Check validity of argument:
         valid_assessment_periods = ["1877-9999", "2011-2016", "2016-2021"]
         if not assessment_period in valid_assessment_periods:
             raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
+
+        # Download user-provided samples
+        download_dir = self.config["download_dir"].rstrip('/')
+        in_relevant_stationsamples_filepath = None
+        LOGGER.info('Client requested sample data: %s' % samples_url)
+        # TODO: Check if the url is OURS!!
+        in_relevant_stationsamples_filename = samples_url.split('/')[-1]
+        in_relevant_stationsamples_filepath = download_dir+'/'+in_relevant_stationsamples_filename
+        if os.path.exists(in_relevant_stationsamples_filepath):
+            LOGGER.debug('Found: %s' % in_relevant_stationsamples_filepath)
+        else:
+            LOGGER.debug('Downloading sample data: %s from %s' % (in_relevant_stationsamples_filename, samples_url))
+            resp = requests.get(samples_url)
+            with open(in_relevant_stationsamples_filepath, 'w') as myfile:
+                myfile.write(resp.content)
+                LOGGER.debug('Downloaded: %s' % in_relevant_stationsamples_filepath)
 
         # Where to look for cleaned units data
         # TODO where is reference copy

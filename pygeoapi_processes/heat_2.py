@@ -64,6 +64,9 @@ class HEAT2Processor(BaseProcessor):
         pmp_url = data.get('pump_data', None)
         gridded_units_url = data.get('gridded_units', None)
 
+        # Check user inputs:
+        if assessment_period is None:
+            raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
 
         # Check validity of argument:
         validAssessmentPeriods = ["1877-9999", "2011-2016", "2016-2021"]

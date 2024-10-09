@@ -59,6 +59,10 @@ class HEAT1Processor(BaseProcessor):
         # Get input:
         assessment_period = data.get('assessment_period')
 
+        # Check user inputs:
+        if assessment_period is None:
+            raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
+
         # Check validity of argument:
         valid_assessment_periods = ["1877-9999", "2011-2016", "2016-2021"]
         if not assessment_period in valid_assessment_periods:
