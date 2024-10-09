@@ -1,7 +1,8 @@
 {
     "version": "0.0.1",
-    "id": "assessment-indicator-posted",
-    "title": {"en": "HELCOM HEAT: Assessment Indicators (4)"},
+    "id": "heat_4",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (4): Compute the Assessment Indicators"},
     "description": {
         "en": "Process to compute the HELCOM Assessment for the HEAT assessment tool. This process represents subpart 4 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
     },

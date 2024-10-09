@@ -1,7 +1,8 @@
 {
     "version": "0.0.1",
     "id": "heat_2",
-    "title": {"en": "HELCOM Annual Indicator"},
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (2): Combine the Samples"},
     "description": {
         "en": "Process to compute the HELCOM Annual Indicator for the HEAT assessment tool. This process represents subpart 2 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
     },

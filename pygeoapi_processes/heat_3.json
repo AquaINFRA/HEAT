@@ -1,7 +1,8 @@
 {
     "version": "0.0.1",
     "id": "heat_3",
-    "title": {"en": "HELCOM Annual Indicator"},
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (3): Compute the Annual Indicator"},
     "description": {
         "en": "Compute the HELCOM Annual Indicator for the HEAT assessment tool. This process represents subpart 3 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
     },

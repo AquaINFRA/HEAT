@@ -1,7 +1,8 @@
 {
     "version": "0.0.1",
     "id": "heat_1",
-    "title": {"en": "HELCOM HEAT: Gridded assessment units"},
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (1): Generate the Assessment Units"},
     "description": {
         "en": "Compute the assessment units for the HEAT assessment tool. The area is gridded, the grids have different sizes. I do not know why the assessment period has to be provided. This process represents subpart 1 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
     },
