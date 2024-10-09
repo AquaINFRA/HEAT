@@ -1,0 +1,63 @@
+{
+    "version": "0.0.1",
+    "id": "assessment-indicator-posted",
+    "title": {"en": "HELCOM HEAT: Assessment Indicators (4)"},
+    "description": {
+        "en": "Process to compute the HELCOM Assessment for the HEAT assessment tool. This process represents subpart 4 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "assessment_period": {
+            "title": "Assessment Period",
+            "description": "Ask HELCOM. Example: 2011-2016",
+            "schema": {
+                "type": "string",
+                "enum": [
+                  "2011-2016",
+                  "2016-2021",
+                  "1877-9999"
+                ]
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "annual_indicators": {
+            "title": "Annual Indicators",
+            "description": "Result from last process (AnnualIndicators.csv).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "text/csv"
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "assessment_indicators": {
+            "title": "Assessment Indicator Table",
+            "description": "Assessment Indicator CSV (AssessmentIndicators.csv), TODO ask HELCOM.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "text/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "annual_indicators_csv": "http://exampleserver.fi/AnnualIndicators.csv",
+            "assessment_period": "2016-2021"
+        }
+    }
+}

@@ -1,0 +1,70 @@
+{
+    "version": "0.0.1",
+    "id": "heat_3",
+    "title": {"en": "HELCOM Annual Indicator"},
+    "description": {
+        "en": "Compute the HELCOM Annual Indicator for the HEAT assessment tool. This process represents subpart 3 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "assessment_period": {
+            "title": "Assessment Period",
+            "description": "Ask HELCOM. Example: 2011-2016",
+            "schema": {
+                "type": "string",
+                "enum": [
+                  "2011-2016",
+                  "2016-2021",
+                  "1877-9999"
+                ]
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "station_samples": {
+            "title": "Relevant Samples",
+            "description": "Ask HELCOM. From last process.",
+            "schema": {"type": "string"},
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "combined_Chlorophylla_IsWeighted": {
+            "title": "combined_Chlorophylla_IsWeighted",
+            "description": "Ask HELCOM. Example: true",
+            "schema": {"type": "bool"},
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "annual_indicators": {
+            "title": "Annual Indicators",
+            "description": "Annual Indicator CSV (AnnualIndicators.csv), ask HELCOM.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "assessment_period": "2016-2021",
+            "combined_Chlorophylla_IsWeighted": "true",
+            "samples": "https://testserver.com/StationSamples.csv"
+        }
+    }
+}

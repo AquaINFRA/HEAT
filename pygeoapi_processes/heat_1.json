@@ -1,0 +1,50 @@
+{
+    "version": "0.0.1",
+    "id": "heat_1",
+    "title": {"en": "HELCOM HEAT: Gridded assessment units"},
+    "description": {
+        "en": "Compute the assessment units for the HEAT assessment tool. The area is gridded, the grids have different sizes. I do not know why the assessment period has to be provided. This process represents subpart 1 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "assessment_period": {
+            "title": "Assessment Period",
+            "description": "Ask HELCOM. Example: 2011-2016",
+            "schema": {
+                "type": "string",
+                "enum": [
+                  "2011-2016",
+                  "2016-2021",
+                  "1877-9999"
+                ]
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "units_gridded": {
+            "title": "Gridded assessment units",
+            "description": "Assessment units for the HEAT assessment tool.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "assessment_period": "2011-2016"
+        }
+    }
+}
