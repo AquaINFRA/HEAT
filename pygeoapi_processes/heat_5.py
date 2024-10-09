@@ -99,18 +99,13 @@ class HEAT5Processor(BaseProcessor):
         r_file_name = 'HEAT_subpart5.R'
         path_r_scripts = self.config['r_script_dir'].rstrip('/')
         r_args = [in_assessment_indicator_filepath, in_helper_indicators_path, in_helper_indicatorunits_path, out_assessment_path]
-        returncode, stdout, stderr  = call_r_script(LOGGER, r_file_name, path_r_scripts, r_args)
+        returncode, stdout, stderr, err_msg  = call_r_script(LOGGER, r_file_name, path_r_scripts, r_args)
         # There is just one result:
         # * Assessment.csv
 
 
         # Return R error message if exit code not 0:
         if not returncode == 0:
-            err_msg = 'R script "%s" failed.' % r_file_name
-            for line in stderr.split('\n'):
-                if line.startswith('Error') or line.startswith('Fatal error'):
-                    err_msg = 'R script "%s" failed: %s' % (r_file_name, line)
-
             raise ProcessorExecuteError(user_msg = err_msg)
 
 

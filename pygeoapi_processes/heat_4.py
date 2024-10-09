@@ -101,18 +101,13 @@ class HEAT4Processor(BaseProcessor):
         r_file_name = 'HEAT_subpart4_wk5.R'
         path_r_scripts = self.config['r_script_dir'].rstrip('/')
         r_args = [in_annual_indicator_filepath, in_helper_indicators_path, in_helper_indicatorunits_path, out_assessment_indicators_filepath]
-        returncode, stdout, stderr = call_r_script(LOGGER, r_file_name, path_r_scripts, r_args)
+        returncode, stdout, stderr, err_msg = call_r_script(LOGGER, r_file_name, path_r_scripts, r_args)
         # There are no results, except for one CSV of the Assessment Indicator:
         # * AssessmentIndicators.csv
 
 
         # Return R error message if exit code not 0:
         if not returncode == 0:
-            err_msg = 'R script "%s" failed.' % r_file_name
-            for line in stderr.split('\n'):
-                if line.startswith('Error') or line.startswith('Fatal error'):
-                    err_msg = 'R script "%s" failed: %s' % (r_file_name, line)
-
             raise ProcessorExecuteError(user_msg = err_msg)
 
 

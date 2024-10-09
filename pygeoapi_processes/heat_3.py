@@ -115,17 +115,12 @@ class HEAT3Processor(BaseProcessor):
         r_args = [in_relevant_stationsamples_filepath, in_chlorophyll_flag, in_units_cleaned_filepath,
                   in_helper_indicators_path, in_helper_indicatorunits_path, in_helper_indicatorunitresults_path, out_annual_indicators_filepath]
         LOGGER.info('##### R-args:  %s' % r_args)
-        returncode, stdout, stderr = call_r_script(LOGGER, r_file_name, path_rscripts, r_args)
+        returncode, stdout, stderr, err_msg = call_r_script(LOGGER, r_file_name, path_rscripts, r_args)
         # Result:
         # * AnnualIndicators.csv
 
         # Return R error message if exit code not 0:
         if not returncode == 0:
-            err_msg = 'R script "%s" failed.' % r_file_name
-            for line in stderr.split('\n'):
-                if line.startswith('Error') or line.startswith('Fatal error'):
-                    err_msg = 'R script "%s" failed: %s' % (r_file_name, line)
-
             raise ProcessorExecuteError(user_msg = err_msg)
 
 

@@ -191,7 +191,7 @@ class HEAT2Processor(BaseProcessor):
         r_file_name = 'HEAT_subpart2_stations.R' # TODO: Some improvements to make on this R script!
         path_rscripts = self.config['r_script_dir'].rstrip('/')
         r_args = [bot_path, ctd_path, pmp_path, in_gridded_units_filepath, out_stationsamples_BOT_csv_filepath, out_stationsamples_CTD_csv_filepath, out_stationsamples_PMP_csv_filepath, out_stationsamples_csv_filepath]
-        returncode, stdout, stderr = call_r_script(LOGGER, r_file_name, path_rscripts, r_args)
+        returncode, stdout, stderr, err_msg = call_r_script(LOGGER, r_file_name, path_rscripts, r_args)
         # Results:
         # * StationSamples
         # * StationSamplesBOT.csv
@@ -200,11 +200,6 @@ class HEAT2Processor(BaseProcessor):
         
         # Return R error message if exit code not 0:
         if not returncode == 0:
-            err_msg = 'R script "%s" failed.' % r_file_name
-            for line in stderr.split('\n'):
-                if line.startswith('Error') or line.startswith('Fatal error'):
-                    err_msg = 'R script "%s" failed: %s' % (r_file_name, line)
-
             raise ProcessorExecuteError(user_msg = err_msg)
 
 

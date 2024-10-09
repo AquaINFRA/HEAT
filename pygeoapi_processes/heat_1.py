@@ -90,7 +90,7 @@ class HEAT1Processor(BaseProcessor):
         r_file_name = 'HEAT_subpart1_gridunits.R'
         path_rscripts = self.config['r_script_dir'].rstrip('/')
         r_args = [assessment_period, in_helper_units_path, in_helper_gridsizes_path, out_units_cleaned_filepath, out_units_gridded_filepath]
-        returncode, stdout, stderr = call_r_script(LOGGER, r_file_name, path_rscripts, r_args)
+        returncode, stdout, stderr, err_msg = call_r_script(LOGGER, r_file_name, path_rscripts, r_args)
         # The results are two shapefiles:
         # * units_cleaned.shp
         # * units_gridded.shp
@@ -105,11 +105,6 @@ class HEAT1Processor(BaseProcessor):
 
         # Return R error message if exit code not 0:
         if not returncode == 0:
-            err_msg = 'R script "%s" failed.' % r_file_name
-            for line in stderr.split('\n'):
-                if line.startswith('Error'):
-                    err_msg = 'R script "%s" failed: %s' % (r_file_name, line)
-
             raise ProcessorExecuteError(user_msg = err_msg)
 
 
