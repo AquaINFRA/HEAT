@@ -50,7 +50,7 @@ def poll_for_links(resp201, session, required_type='application/json', seconds_p
     seconds_passed = 0
     polling_url = resp201.headers['location']
     while True:
-        polling_result = session.get(resp.headers['location'])
+        polling_result = session.get(resp201.headers['location'])
         job_status = polling_result.json()['status'].lower()
         print('Job status: %s' % job_status)
         
@@ -89,42 +89,46 @@ def poll_for_links(resp201, session, required_type='application/json', seconds_p
             print('Stopping.')
             sys.exit(1)
 
+def check_one_process(url, inputs, name_of_main_output):
+
+    url = base_url+'/processes/%s/execution' % name
+
+    # sync:
+    print('synchronous...')
+    resp = session.post(url, headers=headers_sync, json=inputs)
+    print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 200
+    if resp.status_code == 200:
+        result_application_json = resp.json()
+        print('  Result (JSON document): %s' % result_application_json)
+
+    # or async:
+    if not resp.status_code == 200 or force_async:
+        print('asynchronous... (with excel inputs)')
+        resp = session.post(url, headers=headers_async, json=inputs)
+        print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 201
+        result_application_json = poll_for_json_result(resp, session)
+        print('  Result (JSON document): %s' % result_application_json)
+
+    # Results (sync / async, does not matter):
+    href = result_application_json['outputs'][name_of_main_output]['href']
+    print('  It contains a link to our ACTUAL result: %s' % href)
+    # Check out result itself:
+    final_result = session.get(href)
+    print('  Result content: %s...' % str(final_result.content)[0:200])
+    return href
+
 ##############
 ### heat_1 ###
 ##############
 name = "heat_1"
 print('\nCalling %s...' % name)
-url = base_url+'/processes/%s/execution' % name
 inputs = { 
     "inputs": {
         "assessment_period": "2016-2021"
     }
 }
 
-
-# sync:
-print('synchronous...')
-resp = session.post(url, headers=headers_sync, json=inputs)
-print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 200
-if resp.status_code == 200:
-    result_application_json = resp.json()
-    print('  Result (JSON document): %s' % result_application_json)
-
-# or async:
-if not resp.status_code == 200 or force_async:
-    print('asynchronous... (with excel inputs)')
-    resp = session.post(url, headers=headers_async, json=inputs)
-    print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 201
-    result_application_json = poll_for_json_result(resp, session)
-    print('  Result (JSON document): %s' % result_application_json)
-
-# Results (sync / async, does not matter):
-href = result_application_json['outputs']['units_gridded']['href']
-print('  It contains a link to our ACTUAL result: %s' % href)
-# Check out result itself: No, it is a shapefile...
-#final_result = session.get(href)
-#print('  Result content: %s...' % str(final_result.content)[0:200])
-
+resultlink_heat1 = check_one_process(name, inputs, 'units_gridded')
 
 
 ##############
@@ -133,40 +137,13 @@ print('  It contains a link to our ACTUAL result: %s' % href)
 ##############
 name = "heat_2"
 print('\nCalling %s...' % name)
-url = base_url+'/processes/%s/execution' % name
 inputs = { 
     "inputs": {
         "assessment_period": "2016-2021"
     }
 }
 
-
-# sync:
-print('synchronous...')
-resp = session.post(url, headers=headers_sync, json=inputs)
-print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 200
-if resp.status_code == 200:
-    result_application_json = resp.json()
-    print('  Result (JSON document): %s' % result_application_json)
-
-# or async:
-if not resp.status_code == 200 or force_async:
-    print('asynchronous... (with excel inputs)')
-    resp = session.post(url, headers=headers_async, json=inputs)
-    print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 201
-    result_application_json = poll_for_json_result(resp, session)
-    print('  Result (JSON document): %s' % result_application_json)
-
-# Results (sync / async, does not matter):
-href = result_application_json['outputs']['station_samples']['href']
-print('  It contains a link to our ACTUAL result: %s' % href)
-# Check out result itself:
-final_result = session.get(href)
-print('  Result content: %s...' % str(final_result.content)[0:200])
-resultlink_heat2 = href
-
-
-
+resultlink_heat2 = check_one_process(name, inputs, 'station_samples')
 
 
 ##############
@@ -175,7 +152,6 @@ resultlink_heat2 = href
 ##############
 name = "heat_3"
 print('\nCalling %s...' % name)
-url = base_url+'/processes/%s/execution' % name
 inputs = { 
     "inputs": {
         "assessment_period": "2016-2021",
@@ -183,33 +159,7 @@ inputs = {
         "station_samples": resultlink_heat2
     }
 }
-
-
-# sync:
-print('synchronous...')
-resp = session.post(url, headers=headers_sync, json=inputs)
-print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 200
-if resp.status_code == 200:
-    result_application_json = resp.json()
-    print('  Result (JSON document): %s' % result_application_json)
-
-# or async:
-if not resp.status_code == 200 or force_async:
-    print('asynchronous... (with excel inputs)')
-    resp = session.post(url, headers=headers_async, json=inputs)
-    print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 201
-    result_application_json = poll_for_json_result(resp, session)
-    print('  Result (JSON document): %s' % result_application_json)
-
-# Results (sync / async, does not matter):
-href = result_application_json['outputs']['annual_indicators']['href']
-print('  It contains a link to our ACTUAL result: %s' % href)
-# Check out result itself:
-final_result = session.get(href)
-print('  Result content: %s...' % str(final_result.content)[0:200])
-resultlink_heat3 = href
-
-
+resultlink_heat3 = check_one_process(name, inputs, 'annual_indicators')
 
 
 ##############
@@ -218,39 +168,13 @@ resultlink_heat3 = href
 ##############
 name = "heat_4"
 print('\nCalling %s...' % name)
-url = base_url+'/processes/%s/execution' % name
 inputs = { 
     "inputs": {
         "assessment_period": "2016-2021",
         "annual_indicators": resultlink_heat3
     }
 }
-
-
-# sync:
-print('synchronous...')
-resp = session.post(url, headers=headers_sync, json=inputs)
-print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 200
-if resp.status_code == 200:
-    result_application_json = resp.json()
-    print('  Result (JSON document): %s' % result_application_json)
-
-# or async:
-if not resp.status_code == 200 or force_async:
-    print('asynchronous... (with excel inputs)')
-    resp = session.post(url, headers=headers_async, json=inputs)
-    print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 201
-    result_application_json = poll_for_json_result(resp, session)
-    print('  Result (JSON document): %s' % result_application_json)
-
-# Results (sync / async, does not matter):
-href = result_application_json['outputs']['assessment_indicators']['href']
-print('  It contains a link to our ACTUAL result: %s' % href)
-# Check out result itself:
-final_result = session.get(href)
-print('  Result content: %s...' % str(final_result.content)[0:200])
-resultlink_heat4 = href
-
+resultlink_heat4 = check_one_process(name, inputs, 'assessment_indicators')
 
 
 ##############
@@ -259,39 +183,13 @@ resultlink_heat4 = href
 ##############
 name = "heat_5"
 print('\nCalling %s...' % name)
-url = base_url+'/processes/%s/execution' % name
 inputs = { 
     "inputs": {
         "assessment_period": "2016-2021",
         "assessment_indicators": resultlink_heat4
     }
 }
-
-
-# sync:
-print('synchronous...')
-resp = session.post(url, headers=headers_sync, json=inputs)
-print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 200
-if resp.status_code == 200:
-    result_application_json = resp.json()
-    print('  Result (JSON document): %s' % result_application_json)
-
-# or async:
-if not resp.status_code == 200 or force_async:
-    print('asynchronous... (with excel inputs)')
-    resp = session.post(url, headers=headers_async, json=inputs)
-    print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 201
-    result_application_json = poll_for_json_result(resp, session)
-    print('  Result (JSON document): %s' % result_application_json)
-
-# Results (sync / async, does not matter):
-href = result_application_json['outputs']['assessment']['href']
-print('  It contains a link to our ACTUAL result: %s' % href)
-# Check out result itself:
-final_result = session.get(href)
-print('  Result content: %s...' % str(final_result.content)[0:200])
-
-
+resultlink_heat5 = check_one_process(name, inputs, 'assessment')
 
 
 ###################
