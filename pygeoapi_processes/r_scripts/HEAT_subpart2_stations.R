@@ -77,7 +77,6 @@ colname_pairs = list(
   c('Temperature..degC.', 'Temperature..TEMPPR01_UPAA...degC.'),
   c('QV.ODV.Temperature..degC.', 'QV.ODV.Temperature..TEMPPR01_UPAA.'),
   c('Secchi.Depth..m..METAVAR.FLOAT', 'Secchi.Depth..m.'),
-  c('QV.ODV.Secchi.Depth..m.', 'QV.ODV.Secchi.Depth..m.'),
   c('Depth..m.', 'Depth..ADEPZZ01_ULAA...m.'),
   c('QV.ODV.Depth..m.', 'QV.ODV.Depth..ADEPZZ01_ULAA.'),
   c('Temperature..degC.', 'Temperature..TEMPPR01_UPAA...degC.'),
@@ -116,23 +115,24 @@ colname_pairs = list(
 
 message(paste0('Now checking the col names...'))
 for (colname_pair in colname_pairs) {
-  message(paste('* colname_pair: ', colname_pair))
   colname_helcom = colname_pair[1]
-  message(paste('* colname_helcom: ', colname_helcom))
   colname_ices = colname_pair[2]
-  message(paste('* colname_ices: ', colname_ices))
+  message(paste('* colname_helcom: ', colname_helcom))
+  message(paste('* colname_ices  : ', colname_ices))
 
   if (colname_helcom %in% colnames(stationSamplesBOT)) {
-      message(paste0('Colname exists: "', colname_helcom, '".'))
+      message(paste0('Colname exists:    "', colname_helcom, '".'))
   } else {
     if (colname_ices %in% colnames(stationSamplesBOT)) {
-      message(paste0('Replacing column "', colname_ices, '" by "', colname_helcom, '"...'))
+      message(paste0('Replacing column  "', colname_ices, '" by "', colname_helcom, '"...'))
+      colnames(stationSamplesBOT)[colnames(stationSamplesBOT)==colname_ices] <- colname_helcom
     } else {
-      message(paste0('Column missing "', colname_helcom, '" (or its ICES alternative "', colname_ices, '")...'))
+      message(paste0('Column missing    "', colname_helcom, '" (or its ICES alternative "', colname_ices, '")...'))
     }
   }
 }
 message(paste0('Done checking the col names...'))
+message(paste('Col names NOW:', paste(colnames(stationSamplesBOT), collapse=', ')))
 
 
 # Ocean hydro chemistry - High resolution CTD data
