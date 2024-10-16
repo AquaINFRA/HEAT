@@ -206,8 +206,8 @@ class HEAT2Processor(BaseProcessor):
                     myfile.write(resp.content)
                     LOGGER.debug('Downloaded: %s' % in_gridded_units_filepath)
 
-        if gridded_units_url is None: # TODO where is reference copy
-            in_gridded_units_filepath = '/var/www/nginx/download/units_gridded-b8b26936-837b-11ef-8e41-e14810fdd7f8.shp'
+        if gridded_units_url is None:
+            in_gridded_units_filepath = path_input_data+"/shapefiles/%s/units_gridded.shp" % assessment_period
 
 
         # Where to store output data

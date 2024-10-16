@@ -90,8 +90,7 @@ class HEAT3Processor(BaseProcessor):
                 LOGGER.debug('Downloaded: %s' % in_relevant_stationsamples_filepath)
 
         # Where to look for cleaned units data
-        # TODO where is reference copy
-        in_units_cleaned_filepath = '/var/www/nginx/download/units_cleaned-206bdd0e-8369-11ef-8e41-e14810fdd7f8.shp'
+        in_units_cleaned_filepath = path_input_data+"/shapefiles/%s/units_cleaned.shp" % assessment_period
 
         # Where to store output data
         out_annual_indicators_filepath = download_dir+'/AnnualIndicators-%s.csv' % self.job_id

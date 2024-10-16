@@ -6,8 +6,8 @@ def call_r_script(LOGGER, r_file_name, path_rscripts, r_args):
 
     r_file = path_rscripts.rstrip('/')+os.sep+r_file_name
     cmd = ["/usr/bin/Rscript", "--vanilla", r_file] + r_args
-    LOGGER.debug('Running command %s ... (Output will be shown once finished)' % r_file_name)
     LOGGER.info(cmd)
+    LOGGER.debug('Running command %s ... (Output will be shown once finished)' % r_file_name)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     stdoutdata, stderrdata = p.communicate()
     LOGGER.debug("Done running command! Exit code from bash: %s" % p.returncode)

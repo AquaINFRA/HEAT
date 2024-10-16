@@ -103,7 +103,7 @@ def check_one_process(url, inputs, name_of_main_output):
 
     # or async:
     if not resp.status_code == 200 or force_async:
-        print('asynchronous... (with excel inputs)')
+        print('asynchronous...')
         resp = session.post(url, headers=headers_async, json=inputs)
         print('Calling %s... done. HTTP %s' % (name, resp.status_code)) # should be HTTP 201
         result_application_json = poll_for_json_result(resp, session)
