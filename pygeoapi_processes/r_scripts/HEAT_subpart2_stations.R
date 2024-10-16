@@ -63,9 +63,77 @@ if (!('Year' %in% colnames(stationSamplesBOT))){
 		stationSamplesBOT$Day <- lubridate::day(stationSamplesBOT$tempdate)
 		stationSamplesBOT$Hour <- lubridate::hour(stationSamplesBOT$tempdate)
 		stationSamplesBOT$Minute <- lubridate::minute(stationSamplesBOT$tempdate)
-		print(colnames(stationSamplesBOT))
+    #message(paste0('All col names: ', paste(colnames(stationSamplesBOT), collapse=',')))
 	}
 }
+
+
+### Replace column names in the ICES format by column names the HELCOM format!
+
+colname_pairs = list(
+  c('Secchi.Depth..m..METAVAR.FLOAT', 'Secchi.Depth..m.'),
+  c('Depth..m.', 'Depth..ADEPZZ01_ULAA...m.'),
+  c('QV.ODV.Depth..m.', 'QV.ODV.Depth..ADEPZZ01_ULAA.'),
+  c('Temperature..degC.', 'Temperature..TEMPPR01_UPAA...degC.'),
+  c('QV.ODV.Temperature..degC.', 'QV.ODV.Temperature..TEMPPR01_UPAA.'),
+  c('Secchi.Depth..m..METAVAR.FLOAT', 'Secchi.Depth..m.'),
+  c('QV.ODV.Secchi.Depth..m.', 'QV.ODV.Secchi.Depth..m.'),
+  c('Depth..m.', 'Depth..ADEPZZ01_ULAA...m.'),
+  c('QV.ODV.Depth..m.', 'QV.ODV.Depth..ADEPZZ01_ULAA.'),
+  c('Temperature..degC.', 'Temperature..TEMPPR01_UPAA...degC.'),
+  c('QV.ODV.Temperature..degC.', 'QV.ODV.Temperature..TEMPPR01_UPAA.'),
+  c('Practical.Salinity..dmnless.', 'Salinity..PSALPR01_UUUU...dmnless.'),
+  c('QV.ODV.Practical.Salinity..dmnless.', 'QV.ODV.Salinity..PSALPR01_UUUU.'),
+  c('Dissolved.Oxygen..ml.l.', 'Oxygen..DOXYZZXX_UMLL...ml.l.'),
+  c('QV.ODV.Dissolved.Oxygen..ml.l.', 'QV.ODV.Oxygen..DOXYZZXX_UMLL.'),
+  c('Phosphate.Phosphorus..PO4.P...umol.l.', 'Phosphate..PHOSZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Phosphate.Phosphorus..PO4.P...umol.l.', 'QV.ODV.Phosphate..PHOSZZXX_UPOX.'),
+  c('Total.Phosphorus..P...umol.l.', 'Total.Phosphorus..TPHSZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Total.Phosphorus..P...umol.l.', 'QV.ODV.Total.Phosphorus..TPHSZZXX_UPOX.'),
+  c('Silicate.Silicon..SiO4.Si...umol.l.', 'Silicate..SLCAZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Silicate.Silicon..SiO4.Si...umol.l.', 'QV.ODV.Silicate..SLCAZZXX_UPOX.'),
+  c('Nitrate.Nitrogen..NO3.N...umol.l.', 'Nitrate..NTRAZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Nitrate.Nitrogen..NO3.N...umol.l.', 'QV.ODV.Nitrate..NTRAZZXX_UPOX.'),
+  c('Nitrite.Nitrogen..NO2.N...umol.l.', 'Nitrite..NTRIZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Nitrite.Nitrogen..NO2.N...umol.l.', 'QV.ODV.Nitrite..NTRIZZXX_UPOX.'),
+  c('Ammonium.Nitrogen..NH4.N...umol.l.', 'Ammonium..AMONZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Ammonium.Nitrogen..NH4.N...umol.l.', 'QV.ODV.Ammonium..AMONZZXX_UPOX.'),
+  c('Total.Nitrogen..N...umol.l.', 'Total.Nitrogen..NTOTZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Total.Nitrogen..N...umol.l.', 'QV.ODV.Total.Nitrogen..NTOTZZXX_UPOX.'),
+  c('Hydrogen.Sulphide..H2S.S...umol.l.', 'Hydrogen.Sulphide..H2SXZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Hydrogen.Sulphide..H2S.S...umol.l.', 'QV.ODV.Hydrogen.Sulphide..H2SXZZXX_UPOX.'),
+  c('Hydrogen.Ion.Concentration..pH...pH.', 'pH..PHXXZZXX_UUPH...pH.units.'),
+  c('QV.ODV.Hydrogen.Ion.Concentration..pH...pH.', 'QV.ODV.pH..PHXXZZXX_UUPH.'),
+  c('Alkalinity..mEq.l.', 'Total.Alkalinity..ALKYZZXX_MEQL...mEq.l.'),
+  c('QV.ODV.Alkalinity..mEq.l.', 'QV.ODV.Total.Alkalinity..ALKYZZXX_MEQL.'),
+  c('Chlorophyll.a..ug.l.', 'Chlorophyll.a..CPHLZZXX_UGPL...ug.l.'),
+  c('QV.ODV.Chlorophyll.a..ug.l.', 'QV.ODV.Chlorophyll.a..CPHLZZXX_UGPL.'),
+  c('QV.ODV.Bot.Depth..m.', 'TODO_dunno_missing'),
+  c('QV.ODV.Secchi.Depth..m.', 'TODO_dunno_missing'),
+  c('Pressure..dbar.', 'TODO_dunno_missing'),
+  c('QV.ODV.Pressure..dbar.', 'TODO_dunno_missing')
+)
+
+message(paste0('Now checking the col names...'))
+for (colname_pair in colname_pairs) {
+  message(paste('* colname_pair: ', colname_pair))
+  colname_helcom = colname_pair[1]
+  message(paste('* colname_helcom: ', colname_helcom))
+  colname_ices = colname_pair[2]
+  message(paste('* colname_ices: ', colname_ices))
+
+  if (colname_helcom %in% colnames(stationSamplesBOT)) {
+      message(paste0('Colname exists: "', colname_helcom, '".'))
+  } else {
+    if (colname_ices %in% colnames(stationSamplesBOT)) {
+      message(paste0('Replacing column "', colname_ices, '" by "', colname_helcom, '"...'))
+    } else {
+      message(paste0('Column missing "', colname_helcom, '" (or its ICES alternative "', colname_ices, '")...'))
+    }
+  }
+}
+message(paste0('Done checking the col names...'))
+
 
 # Ocean hydro chemistry - High resolution CTD data
 # TODO also check whether this might be ICES-format data?
