@@ -98,16 +98,22 @@ class HEAT2Processor(BaseProcessor):
                     myfile.write(resp.content)
                     LOGGER.debug('Downloaded to: %s' % bot_path)
 
-        ## Unzipping downloaded data:
+        ## Unzipping downloaded data, unless already unzipped:
         if zipfile.is_zipfile(bot_path):
-            bot_path2 = download_dir+'/heat_inputs/unzipped_%s' % self.job_id
-            LOGGER.debug('Unzipping to %s' % bot_path2)
-            with zipfile.ZipFile(bot_path, 'r') as zip_ref:
-                zip_ref.extractall(bot_path2)
-            for item in os.listdir(bot_path2):
+            bot_path_unzipped = download_dir+'/heat_inputs/unzipped_'+bot_name
+            if os.path.exists(bot_path_unzipped):
+                LOGGER.debug('Found: %s' % bot_path_unzipped)
+            else:
+                LOGGER.debug('Unzipping to %s' % bot_path_unzipped)
+                with zipfile.ZipFile(bot_path, 'r') as zip_ref:
+                    zip_ref.extractall(bot_path_unzipped)
+
+            bot_path = None
+            for item in os.listdir(bot_path_unzipped):
                 if item.endswith('.csv'):
-                    bot_path = bot_path2.rstrip('/')+'/'+item
-                    LOGGER.debug('Will use this file from unzipped dir: %s' % bot_path)
+                    bot_path = bot_path_unzipped.rstrip('/')+'/'+item
+
+            LOGGER.debug('Will use this file from unzipped dir: %s' % bot_path)
 
 
         elif bot_url is None:
