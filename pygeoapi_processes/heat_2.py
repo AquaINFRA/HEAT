@@ -4,6 +4,8 @@ LOGGER = logging.getLogger(__name__)
 
 import subprocess
 import json
+import requests
+import zipfile
 import os
 import sys
 import traceback
@@ -62,7 +64,7 @@ class HEAT2Processor(BaseProcessor):
         bot_url = data.get('bottle_data', None)
         ctd_url = data.get('ctd_data', None)
         pmp_url = data.get('pump_data', None)
-        gridded_units_url = data.get('gridded_units', None)
+        gridded_units_url = data.get('gridded_units', None) # TODO remove.
 
         # Check user inputs:
         if assessment_period is None:
@@ -81,20 +83,34 @@ class HEAT2Processor(BaseProcessor):
         ### Bottle input data ###
         #########################
         bot_path = None
-        if bot_url is not None:
+        if bot_url is not None and bot_url.startswith('http'):
             LOGGER.info('Client requested bottle data: %s' % bot_url)
             bot_name = bot_url.split('/')[-1]
-            bot_path = download_dir+'/'+bot_name
+            bot_path = download_dir+'/heat_inputs/'+bot_name
             if os.path.exists(bot_path):
                 LOGGER.debug('Found: %s' % bot_path)
             else:
+
+                ## Downloading bottle data:
                 LOGGER.debug('Downloading bottle data: %s from %s' % (bot_name, bot_url))
                 resp = requests.get(bot_url)
-                with open(bot_path, 'w') as myfile:
+                with open(bot_path, 'wb') as myfile:
                     myfile.write(resp.content)
                     LOGGER.debug('Downloaded to: %s' % bot_path)
 
-        if bot_url is None: 
+        ## Unzipping downloaded data:
+        if zipfile.is_zipfile(bot_path):
+            bot_path2 = download_dir+'/heat_inputs/unzipped_%s' % self.job_id
+            LOGGER.debug('Unzipping to %s' % bot_path2)
+            with zipfile.ZipFile(bot_path, 'r') as zip_ref:
+                zip_ref.extractall(bot_path2)
+            for item in os.listdir(bot_path2):
+                if item.endswith('.csv'):
+                    bot_path = bot_path2.rstrip('/')+'/'+item
+                    LOGGER.debug('Will use this file from unzipped dir: %s' % bot_path)
+
+
+        elif bot_url is None:
             LOGGER.info('Client did not provide bottle data, using pre-stored ones...')
             if assessment_period == "1877-9999":
                 bot_path = path_input_data+os.sep+"1877-9999/StationSamples1877-9999BOT_2022-12-09.txt.gz"
@@ -102,6 +118,13 @@ class HEAT2Processor(BaseProcessor):
                 bot_path = path_input_data+os.sep+"2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz"
             elif assessment_period == "2016-2021":
                 bot_path = path_input_data+os.sep+"2016-2021/StationSamples2016-2021BOT_2022-12-09.txt.gz"
+
+        else:
+            LOGGER.info('Bottle data passed directly: %s...' % bot_url[:300])
+            bot_path = download_dir +'/bottle_client_%s.csv' % self.job_id
+            with open(bot_path, 'w') as myfile:
+                myfile.write(bot_url)
+            LOGGER.info('Written to file: %s' % bot_path)
 
         #######################
         ### Pump input data ###
