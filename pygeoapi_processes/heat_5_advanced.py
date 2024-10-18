@@ -11,8 +11,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
-curl -X POST "http://localhost:5001/processes/heat_5/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"assessment_indicators\": \"https://testserver.com/download/AssessmentIndicators-4446f118-836f-11ef-8e41-e14810fdd7f8.csv\"}}"
-
+curl -X POST "http://localhost:5001/processes/heat_5_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"table_indicators\": \"xxx\", \"table_indicator_units\": \"xxx\", \"assessment_indicators\": \"https://testserver.com/download/AssessmentIndicators-4446f118-836f-11ef-8e41-e14810fdd7f8.csv\"}}"
 
 '''
 
@@ -25,7 +24,7 @@ metadata_title_and_path = script_title_and_path.replace('.py', '.json')
 PROCESS_METADATA = json.load(open(metadata_title_and_path))
 
 
-class HEAT5Processor(BaseProcessor):
+class HEAT5AdvancedProcessor(BaseProcessor):
 
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
@@ -40,7 +39,7 @@ class HEAT5Processor(BaseProcessor):
         self.job_id = job_id
 
     def __repr__(self):
-        return f'<HEAT5Processor> {self.name}'
+        return f'<HEAT5AdvancedProcessor> {self.name}'
 
     def execute(self, data):
         LOGGER.info('Starting process HEAT 5!')
@@ -57,7 +56,7 @@ class HEAT5Processor(BaseProcessor):
     def _execute(self, data):
 
         # User inputs:
-        assessment_period = data.get('assessment_period')
+        #assessment_period = data.get('assessment_period')
         assessment_indicators_csv_url = data.get('assessment_indicators')
 
         # Check user inputs:
@@ -67,17 +66,9 @@ class HEAT5Processor(BaseProcessor):
             raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
 
         # Check validity of argument:
-        valid_assessment_periods = ["holas-2", "holas-3", "other"]
+        valid_assessment_periods = ["1877-9999", "2011-2016", "2016-2021"]
         if not assessment_period in valid_assessment_periods:
             raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
-
-        # Assign years to selected assessment period:
-        if assessment_period == 'holas-2':
-            assessment_period = '2011-2016'
-        elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
-        elif assessment_period == 'other':
-            assessment_period = '1877-9999'
 
         # Download input data or find it on local filesystem
         # TODO: Check if download url is our url!

@@ -1,0 +1,67 @@
+{
+    "version": "0.0.1",
+    "id": "heat_5_advanced",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (5): Compute the Assessment (ADVANCED mode)"},
+    "description": {
+        "en": "Process to compute the HELCOM Assessment for the HEAT assessment tool. Advanced mode means you can provide, besides the AssessmentIndicators.csv (outcome of HEAT4), your own custom configuration files to set your own indicator thresholds etc. (default data is there in case you do not provide any). (TODO: Document what they can change, what they have to input for this. Test it!). This process represents subpart 5 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "assessment_indicators": {
+            "title": "Assessment Indicators",
+            "description": "TODO Ask HELCOM. Result from last process.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "text/csv"
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "table_indicators": {
+            "title": "Table: Indicators.csv",
+            "description": "Ask HELCOM",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "table_indicator_units": {
+            "title": "Table: IndicatorUnits.csv",
+            "description": "Ask HELCOM",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "assessment": {
+            "title": "Assessment Table",
+            "description": "Assessment CSV (Assessment.csv), TODO ask HELCOM.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "text/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "assessment_indicators": "http://exampleserver.fi/AssessmentIndicators.csv",
+            "table_indicators": "xxx",
+            "table_indicator_units": "xxx"
+        }
+    }
+}

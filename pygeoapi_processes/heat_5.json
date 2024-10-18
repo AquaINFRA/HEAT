@@ -2,9 +2,9 @@
     "version": "0.0.1",
     "id": "heat_5",
     "use_case": "HELCOM HEAT",
-    "title": {"en": "HELCOM HEAT (5): Compute the Assessment"},
+    "title": {"en": "HELCOM HEAT (5): Compute the Assessment (HOLAS mode)"},
     "description": {
-        "en": "Process to compute the HELCOM Assessment for the HEAT assessment tool. This process represents subpart 5 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+        "en": "Process to compute the HELCOM Assessment for the HEAT assessment tool. HOLAS mode means that for the HOLAS periods, default spatial grids, configuration and default data is provided, which you can just use. This process represents subpart 5 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
     },
     "jobControlOptions": ["sync-execute", "async-execute"],
     "keywords": ["HELCOM", "HEAT"],
@@ -18,19 +18,19 @@
     "inputs": {
         "assessment_period": {
             "title": "Assessment Period",
-            "description": "Ask HELCOM. Example: 2011-2016",
+            "description": "Ask HELCOM. Example: HOLAS-2 (2011-2016), HOLAS-3 (2016-2021), or Other (1877-9999).",
             "schema": {
                 "type": "string",
                 "enum": [
-                  "2011-2016",
-                  "2016-2021",
-                  "1877-9999"
+                  "HOLAS-2",
+                  "HOLAS-3",
+                  "Other"
                 ]
             },
             "minOccurs": 1,
             "maxOccurs": 1,
             "metadata": null,
-            "keywords": []
+            "keywords": ["HOLAS"]
         },
         "assessment_indicators": {
             "title": "Assessment Indicators",
@@ -58,7 +58,7 @@
     "example": {
         "inputs": {
             "assessment_indicators": "http://exampleserver.fi/AssessmentIndicators.csv",
-            "assessment_period": "2016-2021"
+            "assessment_period": "HOLAS-2"
         }
     }
 }
