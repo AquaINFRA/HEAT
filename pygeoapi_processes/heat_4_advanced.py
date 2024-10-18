@@ -11,7 +11,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
-curl -X POST "http://localhost:5000/processes/heat_4/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"annual_indicators\": \"https://testserver.com/download/AnnualIndicators-530d0014-836c-11ef-8e41-e14810fdd7f8.csv\"}}"
+curl -X POST "http://localhost:5000/processes/heat_4_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"annual_indicators\": \"https://testserver.com/download/AnnualIndicators-530d0014-836c-11ef-8e41-e14810fdd7f8.csv\"}}"
 
 
 '''
@@ -24,7 +24,7 @@ metadata_title_and_path = script_title_and_path.replace('.py', '.json')
 PROCESS_METADATA = json.load(open(metadata_title_and_path))
 
 
-class HEAT4Processor(BaseProcessor):
+class HEAT4AdvancedProcessor(BaseProcessor):
 
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
@@ -39,7 +39,7 @@ class HEAT4Processor(BaseProcessor):
         self.job_id = job_id
 
     def __repr__(self):
-        return f'<HEAT4Processor> {self.name}'
+        return f'<HEAT4AdvancedProcessor> {self.name}'
 
 
     def execute(self, data):
@@ -58,27 +58,21 @@ class HEAT4Processor(BaseProcessor):
     def _execute(self, data):
 
         # User input:
-        assessment_period = data.get('assessment_period')
+        #assessment_period = data.get('assessment_period')
         annual_indicators_csv_url = data.get('annual_indicators') # get url!!
+        table_indicators = data.get('table_indicators')
+        table_indicator_units = data.get('table_indicator_units')
 
         # Check user inputs:
         if annual_indicators_csv_url is None:
             raise ProcessorExecuteError('Missing parameter "annual_indicators". Please provide a URL to your input data.')
-        if assessment_period is None:
-            raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
+        if table_indicators is None:
+            raise ProcessorExecuteError('Missing parameter "table_indicators". Please provide a URL.')
+        if table_indicator_units is None:
+            raise ProcessorExecuteError('Missing parameter "table_indicator_units". Please provide a URL.')
 
-        # Check validity of argument:
-        valid_assessment_periods = ["holas-2", "holas-3", "other"]
-        if not assessment_period in valid_assessment_periods:
-            raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
+        raise ProcessorExecuteError('NOT IMPLEMENTED: HEAT 4 Advanced mode is not implemented yet. Please use HOLAS mode as of now. Thanks!')
 
-        # Assign years to selected assessment period:
-        if assessment_period == 'holas-2':
-            assessment_period = '2011-2016'
-        elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
-        elif assessment_period == 'other':
-            assessment_period = '1877-9999'
 
         # Where to look for input data
         # TODO check url outrs?
