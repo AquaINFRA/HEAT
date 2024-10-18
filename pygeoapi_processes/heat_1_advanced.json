@@ -1,0 +1,81 @@
+{
+    "version": "0.0.1",
+    "id": "heat_1_advanced",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (1): Generate the Assessment Units (ADVANCED mode)"},
+    "description": {
+        "en": "Compute the assessment units for the HEAT assessment tool. The area is gridded, the grids have different sizes. Advanced mode means you can provide your own spatial units, along with a table providing the desired grid size (in which unit? pixels? meters?) for each spatial unit. This process represents subpart 1 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "spatial_units": {
+            "title": "Spatial Units",
+            "description": "SHapefile... We need a URL.",
+            "schema": {
+                "type": "string",
+                "enum": [
+                  "2011-2016",
+                  "2016-2021",
+                  "1877-9999"
+                ]
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "grid_size_table": {
+            "title": "Table of Grid Sizes",
+            "description": "Table with UnitID and GridSize... We need a URL. Or maybe just the string, it is not that long...",
+            "schema": {
+                "type": "string",
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "units_gridded": {
+            "title": "Gridded assessment units",
+            "description": "Assessment units for the HEAT assessment tool.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        },
+        "units_cleaned": {
+            "title": "Cleaned assessment units",
+            "description": "Assessment units for the HEAT assessment tool.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        },
+        "table_grid_sizes": {
+            "title": "Table of Grid Sizes",
+            "description": "see above. just for reference.",
+            "schema": {
+                "type": "string",
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        }
+    },
+    "example": {
+        "inputs": {
+            "TODO": "xxx"
+        }
+    }
+}

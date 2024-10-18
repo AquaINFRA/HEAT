@@ -11,7 +11,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
-curl -X POST "http://localhost:5000/processes/heat_1_holas/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\"}}"
+curl -X POST "http://localhost:5000/processes/heat_1_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"spatial_units\": \"http://testserver.com/bla.zip\", \"table_grid_sizes\": \"todo bla\"}}"
 
 '''
 
@@ -24,7 +24,7 @@ PROCESS_METADATA = json.load(open(metadata_title_and_path))
 
 
 
-class HEAT1HolasProcessor(BaseProcessor):
+class HEAT1AdvancedProcessor(BaseProcessor):
 
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
@@ -39,7 +39,7 @@ class HEAT1HolasProcessor(BaseProcessor):
         self.job_id = job_id
 
     def __repr__(self):
-        return f'<HEAT1HolasProcessor> {self.name}'
+        return f'<HEAT1AdvancedProcessor> {self.name}'
 
 
     def execute(self, data):
@@ -57,24 +57,22 @@ class HEAT1HolasProcessor(BaseProcessor):
     def _execute(self, data):
 
         # Get input:
-        assessment_period = data.get('assessment_period').lower()
+        # OLD: assessment_period = data.get('assessment_period')
+        # TODO: Future advanced mode:
+        spatial_units = data.get('spatial_units')
+        table_grid_sizes = data.get('table_grid_sizes')
+
+        raise ProcessorExecuteError('NOT IMPLEMENTED: HEAT 1 Advanced mode is not implemented yet. Please use HOLAS mode as of now. Thanks!')
+
 
         # Check user inputs:
         if assessment_period is None:
             raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
 
         # Check validity of argument:
-        valid_assessment_periods = ["holas-2", "holas-3", "other"]
+        valid_assessment_periods = ["1877-9999", "2011-2016", "2016-2021"]
         if not assessment_period in valid_assessment_periods:
             raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
-
-        # Assign years to selected assessment period:
-        if assessment_period == 'holas-2':
-            assessment_period = '2011-2016'
-        elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
-        elif assessment_period == 'other':
-            assessment_period = '1877-9999'
 
         # Where to store output data
         download_dir = self.config["download_dir"].rstrip('/')

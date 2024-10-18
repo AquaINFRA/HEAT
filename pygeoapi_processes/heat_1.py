@@ -11,7 +11,8 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
-curl -X POST "http://localhost:5000/processes/heat_1/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"spatial_units\": \"http://testserver.com/bla.zip\", \"grid_size_table\": \"todo bla\"}}"
+curl -X POST "http://localhost:5000/processes/heat_1/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\"}}"
+
 
 '''
 
@@ -57,22 +58,24 @@ class HEAT1Processor(BaseProcessor):
     def _execute(self, data):
 
         # Get input:
-        # OLD: assessment_period = data.get('assessment_period')
-        # TODO: Future advanced mode:
-        spatial_units = data.get('spatial_units')
-        grid_size_table = data.get('grid_size_table')
-
-        raise ProcessorExecuteError('NOT IMPLEMENTED: HEAT 1 Advanced mode is not implemented yet. Please use HOLAS mode as of now. Thanks!')
-
+        assessment_period = data.get('assessment_period').lower()
 
         # Check user inputs:
         if assessment_period is None:
             raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
 
         # Check validity of argument:
-        valid_assessment_periods = ["1877-9999", "2011-2016", "2016-2021"]
+        valid_assessment_periods = ["holas-2", "holas-3", "other"]
         if not assessment_period in valid_assessment_periods:
             raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
+
+        # Assign years to selected assessment period:
+        if assessment_period == 'holas-2':
+            assessment_period = '2011-2016'
+        elif assessment_period == 'holas-3':
+            assessment_period = '2016-2011'
+        elif assessment_period == 'other':
+            assessment_period = '1877-9999'
 
         # Where to store output data
         download_dir = self.config["download_dir"].rstrip('/')
