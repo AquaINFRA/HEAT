@@ -1,0 +1,89 @@
+{
+    "version": "0.0.1",
+    "id": "heat_3_advanced",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (3): Compute the Annual Indicator (ADVANCED mode)"},
+    "description": {
+        "en": "Compute the HELCOM Annual Indicator for the HEAT assessment tool. Advanced mode means you can provide, besides your own samples (outcome of HEAT2), provide custom configuration files to set your own indicator thresholds etc. (default data is there in case you do not provide any). (TODO: Document what they can change, what they have to input for this. Test it!). And if you really really know what you are doing, you can also provide your own grid units as a zipped shapefile, ideally computed by using heat_1 (TODO test). This process represents subpart 3 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "samples": {
+            "title": "Relevant Samples",
+            "description": "Ask HELCOM. From last process.",
+            "schema": {"type": "string"},
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "combined_Chlorophylla_IsWeighted": {
+            "title": "combined_Chlorophylla_IsWeighted",
+            "description": "Ask HELCOM. Example: true",
+            "schema": {"type": "bool"},
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "table_indicators": {
+            "title": "Table: Indicators.csv",
+            "description": "Ask HELCOM",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "table_indicator_units": {
+            "title": "Table: IndicatorUnits.csv",
+            "description": "Ask HELCOM",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "table_indicator_unit_results": {
+            "title": "Table: IndicatorUnitResults.csv",
+            "description": "Ask HELCOM",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "spatial_units": {
+            "title": "units_cleaned.shp",
+            "description": "Non-Gridded spatial units, as shapefile, used for this process. What exactly needed for? Ask HELCOM.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        }
+    },
+    "outputs": {
+        "annual_indicators": {
+            "title": "Annual Indicators",
+            "description": "Annual Indicator CSV (AnnualIndicators.csv), ask HELCOM.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "combined_Chlorophylla_IsWeighted": true,
+            "samples": "https://testserver.com/StationSamples.csv"
+        }
+    }
+}

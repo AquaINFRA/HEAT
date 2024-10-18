@@ -11,7 +11,12 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
-curl -X POST "https://localhost:5000/processes/heat_3/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"samples\": \"https://testserver.com/download/StationSamples-f04c9a56-838a-11ef-8e41-e14810fdd7f8.csv\"}}"
+curl -X POST "https://localhost:5000/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"station_samples\": \"https://testserver.com/download/StationSamples-f04c9a56-838a-11ef-8e41-e14810fdd7f8.csv\"}}"
+
+# NOT COMMIT:
+curl -X POST "https://aqua.igb-berlin.de/pygeoapi-dev/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"station_samples\": \"https://aqua.igb-berlin.de/download/StationSamples-4de4effe-84c3-11ef-8e41-e14810fdd7f8.csv\"}}"
+# with static data:
+curl -X POST "https://aqua.igb-berlin.de/pygeoapi-dev/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"station_samples\": \"https://aqua.igb-berlin.de/download/StationSamples-bddbd90a-84cb-11ef-8e41-e14810fdd7f8.csv\"}}"
 
 '''
 
@@ -22,7 +27,7 @@ script_title_and_path = __file__
 metadata_title_and_path = script_title_and_path.replace('.py', '.json')
 PROCESS_METADATA = json.load(open(metadata_title_and_path))
 
-class HEAT3Processor(BaseProcessor):
+class HEAT3AdvancedProcessor(BaseProcessor):
 
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
@@ -37,7 +42,7 @@ class HEAT3Processor(BaseProcessor):
         self.job_id = job_id
 
     def __repr__(self):
-        return f'<HEAT3Processor> {self.name}'
+        return f'<HEAT3AdvancedProcessor> {self.name}'
 
 
     def execute(self, data):
@@ -55,31 +60,28 @@ class HEAT3Processor(BaseProcessor):
     def _execute(self, data):
 
         # User input:
-        assessment_period = data.get('assessment_period')
-        samples_url = data.get('samples')
+        table_indicators = data.get('table_indicators')
+        table_indicator_units = data.get('table_indicator_units')
+        table_indicator_unit_results = data.get('table_indicator_unit_results')
+        spatial_units = data.get('spatial_units')
         combined_Chlorophylla_IsWeighted = data.get('combined_Chlorophylla_IsWeighted')
         LOGGER.debug('Chlorophyll flag: %s %s' % (combined_Chlorophylla_IsWeighted, type(combined_Chlorophylla_IsWeighted)))
 
         # Check user inputs:
         if samples_url is None:
             raise ProcessorExecuteError('Missing parameter "station_samples". Please provide a URL to your input data.')
-        if assessment_period is None:
-            raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
+        #if assessment_period is None:
+        #    raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
         if combined_Chlorophylla_IsWeighted is None:
             raise ProcessorExecuteError('Missing parameter "combined_Chlorophylla_IsWeighted". Please provide an boolean.')
 
-        # Check validity of argument:
-        valid_assessment_periods = ["holas-2", "holas-3", "other"]
-        if not assessment_period in valid_assessment_periods:
-            raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
 
-        # Assign years to selected assessment period:
-        if assessment_period == 'holas-2':
-            assessment_period = '2011-2016'
-        elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
-        elif assessment_period == 'other':
-            assessment_period = '1877-9999'
+        raise ProcessorExecuteError('NOT IMPLEMENTED: HEAT 3 Advanced mode is not implemented yet. Please use HOLAS mode as of now. Thanks!')
+
+        # Check validity of argument:
+        #valid_assessment_periods = ["1877-9999", "2011-2016", "2016-2021"]
+        #if not assessment_period in valid_assessment_periods:
+        #    raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
 
         # Download user-provided samples
         download_dir = self.config["download_dir"].rstrip('/')
@@ -125,6 +127,7 @@ class HEAT3Processor(BaseProcessor):
         r_file_name = 'HEAT_subpart3_wk3.R'
         path_rscripts = self.config['r_script_dir'].rstrip('/')
         in_chlorophyll_flag = str(combined_Chlorophylla_IsWeighted).lower()
+        LOGGER.debug('Chlorophyll flag now: %s %s' % (in_chlorophyll_flag, type(in_chlorophyll_flag)))
         r_args = [in_relevant_stationsamples_filepath, in_chlorophyll_flag, in_units_cleaned_filepath,
                   in_helper_indicators_path, in_helper_indicatorunits_path, in_helper_indicatorunitresults_path, out_annual_indicators_filepath]
         LOGGER.info('##### R-args:  %s' % r_args)
