@@ -11,7 +11,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
-curl -X POST "http://localhost:5000/processes/heat_1/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\"}}"
+curl -X POST "http://localhost:5000/processes/heat_1/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"spatial_units\": \"http://testserver.com/bla.zip\", \"grid_size_table\": \"todo bla\"}}"
 
 '''
 
@@ -57,7 +57,13 @@ class HEAT1Processor(BaseProcessor):
     def _execute(self, data):
 
         # Get input:
-        assessment_period = data.get('assessment_period')
+        # OLD: assessment_period = data.get('assessment_period')
+        # TODO: Future advanced mode:
+        spatial_units = data.get('spatial_units')
+        grid_size_table = data.get('grid_size_table')
+
+        raise ProcessorExecuteError('NOT IMPLEMENTED: HEAT 1 Advanced mode is not implemented yet. Please use HOLAS mode as of now. Thanks!')
+
 
         # Check user inputs:
         if assessment_period is None:
