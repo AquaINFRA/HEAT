@@ -13,10 +13,14 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
-curl -X POST "http://localhost:5000/processes/heat_2/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\"}}"
+curl -X POST "http://localhost:5000/processes/heat_2_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\"}}"
 
-curl -X POST "http://localhost:5000/processes/heat_2/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"bottle_data\": \"https://testserver.com/download/f2369468-30f8-4add-8a5d-25cf768f5096.csv\"}}"
+curl -X POST "http://localhost:5000/processes/heat_2_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"bottle_data\": \"https://testserver.com/download/f2369468-30f8-4add-8a5d-25cf768f5096.csv\"}}"
 
+# NOT COMMIT:
+curl -X POST "https://aqua.igb-berlin.de/pygeoapi-dev/processes/heat_2_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\"}}"
+
+curl -X POST "https://aqua.igb-berlin.de/pygeoapi-dev/processes/heat_2_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"bottle_data\": \"https://aqua.igb-berlin.de/download/f2369468-30f8-4add-8a5d-25cf768f5096.csv\"}}"
 '''
 
 
@@ -27,7 +31,7 @@ metadata_title_and_path = script_title_and_path.replace('.py', '.json')
 PROCESS_METADATA = json.load(open(metadata_title_and_path))
 
 
-class HEAT2Processor(BaseProcessor):
+class HEAT2AdvancedProcessor(BaseProcessor):
 
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
@@ -42,7 +46,7 @@ class HEAT2Processor(BaseProcessor):
         self.job_id = job_id
 
     def __repr__(self):
-        return f'<HEAT2Processor> {self.name}'
+        return f'<HEAT2AdvancedProcessor> {self.name}'
 
 
     def execute(self, data):
@@ -60,29 +64,23 @@ class HEAT2Processor(BaseProcessor):
     def _execute(self, data):
 
         # User input:
-        assessment_period = data.get('assessment_period').lower()
+        #assessment_period = data.get('assessment_period')
         bot_url = data.get('bottle_data', None)
-        #ctd_url = data.get('ctd_data', None)
-        #pmp_url = data.get('pump_data', None)
-        ctd_url = None # TODO Implement this, and test R script
-        pmp_url = None # TODO Implement this, and test R script
+        ctd_url = data.get('ctd_data', None)
+        pmp_url = data.get('pump_data', None)
+        gridded_units_url = data.get('spatial_units_gridded', None)
+
+        raise ProcessorExecuteError('NOT IMPLEMENTED: HEAT 2 Advanced mode is not implemented yet. Please use HOLAS mode as of now. Thanks!')
+
 
         # Check user inputs:
-        if assessment_period is None:
-            raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
-
+        #if assessment_period is None:
+        #    raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
+        #
         # Check validity of argument:
-        valid_assessment_periods = ["holas-2", "holas-3", "other"]
-        if not assessment_period in valid_assessment_periods:
-            raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
-
-        # Assign years to selected assessment period:
-        if assessment_period == 'holas-2':
-            assessment_period = '2011-2016'
-        elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
-        elif assessment_period == 'other':
-            assessment_period = '1877-9999'
+        #validAssessmentPeriods = ["1877-9999", "2011-2016", "2016-2021"]
+        #if not assessment_period in validAssessmentPeriods:
+        #    raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, validAssessmentPeriods))
 
         # Input data! Where to look for input data
         download_dir = self.config["download_dir"].rstrip('/')
@@ -145,7 +143,6 @@ class HEAT2Processor(BaseProcessor):
         ### Pump input data ###
         #######################
         pmp_path = None
-        '''
         if pmp_url is not None:
             LOGGER.info('Client requested pump data: %s' % pmp_url)
             # TODO: Check if the url is OURS!!
@@ -159,7 +156,6 @@ class HEAT2Processor(BaseProcessor):
                 with open(pmp_path, 'w') as myfile:
                     myfile.write(resp.content)
                     LOGGER.debug('Downloaded: %s' % pmp_path)
-        '''
 
         if pmp_url is None: 
             LOGGER.info('Client did not provide pump data, using pre-stored ones...')
@@ -175,7 +171,6 @@ class HEAT2Processor(BaseProcessor):
         ### ctd input data ###
         #######################
         ctd_path = None
-        '''
         if ctd_url is not None:
             LOGGER.info('Client requested pump data: %s' % ctd_url)
             # TODO: Check if the url is OURS!!
@@ -189,7 +184,6 @@ class HEAT2Processor(BaseProcessor):
                 with open(ctd_path, 'w') as myfile:
                     myfile.write(resp.content)
                     LOGGER.debug('Downloaded: %s' % ctd_path)
-        '''
 
         if ctd_url is None:
             LOGGER.info('Client did not provide ctd data, using pre-stored ones...')
@@ -204,8 +198,24 @@ class HEAT2Processor(BaseProcessor):
         #############################
         ### grid units input data ###
         #############################
-        in_gridded_units_filepath = path_input_data+"/shapefiles/%s/units_gridded.shp" % assessment_period
-        downloadlink_gridded_units = self.config['download_url_ref'].rstrip('/')+"%s/units_gridded.shp" % assessment_period
+        in_gridded_units_filepath = None
+        if gridded_units_url is not None:
+            LOGGER.info('Client requested gridded units data: %s' % gridded_units_url)
+            # TODO: Check if the url is OURS!!
+            in_gridded_units_filename = gridded_units_url.split('/')[-1]
+            in_gridded_units_filepath = download_dir+'/'+in_gridded_units_filename
+            if os.path.exists(in_gridded_units_filepath):
+                LOGGER.debug('Found: %s' % in_gridded_units_filepath)
+            else:
+                LOGGER.debug('Downloading grid units data: %s from %s' % (in_gridded_units_filename, gridded_units_url))
+                resp = requests.get(gridded_units_url)
+                with open(in_gridded_units_filepath, 'w') as myfile:
+                    myfile.write(resp.content)
+                    LOGGER.debug('Downloaded: %s' % in_gridded_units_filepath)
+
+        if gridded_units_url is None:
+            in_gridded_units_filepath = path_input_data+"/shapefiles/%s/units_gridded.shp" % assessment_period
+
 
         # Where to store output data
         download_dir = self.config["download_dir"].rstrip('/')
@@ -267,7 +277,7 @@ class HEAT2Processor(BaseProcessor):
                 "units_gridded": {
                     "title": PROCESS_METADATA['outputs']['units_gridded']['title'],
                     "description": PROCESS_METADATA['outputs']['units_gridded']['description'],
-                    "href": downloadlink_gridded_units
+                    "href": self.config['download_url'].rstrip('/')+'/'+in_gridded_units_filepath.split('/')[-1]
                 }
             }
         }
