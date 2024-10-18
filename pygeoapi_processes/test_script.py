@@ -119,6 +119,8 @@ def check_one_process(url, inputs, name_of_main_output):
 
 
 assessment_period = "2016-2021"
+#assessment_period = "2011-2016"
+#assessment_period = "1877-9999"
 
 ##############
 ### heat_1 ###
@@ -133,6 +135,8 @@ inputs = {
 
 resultlink_heat1 = check_one_process(name, inputs, 'units_gridded')
 
+#print('Stopping here...')
+#sys.exit()
 
 ##############
 ### heat_2 ###

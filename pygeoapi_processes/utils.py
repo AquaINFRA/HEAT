@@ -20,18 +20,20 @@ def call_r_script(LOGGER, r_file_name, path_rscripts, r_args):
     stderrtext_new = ''
     for line in stderrtext.split('\n'):
         if len(line.strip())==0:
-            LOGGER.debug('Empty line!')
+            #LOGGER.debug('Empty line!')
+            pass
         else:
-            LOGGER.debug('Non-empty line: %s' % line)
+            #LOGGER.debug('Non-empty line: %s' % line)
             stderrtext_new += line+'\n'
 
     # Remove empty lines:
     stdouttext_new = ''
     for line in stdouttext.split('\n'):
         if len(line.strip())==0:
-            LOGGER.debug('Empty line!')
+            #LOGGER.debug('Empty line!')
+            pass
         else:
-            LOGGER.debug('Non-empty line: %s' % line)
+            #LOGGER.debug('Non-empty line: %s' % line)
             stdouttext_new += line+'\n'
 
     stderrtext = stderrtext_new

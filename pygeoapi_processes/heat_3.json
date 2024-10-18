@@ -63,7 +63,7 @@
     },
     "example": {
         "inputs": {
-            "assessment_period": "2016-2021",
+            "assessment_period": "HOLAS-2",
             "combined_Chlorophylla_IsWeighted": "true",
             "samples": "https://testserver.com/StationSamples.csv"
         }

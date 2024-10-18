@@ -58,7 +58,7 @@
     "example": {
         "inputs": {
             "annual_indicators_csv": "http://exampleserver.fi/AnnualIndicators.csv",
-            "assessment_period": "2016-2021"
+            "assessment_period": "HOLAS-2"
         }
     }
 }

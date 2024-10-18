@@ -4,7 +4,7 @@
     "use_case": "HELCOM HEAT",
     "title": {"en": "HELCOM HEAT (3): Compute the Annual Indicator (ADVANCED mode)"},
     "description": {
-        "en": "Compute the HELCOM Annual Indicator for the HEAT assessment tool. Advanced mode means you can provide, besides your own samples (outcome of HEAT2), provide custom configuration files to set your own indicator thresholds etc. (default data is there in case you do not provide any). (TODO: Document what they can change, what they have to input for this. Test it!). And if you really really know what you are doing, you can also provide your own grid units as a zipped shapefile, ideally computed by using heat_1 (TODO test). This process represents subpart 3 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+        "en": "Compute the HELCOM Annual Indicator for the HEAT assessment tool. Advanced mode means you can provide, besides your own samples (outcome of HEAT2), your own custom configuration files to set your own indicator thresholds etc. (default data is there in case you do not provide any). (TODO: Document what they can change, what they have to input for this. Test it!). And if you really really know what you are doing, you can also provide your own grid units as a zipped shapefile, ideally computed by using heat_1 (TODO test). This process represents subpart 3 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
     },
     "jobControlOptions": ["sync-execute", "async-execute"],
     "keywords": ["HELCOM", "HEAT"],
