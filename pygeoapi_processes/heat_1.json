@@ -41,6 +41,14 @@
                 "type": "object",
                 "contentMediaType": "application/shp"
             }
+        },
+        "units_cleaned": {
+            "title": "Cleaned assessment units",
+            "description": "Assessment units for the HEAT assessment tool.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
         }
     },
     "example": {

@@ -68,13 +68,10 @@ class HEAT1Processor(BaseProcessor):
         if not assessment_period in valid_assessment_periods:
             raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
 
-        # Where to store intermediate data
-        intermediate_dir = self.config['intermediate_dir'].rstrip('/')
-        out_units_cleaned_filepath = intermediate_dir+'/units_cleaned-%s.shp' % self.job_id
-
         # Where to store output data
         download_dir = self.config["download_dir"].rstrip('/')
         out_units_gridded_filepath = download_dir+'/units_gridded-%s.shp' % self.job_id
+        out_units_cleaned_filepath = download_dir+'/units_cleaned-%s.shp' % self.job_id
 
 
         # Define paths to static helper paths depending on assessment_period
@@ -128,6 +125,11 @@ class HEAT1Processor(BaseProcessor):
                     "title": PROCESS_METADATA['outputs']['units_gridded']['title'],
                     "description": PROCESS_METADATA['outputs']['units_gridded']['description'],
                     "href": self.config['download_url'].rstrip('/')+'/'+out_units_gridded_filepath.split('/')[-1]
+                },
+                "units_cleaned": {
+                    "title": PROCESS_METADATA['outputs']['units_cleaned']['title'],
+                    "description": PROCESS_METADATA['outputs']['units_cleaned']['description'],
+                    "href": self.config['download_url'].rstrip('/')+'/'+out_units_cleaned_filepath.split('/')[-1]
                 }
             }
         }
