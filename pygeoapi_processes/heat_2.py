@@ -60,20 +60,23 @@ class HEAT2Processor(BaseProcessor):
     def _execute(self, data):
 
         # User input:
-        assessment_period = data.get('assessment_period')
+        #assessment_period = data.get('assessment_period')
         bot_url = data.get('bottle_data', None)
         ctd_url = data.get('ctd_data', None)
         pmp_url = data.get('pump_data', None)
-        gridded_units_url = data.get('gridded_units', None) # TODO remove.
+        gridded_units_url = data.get('spatial_units_gridded', None)
+
+        raise ProcessorExecuteError('NOT IMPLEMENTED: HEAT 2 Advanced mode is not implemented yet. Please use HOLAS mode as of now. Thanks!')
+
 
         # Check user inputs:
-        if assessment_period is None:
-            raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
-
+        #if assessment_period is None:
+        #    raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
+        #
         # Check validity of argument:
-        validAssessmentPeriods = ["1877-9999", "2011-2016", "2016-2021"]
-        if not assessment_period in validAssessmentPeriods:
-            raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, validAssessmentPeriods))
+        #validAssessmentPeriods = ["1877-9999", "2011-2016", "2016-2021"]
+        #if not assessment_period in validAssessmentPeriods:
+        #    raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, validAssessmentPeriods))
 
         # Input data! Where to look for input data
         download_dir = self.config["download_dir"].rstrip('/')
