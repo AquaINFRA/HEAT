@@ -36,7 +36,7 @@
             "title": "Table of Grid Sizes",
             "description": "Table with UnitID and GridSize... We need a URL. Or maybe just the string, it is not that long...",
             "schema": {
-                "type": "string",
+                "type": "string"
             },
             "minOccurs": 1,
             "maxOccurs": 1,
@@ -65,7 +65,7 @@
             "title": "Table of Grid Sizes",
             "description": "see above. just for reference.",
             "schema": {
-                "type": "string",
+                "type": "string"
             },
             "minOccurs": 1,
             "maxOccurs": 1,

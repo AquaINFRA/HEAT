@@ -80,7 +80,7 @@ class HEAT2Processor(BaseProcessor):
         if assessment_period == 'holas-2':
             assessment_period = '2011-2016'
         elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
+            assessment_period = '2016-2021'
         elif assessment_period == 'other':
             assessment_period = '1877-9999'
 
@@ -107,22 +107,22 @@ class HEAT2Processor(BaseProcessor):
                     myfile.write(resp.content)
                     LOGGER.debug('Downloaded to: %s' % bot_path)
 
-        ## Unzipping downloaded data, unless already unzipped:
-        if zipfile.is_zipfile(bot_path):
-            bot_path_unzipped = download_dir+'/heat_inputs/unzipped_'+bot_name
-            if os.path.exists(bot_path_unzipped):
-                LOGGER.debug('Found: %s' % bot_path_unzipped)
-            else:
-                LOGGER.debug('Unzipping to %s' % bot_path_unzipped)
-                with zipfile.ZipFile(bot_path, 'r') as zip_ref:
-                    zip_ref.extractall(bot_path_unzipped)
+            ## Unzipping downloaded data, unless already unzipped:
+            if zipfile.is_zipfile(bot_path):
+                bot_path_unzipped = download_dir+'/heat_inputs/unzipped_'+bot_name
+                if os.path.exists(bot_path_unzipped):
+                    LOGGER.debug('Found: %s' % bot_path_unzipped)
+                else:
+                    LOGGER.debug('Unzipping to %s' % bot_path_unzipped)
+                    with zipfile.ZipFile(bot_path, 'r') as zip_ref:
+                        zip_ref.extractall(bot_path_unzipped)
 
-            bot_path = None
-            for item in os.listdir(bot_path_unzipped):
-                if item.endswith('.csv'):
-                    bot_path = bot_path_unzipped.rstrip('/')+'/'+item
+                bot_path = None
+                for item in os.listdir(bot_path_unzipped):
+                    if item.endswith('.csv'):
+                        bot_path = bot_path_unzipped.rstrip('/')+'/'+item
 
-            LOGGER.debug('Will use this file from unzipped dir: %s' % bot_path)
+                LOGGER.debug('Will use this file from unzipped dir: %s' % bot_path)
 
 
         elif bot_url is None:
@@ -204,7 +204,7 @@ class HEAT2Processor(BaseProcessor):
         #############################
         ### grid units input data ###
         #############################
-        in_gridded_units_filepath = path_input_data+"/shapefiles/%s/units_gridded.shp" % assessment_period
+        in_gridded_units_filepath = path_input_data+"/%s/units_gridded.shp" % assessment_period
         downloadlink_gridded_units = self.config['download_url_ref'].rstrip('/')+"%s/units_gridded.shp" % assessment_period
 
         # Where to store output data
@@ -244,9 +244,9 @@ class HEAT2Processor(BaseProcessor):
         # Or return link to output csv files and return it wrapped in JSON:
         outputs = {
             "outputs": {
-                "station_samples": {
-                    "title": PROCESS_METADATA['outputs']['station_samples']['title'],
-                    "description": PROCESS_METADATA['outputs']['station_samples']['description'],
+                "samples": {
+                    "title": PROCESS_METADATA['outputs']['samples']['title'],
+                    "description": PROCESS_METADATA['outputs']['samples']['description'],
                     "href": self.config['download_url'].rstrip('/')+'/'+out_stationsamples_csv_filepath.split('/')[-1]
                 },
                 "bottle_samples": {

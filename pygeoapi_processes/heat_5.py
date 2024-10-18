@@ -57,7 +57,7 @@ class HEAT5Processor(BaseProcessor):
     def _execute(self, data):
 
         # User inputs:
-        assessment_period = data.get('assessment_period')
+        assessment_period = data.get('assessment_period').lower()
         assessment_indicators_csv_url = data.get('assessment_indicators')
 
         # Check user inputs:
@@ -75,7 +75,7 @@ class HEAT5Processor(BaseProcessor):
         if assessment_period == 'holas-2':
             assessment_period = '2011-2016'
         elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
+            assessment_period = '2016-2021'
         elif assessment_period == 'other':
             assessment_period = '1877-9999'
 
@@ -98,6 +98,8 @@ class HEAT5Processor(BaseProcessor):
 
         # Define paths to static helper paths depending on assessment_period
         path_input_data = self.config['input_path'].rstrip('/')
+        in_helper_indicators_path = None
+        in_helper_indicatorunits_path = None
         if assessment_period == "1877-9999":
             in_helper_indicators_path = path_input_data+"/1877-9999/Configuration1877-9999_Indicators.csv"
             in_helper_indicatorunits_path = path_input_data+"/1877-9999/Configuration1877-9999_IndicatorUnits.csv"

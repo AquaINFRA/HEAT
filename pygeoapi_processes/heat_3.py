@@ -55,14 +55,14 @@ class HEAT3Processor(BaseProcessor):
     def _execute(self, data):
 
         # User input:
-        assessment_period = data.get('assessment_period')
+        assessment_period = data.get('assessment_period').lower()
         samples_url = data.get('samples')
         combined_Chlorophylla_IsWeighted = data.get('combined_Chlorophylla_IsWeighted')
         LOGGER.debug('Chlorophyll flag: %s %s' % (combined_Chlorophylla_IsWeighted, type(combined_Chlorophylla_IsWeighted)))
 
         # Check user inputs:
         if samples_url is None:
-            raise ProcessorExecuteError('Missing parameter "station_samples". Please provide a URL to your input data.')
+            raise ProcessorExecuteError('Missing parameter "samples". Please provide a URL to your input data.')
         if assessment_period is None:
             raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
         if combined_Chlorophylla_IsWeighted is None:
@@ -77,7 +77,7 @@ class HEAT3Processor(BaseProcessor):
         if assessment_period == 'holas-2':
             assessment_period = '2011-2016'
         elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
+            assessment_period = '2016-2021'
         elif assessment_period == 'other':
             assessment_period = '1877-9999'
 
@@ -98,13 +98,13 @@ class HEAT3Processor(BaseProcessor):
                 LOGGER.debug('Downloaded: %s' % in_relevant_stationsamples_filepath)
 
         # Where to look for cleaned units data
-        in_units_cleaned_filepath = path_input_data+"/shapefiles/%s/units_cleaned.shp" % assessment_period
+        path_input_data = self.config['input_path'].rstrip('/')
+        in_units_cleaned_filepath = path_input_data+"/%s/units_cleaned.shp" % assessment_period
 
         # Where to store output data
         out_annual_indicators_filepath = download_dir+'/AnnualIndicators-%s.csv' % self.job_id
 
         # Define paths to static helper paths depending on assessment_period
-        path_input_data = self.config['input_path'].rstrip('/')
         if assessment_period == "1877-9999":
             in_helper_indicators_path = path_input_data+"/1877-9999/Configuration1877-9999_Indicators.csv"
             in_helper_indicatorunits_path = path_input_data+"/1877-9999/Configuration1877-9999_IndicatorUnits.csv"

@@ -58,7 +58,7 @@ class HEAT4Processor(BaseProcessor):
     def _execute(self, data):
 
         # User input:
-        assessment_period = data.get('assessment_period')
+        assessment_period = data.get('assessment_period').lower()
         annual_indicators_csv_url = data.get('annual_indicators') # get url!!
 
         # Check user inputs:
@@ -76,7 +76,7 @@ class HEAT4Processor(BaseProcessor):
         if assessment_period == 'holas-2':
             assessment_period = '2011-2016'
         elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
+            assessment_period = '2016-2021'
         elif assessment_period == 'other':
             assessment_period = '1877-9999'
 

@@ -73,7 +73,7 @@ class HEAT1Processor(BaseProcessor):
         if assessment_period == 'holas-2':
             assessment_period = '2011-2016'
         elif assessment_period == 'holas-3':
-            assessment_period = '2016-2011'
+            assessment_period = '2016-2021'
         elif assessment_period == 'other':
             assessment_period = '1877-9999'
 
@@ -85,6 +85,8 @@ class HEAT1Processor(BaseProcessor):
 
         # Define paths to static helper paths depending on assessment_period
         path_input_data = self.config['input_path'].rstrip('/')
+        in_helper_units_path = None
+        in_helper_gridsizes_path = None
         if assessment_period == "1877-9999":
             in_helper_units_path = path_input_data+os.sep+"1877-9999/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
             in_helper_gridsizes_path = path_input_data+os.sep+"1877-9999/Configuration1877-9999_UnitGridSize.csv"

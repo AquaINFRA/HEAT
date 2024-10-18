@@ -64,7 +64,7 @@ def poll_for_links(resp201, session, required_type='application/json', seconds_p
         elif job_status == 'failed':
             print('Job failed after %s seconds!' % seconds_passed)
             print('Debug info: %s' % polling_result.json())
-            print('Stopping.')
+            print('Stopping due to failure.')
             sys.exit(1)
 
         elif job_status == 'successful':
@@ -81,12 +81,12 @@ def poll_for_links(resp201, session, required_type='application/json', seconds_p
                     return link_to_result
 
             print('Did not find a link of type "%s"! Only: %s' % (required_type, link_types))
-            print('Stopping.')
+            print('Stopping due to failure.')
             sys.exit(1)
 
         else:
             print('Could not understand job status: %s' % polling_result.json()['status'].lower())
-            print('Stopping.')
+            print('Stopping due to failure.')
             sys.exit(1)
 
 def check_one_process(url, inputs, name_of_main_output):
@@ -118,13 +118,14 @@ def check_one_process(url, inputs, name_of_main_output):
     return href
 
 
-assessment_period = "2016-2021"
-#assessment_period = "2011-2016"
-#assessment_period = "1877-9999"
+assessment_period = "HOLAS-3" #"2016-2021"
+#assessment_period = "HOLAS-2" #"2011-2016"
+#assessment_period = "Other" #"1877-9999"
 
 ##############
 ### heat_1 ###
 ##############
+
 name = "heat_1"
 print('\nCalling %s...' % name)
 inputs = { 
@@ -135,8 +136,7 @@ inputs = {
 
 resultlink_heat1 = check_one_process(name, inputs, 'units_gridded')
 
-#print('Stopping here...')
-#sys.exit()
+
 
 ##############
 ### heat_2 ###
@@ -150,7 +150,10 @@ inputs = {
     }
 }
 
-resultlink_heat2 = check_one_process(name, inputs, 'station_samples')
+resultlink_heat2 = check_one_process(name, inputs, 'samples')
+
+#print('Stopping here...')
+#sys.exit()
 
 
 ##############
@@ -163,11 +166,10 @@ inputs = {
     "inputs": {
         "assessment_period": assessment_period,
         "combined_Chlorophylla_IsWeighted": True,
-        "station_samples": resultlink_heat2
+        "samples": resultlink_heat2
     }
 }
 resultlink_heat3 = check_one_process(name, inputs, 'annual_indicators')
-
 
 ##############
 ### heat_4 ###
@@ -182,7 +184,6 @@ inputs = {
     }
 }
 resultlink_heat4 = check_one_process(name, inputs, 'assessment_indicators')
-
 
 ##############
 ### heat_5 ###

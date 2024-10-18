@@ -214,17 +214,16 @@ class HEAT2AdvancedProcessor(BaseProcessor):
                     LOGGER.debug('Downloaded: %s' % in_gridded_units_filepath)
 
         if gridded_units_url is None:
-            in_gridded_units_filepath = path_input_data+"/shapefiles/%s/units_gridded.shp" % assessment_period
-
+            in_gridded_units_filepath = path_input_data+"/%s/units_gridded.shp" % assessment_period
 
         # Where to store output data
         download_dir = self.config["download_dir"].rstrip('/')
         out_stationsamples_csv_filepath = download_dir+'/StationSamples-%s.csv' % self.job_id
+
         # Define output files
         out_stationsamples_BOT_csv_filepath = download_dir+"/StationSamplesBOT.csv"
         out_stationsamples_CTD_csv_filepath = download_dir+"/StationSamplesCTD.csv"
         out_stationsamples_PMP_csv_filepath = download_dir+"/StationSamplesPMP.csv"
-
 
         # Actually call R script:
         r_file_name = 'HEAT_subpart2_stations.R' # TODO: Some improvements to make on this R script!
@@ -254,9 +253,9 @@ class HEAT2AdvancedProcessor(BaseProcessor):
         # Or return link to output csv files and return it wrapped in JSON:
         outputs = {
             "outputs": {
-                "station_samples": {
-                    "title": PROCESS_METADATA['outputs']['station_samples']['title'],
-                    "description": PROCESS_METADATA['outputs']['station_samples']['description'],
+                "samples": {
+                    "title": PROCESS_METADATA['outputs']['samples']['title'],
+                    "description": PROCESS_METADATA['outputs']['samples']['description'],
                     "href": self.config['download_url'].rstrip('/')+'/'+out_stationsamples_csv_filepath.split('/')[-1]
                 },
                 "bottle_samples": {

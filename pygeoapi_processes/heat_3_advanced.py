@@ -11,7 +11,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 
 
 '''
-curl -X POST "https://localhost:5000/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"station_samples\": \"https://testserver.com/download/StationSamples-f04c9a56-838a-11ef-8e41-e14810fdd7f8.csv\"}}"
+curl -X POST "https://localhost:5000/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"samples\": \"https://testserver.com/download/StationSamples-f04c9a56-838a-11ef-8e41-e14810fdd7f8.csv\"}}"
 
 # NOT COMMIT:
 curl -X POST "https://aqua.igb-berlin.de/pygeoapi-dev/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"station_samples\": \"https://aqua.igb-berlin.de/download/StationSamples-4de4effe-84c3-11ef-8e41-e14810fdd7f8.csv\"}}"
@@ -69,7 +69,7 @@ class HEAT3AdvancedProcessor(BaseProcessor):
 
         # Check user inputs:
         if samples_url is None:
-            raise ProcessorExecuteError('Missing parameter "station_samples". Please provide a URL to your input data.')
+            raise ProcessorExecuteError('Missing parameter "samples". Please provide a URL to your input data.')
         #if assessment_period is None:
         #    raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
         if combined_Chlorophylla_IsWeighted is None:
@@ -100,7 +100,7 @@ class HEAT3AdvancedProcessor(BaseProcessor):
                 LOGGER.debug('Downloaded: %s' % in_relevant_stationsamples_filepath)
 
         # Where to look for cleaned units data
-        in_units_cleaned_filepath = path_input_data+"/shapefiles/%s/units_cleaned.shp" % assessment_period
+        in_units_cleaned_filepath = path_input_data+"/%s/units_cleaned.shp" % assessment_period
 
         # Where to store output data
         out_annual_indicators_filepath = download_dir+'/AnnualIndicators-%s.csv' % self.job_id
