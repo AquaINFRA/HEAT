@@ -34,7 +34,25 @@
         },
         "bottle_data": {
             "title": "Input bottle data TODO",
-            "description": "Input bottle data, TODO, possibly downloaded from ICES. Optional. Default is provided.",
+            "description": "Input bottle data, TODO, possibly downloaded from ICES. Optional. Write 'default' for default data. Write 'null' or leave out for none at all.",
+            "schema": { "type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "ctd_data": {
+            "title": "Input CTD data TODO",
+            "description": "Input CTD data: Use default or use None at all? Write 'default' for default data. Write 'null' or leave out for none at all.",
+            "schema": { "type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "pump_data": {
+            "title": "Input pump data TODO",
+            "description": "Input pump data: Use default or use None at all? Write 'default' for default data. Write 'null' or leave out for none at all.",
             "schema": { "type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,

@@ -146,9 +146,13 @@ name = "heat_2"
 print('\nCalling %s...' % name)
 inputs = { 
     "inputs": {
-        "assessment_period": assessment_period
+        "assessment_period": assessment_period,
+        "pump_data": "default",
+        "ctd_data": "default",
+        "bottle_data": "default"
     }
 }
+
 
 resultlink_heat2 = check_one_process(name, inputs, 'samples')
 
