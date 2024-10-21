@@ -55,7 +55,7 @@
         },
         "units_cleaned": {
             "title": "Cleaned assessment units",
-            "description": "Assessment units for the HEAT assessment tool.",
+            "description": "Assessment units for the HEAT assessment tool. Note: The cleaning is very individual, e.g. specific stations or islands are merged/renamed/..., so this cannot be made generic. We must require users to already provide a 'clean' file, with ascii names etc..",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"

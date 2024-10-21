@@ -13,10 +13,6 @@ from pygeoapi.process.HEAT.pygeoapi_processes.utils import call_r_script
 '''
 curl -X POST "https://localhost:5000/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"samples\": \"https://testserver.com/download/StationSamples-f04c9a56-838a-11ef-8e41-e14810fdd7f8.csv\"}}"
 
-# NOT COMMIT:
-curl -X POST "https://aqua.igb-berlin.de/pygeoapi-dev/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"station_samples\": \"https://aqua.igb-berlin.de/download/StationSamples-4de4effe-84c3-11ef-8e41-e14810fdd7f8.csv\"}}"
-# with static data:
-curl -X POST "https://aqua.igb-berlin.de/pygeoapi-dev/processes/heat_3_advanced/execution" -H "Content-Type: application/json" -d "{\"inputs\":{\"assessment_period\": \"2016-2021\", \"combined_Chlorophylla_IsWeighted\": true, \"station_samples\": \"https://aqua.igb-berlin.de/download/StationSamples-bddbd90a-84cb-11ef-8e41-e14810fdd7f8.csv\"}}"
 
 '''
 

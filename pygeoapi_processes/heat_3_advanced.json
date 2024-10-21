@@ -63,7 +63,7 @@
         },
         "spatial_units": {
             "title": "units_cleaned.shp",
-            "description": "Non-Gridded spatial units, as shapefile, used for this process. What exactly needed for? Ask HELCOM.",
+            "description": "Non-Gridded spatial units, as shapefile, used for this process. What exactly needed for? Ask HELCOM. I think only for the unit size. We use the cleaned one (outcome of heat_1), but the cleaning is very individual, so probably we must require users to already provide a 'clean' file.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"
