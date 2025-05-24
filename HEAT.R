@@ -1,4 +1,9 @@
+
+verbose <- TRUE
+veryverbose <- FALSE
+
 # Install and load R packages ---------------------------------------------
+if (verbose) message("Install and load R packages...")
 ipak <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
   if (length(new.pkg)) 
@@ -7,6 +12,7 @@ ipak <- function(pkg){
 }
 packages <- c("sf", "data.table", "tidyverse", "readxl", "ggplot2", "ggmap", "mapview", "httr", "R.utils")
 ipak(packages)
+if (verbose) message("Install and load R packages... DONE.")
 
 # Define assessment period i.e. uncomment the period you want to run the assessment for!
 #assessmentPeriod <- "1877-9999"
@@ -25,6 +31,7 @@ dir.create(inputPath, showWarnings = FALSE, recursive = TRUE)
 dir.create(outputPath, showWarnings = FALSE, recursive = TRUE)
 
 # Download and unpack files needed for the assessment --------------------------
+if (verbose) message("Download and unpack files needed for the assessment...")
 download.file.unzip.maybe <- function(url, refetch = FALSE, path = ".") {
   dest <- file.path(path, sub("\\?.+", "", basename(url)))
   if (refetch || !file.exists(dest)) {
@@ -78,9 +85,10 @@ if (assessmentPeriod == "1877-9999"){
 }
 
 files <- sapply(urls, download.file.unzip.maybe, path = inputPath)
+if (verbose) message("Download and unpack files needed for the assessment... DONE.")
 
 # Assessment Units + Grid Units-------------------------------------------------
-
+if (verbose) message("Generating assessment Units and Grid Units...")
 if (assessmentPeriod == "2011-2016") {
   # Read assessment unit from shape file
   units <- st_read(unitsFile)
@@ -177,10 +185,13 @@ gridunits <- st_as_sf(rbindlist(list(a,b,c)))
 rm(a,b,c)
 
 gridunits <- st_cast(gridunits)
+if (verbose) message("Generating assessment Units and Grid Units... DONE.")
+
 
 #st_write(gridunits, file.path(outputPath, "gridunits.shp"), delete_layer = TRUE)
 
 # Plot
+if (verbose) message("Plotting...")
 ggplot() + geom_sf(data = units) + coord_sf()
 ggsave(file.path(outputPath, "Assessment_Units.png"), width = 12, height = 9, dpi = 300)
 ggplot() + geom_sf(data = gridunits10) + coord_sf()
@@ -191,8 +202,12 @@ ggplot() + geom_sf(data = gridunits60) + coord_sf()
 ggsave(file.path(outputPath, "Assessment_GridUnits60.png"), width = 12, height = 9, dpi = 300)
 ggplot() + geom_sf(data = st_cast(gridunits)) + coord_sf()
 ggsave(file.path(outputPath, "Assessment_GridUnits.png"), width = 12, height = 9, dpi = 300)
+if (verbose) message("Plotting... DONE")
+
 
 # Read station sample data -----------------------------------------------------
+if (verbose) message("Generating station sample data...")
+if (verbose) message("Reading station sample data...")
 
 # Ocean hydro chemistry - Bottle and low resolution CTD data
 stationSamplesBOT <- fread(input = stationSamplesBOTFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
@@ -217,8 +232,10 @@ uniqueN(stationSamples, by = c("Cruise", "Station", "Type", "Year", "Month", "Da
 
 # Assign station ID by natural key
 stationSamples[, StationID := .GRP, by = .(Cruise, Station, Type, Year, Month, Day, Hour, Minute, Longitude..degrees_east., Latitude..degrees_north.)]
+if (verbose) message("Reading station sample data... DONE.")
 
 # Classify station samples into grid units -------------------------------------
+if (verbose) message("Classifying station samples into grid units...")
 
 # Extract unique stations i.e. longitude/latitude pairs
 stations <- unique(stationSamples[, .(Longitude..degrees_east., Latitude..degrees_north.)])
@@ -241,23 +258,32 @@ stations <- st_set_geometry(stations, NULL) %>% as.data.table()
 # Merge stations back into station samples - getting rid of station samples not classified into assessment units
 stationSamples <- stations[stationSamples, on = .(Longitude..degrees_east., Latitude..degrees_north.), nomatch = 0]
 
+if (verbose) message("Classifying station samples into grid units... DONE.")
+if (verbose) message("Generating station sample data... DONE.")
+
 # Output station samples mapped to assessment units for contracting parties to check i.e. acceptance level 1
 fwrite(stationSamples[Type == 'B'], file.path(outputPath, "StationSamplesBOT.csv"))
 fwrite(stationSamples[Type == 'C'], file.path(outputPath, "StationSamplesCTD.csv"))
 fwrite(stationSamples[Type == 'P'], file.path(outputPath, "StationSamplesPMP.csv"))
 
+
 # Read indicator configs -------------------------------------------------------
+if (verbose) message("Looping over the indicators  (and some more)...")
+if (verbose) message("Reading indicator configs...")
 indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
 indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
 indicatorUnitResults <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnitResults", col_types = "numeric")) %>% setkey(IndicatorID, UnitID, Period)
-
-wk2list = list()
+if (verbose) message("Reading indicator configs... DONE.")
 
 # Loop indicators --------------------------------------------------------------
-for(i in 1:nrow(indicators[IndicatorID < 1000,])){
+if (verbose) message("Looping...")
+wk2list = list()
+n = nrow(indicators[IndicatorID < 1000,])
+for(i in 1:n){
   indicatorID <- indicators[i, IndicatorID]
   criteriaID <- indicators[i, CriteriaID]
   name <- indicators[i, Name]
+  if (verbose) message(paste0("  Iteration ", i, "/", n, ", indicator name: ", name))
   year.min <- indicators[i, YearMin]
   year.max <- indicators[i, YearMax]
   month.min <- indicators[i, MonthMin]
@@ -347,14 +373,19 @@ for(i in 1:nrow(indicators[IndicatorID < 1000,])){
 
   wk2list[[i]] <- wk2
 }
+if (verbose) message("Looping... DONE")
 
 # Combine annual indicator results
+if (verbose) message("Combine annual indicator results...")
+if (veryverbose) message("Creating wk2 (from wk2list created during loop)...")
 wk2 <- rbindlist(wk2list)
 
 # Combine with indicator results reported
 wk2 <- rbindlist(list(wk2, indicatorUnitResults), fill = TRUE)
 
 # Combine with indicator and indicator unit configuration tables
+if (verbose) message("Combine with indicator and indicator unit configuration tables...")
+if (veryverbose) message("Creating wk3 (from wk2)...")
 wk3 <- indicators[indicatorUnits[wk2]]
 
 # Calculate General Temporal Confidence (GTC) - Confidence in number of annual observations
@@ -428,9 +459,14 @@ wk3[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
                                   ifelse(EQRS >= 0.4, "Moderate",
                                          ifelse(EQRS >= 0.2, "Poor","Bad"))))]
 
+if (verbose) message("Looping over the indicators (and some more)... DONE")
+
 # ------------------------------------------------------------------------------
 
 # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
+if (verbose) message("Calculating assessment means and confidence assessment...")
+if (verbose) message("Calculating assessment means...")
+if (veryverbose) message("Creating wk4 (from wk3)...")
 wk4 <- wk3[, .(Period = ifelse(min(Period) > 9999, min(Period), min(Period) * 10000 + max(Period)), ES = mean(ES), SD = sd(ES), ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
 
 wk4[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
@@ -445,10 +481,15 @@ wk4 <- wk3[STC == 100, .(NSTC100 = .N), .(IndicatorID, UnitID)][wk4, on = .(Indi
 wk4[, STC := ifelse(!is.na(NSTC100) & NSTC100 >= N/2, 100, STC)]
 
 # Combine with indicator and indicator unit configuration tables
+if (verbose) message("Combining with indicator and indicator unit configuration tables...")
+if (veryverbose) message("Creating wk5 (from wk4)...")
 wk5 <- indicators[indicatorUnits[wk4]]
+if (verbose) message("Calculating assessment means... DONE.")
+
 
 # Confidence Assessment---------------------------------------------------------
 
+if (verbose) message("Confidence assessment...")
 # Calculate Temporal Confidence averaging General and Specific Temporal Confidence 
 wk5 <- wk5[, TC := (GTC + STC) / 2]
 
@@ -489,25 +530,39 @@ wk5[, ACC_Class := ifelse(ACC >= 75, "High", ifelse(ACC >= 50, "Moderate", "Low"
 wk5 <- wk5[, C := (TC + SC + ACC) / 3]
 
 wk5[, C_Class := ifelse(C >= 75, "High", ifelse(C >= 50, "Moderate", "Low"))]
+if (verbose) message("Confidence assessment... DONE.")
+if (verbose) message("Calculating assessment means and confidence assessment... DONE.")
+
 
 # Criteria ---------------------------------------------------------------------
+if (verbose) message("Criteria, Assessment...")
+if (verbose) message("Criteria...")
 
 # Check indicator weights
+if (verbose) message("Check indicator weights...")
+if (veryverbose) message("(displaying table 'indicators')")
 indicators[indicatorUnits][!is.na(CriteriaID), .(IWs = sum(IW, na.rm = TRUE)), .(CriteriaID, UnitID)]
 
 # Criteria result as a simple average of the indicators in each category per unit - CategoryID, UnitID, N, ER, EQR, EQRS, C
+if (verbose) message("Computing criteria result...")
+if (veryverbose) message("Creating wk6 (from wk5)...")
 wk6 <- wk5[!is.na(CriteriaID) & !is.na(EQRS), .(.N, ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), C = mean(C)), .(CriteriaID, UnitID)]
 
 # Criteria result as a weighted average of the indicators in each category per unit - CategoryID, UnitID, N, ER, EQR, EQRS, C
 #wk6 <- wk5[!is.na(CriteriaID) & !is.na(EQR), .(.N, ER = weighted.mean(ER, IW, na.rm = TRUE), EQR = weighted.mean(EQR, IW, na.rm = TRUE), EQRS = weighted.mean(EQRS, IW, na.rm = TRUE), C = weighted.mean(C, IW, na.rm = TRUE)), .(CriteriaID, UnitID)]
 
+if (veryverbose) message("Creating wk7 (from wk6)...")
 wk7 <- dcast(wk6, UnitID ~ CriteriaID, value.var = c("N","ER","EQR","EQRS","C"))
+if (verbose) message("Criteria... DONE.")
 
 # Assessment -------------------------------------------------------------------
+if (verbose) message("Assessment...")
 
 # Assessment result - UnitID, N, ER, EQR, EQRS, C
+if (veryverbose) message("Creating wk8 (from wk6)...")
 wk8 <- wk6[, .(.N, ER = max(ER), EQR = min(EQR), EQRS = min(EQRS), C = mean(C)), (UnitID)] %>% setkey(UnitID)
 
+if (veryverbose) message("Creating wk9 (from wk7 and wk8)...")
 wk9 <- wk7[wk8, on = .(UnitID = UnitID), nomatch=0]
 
 # Assign Status and Confidence Classes
@@ -536,13 +591,19 @@ wk9[, C_2_Class := ifelse(C_2 >= 75, "High",
                         ifelse(C_2 >= 50, "Moderate", "Low"))]
 wk9[, C_3_Class := ifelse(C_3 >= 75, "High",
                         ifelse(C_3 >= 50, "Moderate", "Low"))]
+if (verbose) message("Assessment... DONE.")
+if (verbose) message("Criteria, Assessment... DONE.")
+
 
 # Write results
+if (verbose) message("Write results...")
 fwrite(wk3, file = file.path(outputPath, "Annual_Indicator.csv"))
 fwrite(wk5, file = file.path(outputPath, "Assessment_Indicator.csv"))
 fwrite(wk9, file = file.path(outputPath, "Assessment.csv"))
+if (verbose) message("Write results... DONE.")
 
 # Create plots
+if (verbose) message("Prepare plots...")
 EQRS_Class_colors <- c(rgb(119,184,143,max=255), rgb(186,215,194,max=255), rgb(235,205,197,max=255), rgb(216,161,151,max=255), rgb(199,122,112,max=255))
 EQRS_Class_limits <- c("High", "Good", "Moderate", "Poor", "Bad")
 EQRS_Class_labels <- c(">= 0.8 - 1.0 (High)", ">= 0.6 - 0.8 (Good)", ">= 0.4 - 0.6 (Moderate)", ">= 0.2 - 0.4 (Poor)", ">= 0.0 - 0.2 (Bad)")
@@ -553,8 +614,10 @@ C_Class_labels <- c(">= 75 % (High)", "50 - 74 % (Moderate)", "< 50 % (Low)")
 
 # Assessment map Status + Confidence
 wk <- merge(units, wk9, all.x = TRUE, by = "UnitID")
+if (verbose) message("Prepare plots... DONE.")
 
 # Status maps
+if (verbose) message("Create status maps...")
 ggplot(wk) +
   ggtitle(label = paste0("Eutrophication Status ", assessmentPeriod)) +
   geom_sf(aes(fill = EQRS_Class)) +
@@ -603,8 +666,10 @@ ggplot(wk) +
   geom_sf(aes(fill = C_3_Class)) +
   scale_fill_manual(name = "C_3", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
 ggsave(file.path(outputPath, "Assessment_Map_C_3.png"), width = 12, height = 9, dpi = 300)
+if (verbose) message("Create status maps... DONE.")
 
 # Create Assessment Indicator maps
+if (verbose) message("Create Assessment Indicator maps...")
 for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
   indicatorID <- indicators[i, IndicatorID]
   indicatorCode <- indicators[i, Code]
@@ -692,8 +757,11 @@ for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
     scale_fill_manual(name = "C", values = C_Class_colors, limits = C_Class_limits, labels = C_Class_labels)
   ggsave(file.path(outputPath, fileName), width = 12, height = 9, dpi = 300)
 }
+if (verbose) message("Create Assessment Indicator maps... DONE.")
+
 
 # Create Annual Indicator bar charts
+if (verbose) message("Create Annual Indicator bar charts...")
 for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
   indicatorID <- indicators[i, IndicatorID]
   indicatorCode <- indicators[i, Code]
@@ -736,4 +804,5 @@ for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
     }
   }
 }
-
+if (verbose) message("Create Annual Indicator bar charts... DONE.")
+if (verbose) message("Script finished.")
