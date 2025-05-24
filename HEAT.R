@@ -265,6 +265,7 @@ if (verbose) message("Generating station sample data... DONE.")
 fwrite(stationSamples[Type == 'B'], file.path(outputPath, "StationSamplesBOT.csv"))
 fwrite(stationSamples[Type == 'C'], file.path(outputPath, "StationSamplesCTD.csv"))
 fwrite(stationSamples[Type == 'P'], file.path(outputPath, "StationSamplesPMP.csv"))
+if (verbose) message("Classifying station samples into grid units... DONE.")
 
 
 # Read indicator configs -------------------------------------------------------
@@ -374,6 +375,7 @@ for(i in 1:n){
   wk2list[[i]] <- wk2
 }
 if (verbose) message("Looping... DONE")
+
 
 # Combine annual indicator results
 if (verbose) message("Combine annual indicator results...")
