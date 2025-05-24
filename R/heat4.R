@@ -1,71 +1,87 @@
+library(sf)         # %>%
+library(data.table) # setkey, fread
+library(readxl)     # read_excel
 
-# Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
+compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE, veryverbose=FALSE) {
 
-if (verbose) message("Calculating assessment means...")
-if (veryverbose) message("Creating wk4 (from wk3)...")
+    # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
 
-wk4 <- wk3[, .(Period = ifelse(min(Period) > 9999, min(Period), min(Period) * 10000 + max(Period)), ES = mean(ES), SD = sd(ES), ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
+    ## Re-reading indicators (also needed in heat3...)
+    if (verbose) message("Reading indicator configs...")
+    indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
+    if (verbose) message("Reading indicator configs... DONE.")
+    if (verbose) message("Reading indicator units...")
+    indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
+    if (verbose) message("Reading indicator units... DONE.")
 
-wk4[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
-                           ifelse(EQRS >= 0.6, "Good",
-                                  ifelse(EQRS >= 0.4, "Moderate",
-                                         ifelse(EQRS >= 0.2, "Poor","Bad"))))]
+    if (verbose) message("Calculating assessment means...")
+    if (veryverbose) message("Creating wk4 (from wk3)...")
 
-# Add Year Count where STC = 100 --> NSTC100
-wk4 <- wk3[STC == 100, .(NSTC100 = .N), .(IndicatorID, UnitID)][wk4, on = .(IndicatorID, UnitID)]
+    wk4 <- wk3[, .(Period = ifelse(min(Period) > 9999, min(Period), min(Period) * 10000 + max(Period)), ES = mean(ES), SD = sd(ES), ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
 
-# Adjust Specific Spatial Confidence if number of years where STC = 100 is at least half of the number of years with meassurements
-wk4[, STC := ifelse(!is.na(NSTC100) & NSTC100 >= N/2, 100, STC)]
+    wk4[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
+                        ifelse(EQRS >= 0.6, "Good",
+                        ifelse(EQRS >= 0.4, "Moderate",
+                        ifelse(EQRS >= 0.2, "Poor","Bad"))))]
 
-# Combine with indicator and indicator unit configuration tables
-if (verbose) message("Combining with indicator and indicator unit configuration tables...")
-if (veryverbose) message("Creating wk5 (from wk4)...")
-wk5 <- indicators[indicatorUnits[wk4]]
-if (verbose) message("Calculating assessment means... DONE.")
+    # Add Year Count where STC = 100 --> NSTC100
+    wk4 <- wk3[STC == 100, .(NSTC100 = .N), .(IndicatorID, UnitID)][wk4, on = .(IndicatorID, UnitID)]
 
-# Confidence Assessment---------------------------------------------------------
+    # Adjust Specific Spatial Confidence if number of years where STC = 100 is at least half of the number of years with meassurements
+    wk4[, STC := ifelse(!is.na(NSTC100) & NSTC100 >= N/2, 100, STC)]
 
-if (verbose) message("Confidence assessment...")
+    # Combine with indicator and indicator unit configuration tables
+    if (verbose) message("Combining with indicator and indicator unit configuration tables...")
+    if (veryverbose) message("Creating wk5 (from wk4)...")
+    wk5 <- indicators[indicatorUnits[wk4]]
+    if (verbose) message("Calculating assessment means... DONE.")
 
-# Calculate Temporal Confidence averaging General and Specific Temporal Confidence 
-wk5 <- wk5[, TC := (GTC + STC) / 2]
+    # Confidence Assessment---------------------------------------------------------
 
-wk5[, TC_Class := ifelse(TC >= 75, "High", ifelse(TC >= 50, "Moderate", "Low"))]
+    if (verbose) message("Confidence assessment...")
 
-# Calculate Spatial Confidence as the Specific Spatial Confidence 
-wk5 <- wk5[, SC := SSC]
+    # Calculate Temporal Confidence averaging General and Specific Temporal Confidence 
+    wk5 <- wk5[, TC := (GTC + STC) / 2]
 
-wk5[, SC_Class := ifelse(SC >= 75, "High", ifelse(SC >= 50, "Moderate", "Low"))]
+    wk5[, TC_Class := ifelse(TC >= 75, "High", ifelse(TC >= 50, "Moderate", "Low"))]
 
-# Standard Error - using number of years in the assessment period and the associated standard deviation
-#wk5[, SE := SD / sqrt(N)]
+    # Calculate Spatial Confidence as the Specific Spatial Confidence 
+    wk5 <- wk5[, SC := SSC]
 
-# Accuracy Confidence for Non-Problem Area
-#wk5[, AC_NPA := ifelse(Response == 1, pnorm(ET, ES, SD), pnorm(ES, ET, SD))]
+    wk5[, SC_Class := ifelse(SC >= 75, "High", ifelse(SC >= 50, "Moderate", "Low"))]
 
-# Standard Error - using number of observations behind the annual mean - to be used in Accuracy Confidence Calculation!!!
-wk5[, AC_SE := SD / sqrt(N_OBS)]
+    # Standard Error - using number of years in the assessment period and the associated standard deviation
+    #wk5[, SE := SD / sqrt(N)]
 
-# Accuracy Confidence for Non-Problem Area
-wk5[, AC_NPA := ifelse(Response == 1, pnorm(ET, ES, AC_SE), pnorm(ES, ET, AC_SE))]
+    # Accuracy Confidence for Non-Problem Area
+    #wk5[, AC_NPA := ifelse(Response == 1, pnorm(ET, ES, SD), pnorm(ES, ET, SD))]
 
-# Accuracy Confidence for Problem Area
-wk5[, AC_PA := 1 - AC_NPA]
+    # Standard Error - using number of observations behind the annual mean - to be used in Accuracy Confidence Calculation!!!
+    wk5[, AC_SE := SD / sqrt(N_OBS)]
 
-# Accuracy Confidence Area Class - Not sure what this should be used for?
-#wk5[, ACAC := ifelse(AC_NPA > 0.5, "NPA", ifelse(AC_NPA < 0.5, "PA", "PPA"))]
+    # Accuracy Confidence for Non-Problem Area
+    wk5[, AC_NPA := ifelse(Response == 1, pnorm(ET, ES, AC_SE), pnorm(ES, ET, AC_SE))]
 
-# Accuracy Confidence
-wk5[, AC := ifelse(AC_NPA > AC_PA, AC_NPA, AC_PA)]
+    # Accuracy Confidence for Problem Area
+    wk5[, AC_PA := 1 - AC_NPA]
 
-# Accuracy Confidence Class
-wk5[, ACC := ifelse(AC > 0.9, 100, ifelse(AC < 0.7, 0, 50))]
+    # Accuracy Confidence Area Class - Not sure what this should be used for?
+    #wk5[, ACAC := ifelse(AC_NPA > 0.5, "NPA", ifelse(AC_NPA < 0.5, "PA", "PPA"))]
 
-wk5[, ACC_Class := ifelse(ACC >= 75, "High", ifelse(ACC >= 50, "Moderate", "Low"))]
+    # Accuracy Confidence
+    wk5[, AC := ifelse(AC_NPA > AC_PA, AC_NPA, AC_PA)]
 
-# Calculate Overall Confidence
-wk5 <- wk5[, C := (TC + SC + ACC) / 3]
+    # Accuracy Confidence Class
+    wk5[, ACC := ifelse(AC > 0.9, 100, ifelse(AC < 0.7, 0, 50))]
 
-wk5[, C_Class := ifelse(C >= 75, "High", ifelse(C >= 50, "Moderate", "Low"))]
+    wk5[, ACC_Class := ifelse(ACC >= 75, "High", ifelse(ACC >= 50, "Moderate", "Low"))]
 
-if (verbose) message("Confidence assessment... DONE.")
+    # Calculate Overall Confidence
+    wk5 <- wk5[, C := (TC + SC + ACC) / 3]
+
+    wk5[, C_Class := ifelse(C >= 75, "High", ifelse(C >= 50, "Moderate", "Low"))]
+
+    if (verbose) message("Confidence assessment... DONE.")
+
+    return(wk5)
+}

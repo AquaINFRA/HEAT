@@ -18,6 +18,7 @@ if (verbose) message("Install and load R packages... DONE.")
 #assessmentPeriod <- "1877-9999"
 #assessmentPeriod <- "2011-2016" # HOLAS II
 assessmentPeriod <- "2016-2021" # HOLAS III
+message(paste("Running for assessment period", assessmentPeriod, "..."))
 
 # Set flag to determined if the combined chlorophyll a in-situ/satellite indicator is a simple mean or a weighted mean based on confidence measures
 combined_Chlorophylla_IsWeighted <- TRUE
@@ -89,15 +90,22 @@ if (verbose) message("Download and unpack files needed for the assessment... DON
 
 # Assessment Units + Grid Units-------------------------------------------------
 if (verbose) message("Generating assessment Units and Grid Units...")
-if (veryverbose) message("(now running sourced sub-script heat1_gridunits.R...)")
+if (veryverbose) message("(now running functions from sourced heat1_gridunits.R...)")
 source("./R/heat1_gridunits.R")
-if (veryverbose) message("(now running sourced sub-script heat1_gridunits.R... DONE)")
+units <- get_units(assessmentPeriod, unitsFile, verbose)
+gridunits <- get_gridunits(units, configurationFile, verbose)
+if (veryverbose) message("(now running functions from sourced heat1_gridunits.R... DONE.)")
 if (verbose) message("Generating assessment Units and Grid Units... DONE.")
 
 #st_write(gridunits, file.path(outputPath, "gridunits.shp"), delete_layer = TRUE)
 
 # Plot
 if (verbose) message("Plotting...")
+# For plotting, we recreate the non-combined gridunits files. They are not
+# required for the rest of the computation script.
+gridunits10 <- make.gridunits(units, 10000, verbose)
+gridunits30 <- make.gridunits(units, 30000, verbose)
+gridunits60 <- make.gridunits(units, 60000, verbose)
 ggplot() + geom_sf(data = units) + coord_sf()
 ggsave(file.path(outputPath, "Assessment_Units.png"), width = 12, height = 9, dpi = 300)
 ggplot() + geom_sf(data = gridunits10) + coord_sf()
@@ -113,9 +121,10 @@ if (verbose) message("Plotting... DONE")
 
 # Read station sample data -----------------------------------------------------
 if (verbose) message("Generating station sample data...")
-if (veryverbose) message("(now running sourced sub-script heat2_stations.R)")
+if (veryverbose) message("(now running functions from sourced heat2_stations.R...)")
 source("./R/heat2_stations.R")
-if (veryverbose) message("(now running sourced sub-script heat2_stations.R DONE)")
+stationSamples <- prepare_station_samples(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits, verbose)
+if (veryverbose) message("(now running functions from sourced heat2_stations.R)... DONE.")
 if (verbose) message("Generating station sample data... DONE.")
 
 # Output station samples mapped to assessment units for contracting parties to check i.e. acceptance level 1
@@ -123,22 +132,27 @@ fwrite(stationSamples[Type == 'B'], file.path(outputPath, "StationSamplesBOT.csv
 fwrite(stationSamples[Type == 'C'], file.path(outputPath, "StationSamplesCTD.csv"))
 fwrite(stationSamples[Type == 'P'], file.path(outputPath, "StationSamplesPMP.csv"))
 
+# Also write combined station samples:
+fwrite(stationSamples, file.path(outputPath, "StationSamples_combined.csv"), row.names = TRUE)
+
 
 # Read indicator configs -------------------------------------------------------
 # Loop indicators --------------------------------------------------------------
 if (verbose) message("Looping over the indicators  (and some more)...")
-if (veryverbose) message("(now running sourced sub-script heat3.R)")
+if (veryverbose) message("(now running functions from sourced heat3.R...)")
 source("./R/heat3.R")
-if (veryverbose) message("(now running sourced sub-script heat3.R DONE)")
+wk3 <- compute_annual_indicators(stationSamples, units, configurationFile, combined_Chlorophylla_IsWeighted, verbose)
+if (veryverbose) message("(now running functions from sourced heat3.R... DONE.)")
 if (verbose) message("Looping over the indicators (and some more)... DONE")
 
 # ------------------------------------------------------------------------------
 # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
 # Confidence Assessment---------------------------------------------------------
 if (verbose) message("Calculating assessment means and confidence assessment...")
-if (veryverbose) message("(now running sourced sub-script heat4.R)")
+if (veryverbose) message("(now running functions from sourced heat4.R...)")
 source("./R/heat4.R")
-if (veryverbose) message("(now running sourced sub-script heat4.R DONE)")
+wk5 <- compute_assessment_indicators(wk3, configurationFile, verbose)
+if (veryverbose) message("(now running functions from sourced heat4.R... DONE.)")
 if (verbose) message("Calculating assessment means and confidence assessment... DONE.")
 
 
@@ -147,6 +161,7 @@ if (verbose) message("Calculating assessment means and confidence assessment... 
 if (verbose) message("Criteria, Assessment...")
 if (veryverbose) message("(now running sourced sub-script heat5.R)")
 source("./R/heat5.R")
+wk9 <- compute_assessment(wk5, configurationFile, verbose)
 if (veryverbose) message("(now running sourced sub-script heat5.R DONE)")
 if (verbose) message("Criteria, Assessment... DONE.")
 
@@ -226,10 +241,14 @@ if (verbose) message("Create status maps... DONE.")
 
 # Create Assessment Indicator maps
 if (verbose) message("Create Assessment Indicator maps...")
-for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
+## Re-reading indicators (also needed in heat3...)
+indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
+n <- nrow(indicators[IndicatorID < 1000,])
+for(i in 1:n) {
   indicatorID <- indicators[i, IndicatorID]
   indicatorCode <- indicators[i, Code]
   indicatorName <- indicators[i, Name]
+  if (verbose) message(paste0("  Iteration ", i, "/", n, ", indicator name: ", indicatorName))
   indicatorYearMin <- indicators[i, YearMin]
   indicatorYearMax <- indicators[i, YearMax]
   indicatorMonthMin <- indicators[i, MonthMin]
@@ -240,9 +259,9 @@ for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
   indicatorMetric <- indicators[i, Metric]
 
   wk <- wk5[IndicatorID == indicatorID] %>% setkey(UnitID)
-  
+
   wk <- merge(units, wk, by = "UnitID", all.x = TRUE)  
-    
+
   # Status map (EQRS)
   title <- paste0("Eutrophication Status ", indicatorYearMin, "-", indicatorYearMax)
   subtitle <- paste0(indicatorName, " (", indicatorCode, ")", "\n")
@@ -318,10 +337,13 @@ if (verbose) message("Create Assessment Indicator maps... DONE.")
 
 # Create Annual Indicator bar charts
 if (verbose) message("Create Annual Indicator bar charts...")
-for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
+#for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
+n <- nrow(indicators[IndicatorID < 1000,])
+for(i in 1:n) {
   indicatorID <- indicators[i, IndicatorID]
   indicatorCode <- indicators[i, Code]
   indicatorName <- indicators[i, Name]
+  if (verbose) message(paste0("  Iteration ", i, "/", n, ", indicator name: ", indicatorName))
   indicatorUnit <- indicators[i, Units]
   indicatorYearMin <- indicators[i, YearMin]
   indicatorYearMax <- indicators[i, YearMax]
@@ -361,4 +383,5 @@ for (i in 1:nrow(indicators[IndicatorID < 1000,])) {
   }
 }
 if (verbose) message("Create Annual Indicator bar charts... DONE.")
-if (verbose) message("Script finished.")
+if (verbose) message(paste("Finished running for assessment period", assessmentPeriod, "..."))
+message("Script finished.")
