@@ -3,6 +3,7 @@ from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 LOGGER = logging.getLogger(__name__)
 
 import json
+import requests
 import os
 import traceback
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
