@@ -33,7 +33,9 @@ def run_docker_container(
     sanitized_args = []
     for arg in script_args:
         newarg = arg
-        if inputs_read_only in arg:
+        if arg is None:
+            arg = 'null'
+        elif inputs_read_only in arg:
             newarg = arg.replace(inputs_read_only, container_in_readonly)
             LOGGER.debug("Replaced argument %s by %s..." % (arg, newarg))
         elif local_out in arg:
