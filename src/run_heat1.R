@@ -1,5 +1,6 @@
 library(sf) # st_write
 source("../R/all_heat_functions.R")
+source("../R/heat_plot_functions.R")
 
 
 #################
@@ -57,23 +58,18 @@ if (!is.na(out_plotsPath)) {
     # Plot the assessment units
     if (verbose) message(paste('Storing PNG graphics to', out_plotsPath))
     #pdf(file = NULL)
-    ggplot() + geom_sf(data = units) + coord_sf()
-    ggsave(file.path(out_plotsPath, "Assessment_Units.png"), width = 12, height = 9, dpi = 300)
+    plot_spatial_units(units, out_plotsPath, "Assessment_Units.png")
 
     # Plot the gridded units:
-    ggplot() + geom_sf(data = sf::st_cast(gridunits)) + coord_sf()
-    ggsave(file.path(out_plotsPath, "Assessment_GridUnits.png"), width = 12, height = 9, dpi = 300)
+    plot_spatial_units(st_cast(gridunits), out_plotsPath, "Assessment_GridUnits.png")
 
     # Plot the individual ones:
     gridunits10 <- make.gridunits(units, 10000, verbose)
     gridunits30 <- make.gridunits(units, 30000, verbose)
     gridunits60 <- make.gridunits(units, 60000, verbose)
-    ggplot() + geom_sf(data = gridunits10) + coord_sf()
-    ggsave(file.path(out_plotsPath, "Assessment_GridUnits10.png"), width = 12, height = 9, dpi = 300)
-    ggplot() + geom_sf(data = gridunits30) + coord_sf()
-    ggsave(file.path(out_plotsPath, "Assessment_GridUnits30.png"), width = 12, height = 9, dpi = 300)
-    ggplot() + geom_sf(data = gridunits60) + coord_sf()
-    ggsave(file.path(out_plotsPath, "Assessment_GridUnits60.png"), width = 12, height = 9, dpi = 300)
+    plot_spatial_units(gridunits10, out_plotsPath, "Assessment_GridUnits10.png")
+    plot_spatial_units(gridunits30, out_plotsPath, "Assessment_GridUnits30.png")
+    plot_spatial_units(gridunits60, out_plotsPath, "Assessment_GridUnits60.png")
     if (verbose) message(paste('Stored into', out_plotsPath, ': Assessment_Units.png, Assessment_GridUnits10.png, Assessment_GridUnits20.png, Assessment_GridUnits60.png, Assessment_GridUnits.png'))
 }
 
