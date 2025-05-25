@@ -110,7 +110,7 @@ class HEAT1Processor(BaseProcessor):
 
         # Define paths to static input paths depending on assessment_period
         in_unitsFilePath = get_unit_file_path(assessment_period, path_input_data)
-        in_unitGridSizePath = get_gridsize_file_path(assessment_period, path_input_data)
+        in_unitGridSizePath = get_config_file_path('UnitGridSize', assessment_period, path_input_data)
 
 
         ###############
@@ -196,12 +196,18 @@ def get_unit_file_path(assessment_period, path_input_data):
         return path_input_data+"/2016-2021/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
 
 
-def get_gridsize_file_path(assessment_period, path_input_data):
+def get_config_file_path(which_config, assessment_period, path_input_data):
+    # TODO: Move to utils, used in heat1, heat3, heat4, heat5...
+
+    if not which_config in ['Indicators', 'IndicatorUnits', 'IndicatorUnitResults', 'UnitGridSize']:
+        err_msg = 'Trying to retrieve unknown config file: %s' % which_config
+        LOGGER.error(err_msg)
+        raise ValueError(err_msg)
 
     if assessment_period == "1877-9999":
-        return path_input_data+"/adapted_inputs/1877-9999/Configuration1877-9999_UnitGridSize.csv"
+        return path_input_data+"/adapted_inputs/1877-9999/Configuration1877-9999_%s.csv" % which_config
     elif assessment_period == "2011-2016":
-        return path_input_data+"/adapted_inputs/2011-2016/Configuration2011-2016_UnitGridSize.csv"
+        return path_input_data+"/adapted_inputs/2011-2016/Configuration2011-2016_%s.csv" % which_config
     elif assessment_period == "2016-2021":
-        return path_input_data+"/adapted_inputs/2016-2021/Configuration2016-2021_UnitGridSize.csv"
+        return path_input_data+"/adapted_inputs/2016-2021/Configuration2016-2021_%s.csv" % which_config
 
