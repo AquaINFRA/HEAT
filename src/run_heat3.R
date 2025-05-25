@@ -57,13 +57,17 @@ if (! "UnitArea" %in% names(units)) {
   }
 }
 
+# Read indicator configs -------------------------------------------------------
+indicators <- get_indicators_table(in_configurationFilePath, format="xlsx")
+indicatorUnits <- get_indicator_units_table(in_configurationFilePath, format="xlsx")
+indicatorUnitResults <- get_indicator_unit_results_table(in_configurationFilePath, format="xlsx")
 
 ####################
 ### Computing... ###
 ####################
 
 if (verbose) message("Looping over the indicators  (and some more)...")
-wk3 <- compute_annual_indicators(stationSamples, units, in_configurationFilePath, combined_Chlorophylla_IsWeighted, verbose)
+wk3 <- compute_annual_indicators(stationSamples, units, indicators, indicatorUnits, indicatorUnitResults, combined_Chlorophylla_IsWeighted, verbose)
 if (verbose) message("Looping over the indicators  (and some more)... DONE.")
 if (verbose) message('Calculation done.')
 

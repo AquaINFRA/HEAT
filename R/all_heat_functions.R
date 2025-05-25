@@ -195,14 +195,12 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
 }
 
 
-get_gridunits <- function(units, configurationFile, verbose=TRUE) {
+get_gridunits <- function(units, unitGridSize, verbose=TRUE) {
   if (verbose) message(paste("START: get_gridunits"))
 
   gridunits10 <- make.gridunits(units, 10000, verbose)
   gridunits30 <- make.gridunits(units, 30000, verbose)
   gridunits60 <- make.gridunits(units, 60000, verbose)
-
-  unitGridSize <- get_unit_grid_size_table(configurationFile)
 
   a <- merge(unitGridSize[GridSize == 10000], gridunits10 %>% select(UnitID, GridID, GridArea = Area))
   b <- merge(unitGridSize[GridSize == 30000], gridunits30 %>% select(UnitID, GridID, GridArea = Area))
@@ -306,13 +304,8 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
 }
 
 
-compute_annual_indicators <- function(stationSamples, units, configurationFile, combined_Chlorophylla_IsWeighted, verbose=TRUE) {
+compute_annual_indicators <- function(stationSamples, units, indicators, indicatorUnits, indicatorUnitResults, combined_Chlorophylla_IsWeighted, verbose=TRUE) {
   if (verbose) message("START: compute_annual_indicators")
-
-  # Read indicator configs -------------------------------------------------------
-  indicators <- get_indicators_table(configurationFile)
-  indicatorUnits <- get_indicator_units_table(configurationFile)
-  indicatorUnitResults <- get_indicator_unit_results_table(configurationFile)
 
   # Loop indicators --------------------------------------------------------------
   if (verbose) message("Looping")
@@ -503,12 +496,8 @@ compute_annual_indicators <- function(stationSamples, units, configurationFile, 
 }
 
 
-compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE) {
+compute_assessment_indicators <-function(wk3, indicators, indicatorUnits, verbose=TRUE) {
     if (verbose) message("START: compute_assessment_indicators")
-
-    # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
-    indicators <- get_indicators_table(configurationFile)
-    indicatorUnits <- get_indicator_units_table(configurationFile)
 
     if (verbose) message("Calculating assessment means...")
     wk4 <- wk3[, .(Period = ifelse(min(Period) > 9999, min(Period), min(Period) * 10000 + max(Period)), ES = mean(ES), SD = sd(ES), ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
@@ -578,11 +567,8 @@ compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE) {
 }
 
 
-compute_assessment <- function(wk5, configurationFile, verbose=TRUE) {
+compute_assessment <- function(wk5, indicators, indicatorUnits, verbose=TRUE) {
     if (verbose) message("START: compute_assessment")
-
-    indicators <- get_indicators_table(configurationFile)
-    indicatorUnits <- get_indicator_units_table(configurationFile)
 
     # Criteria ---------------------------------------------------------------------
     if (verbose) message("Criteria...")

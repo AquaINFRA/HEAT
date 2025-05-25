@@ -42,7 +42,8 @@ stationSamplesPMPFile <- paths$stationSamplesPMPFile
 # Assessment Units + Grid Units-------------------------------------------------
 if (verbose) message("Generating assessment Units and Grid Units...")
 units <- get_units(assessmentPeriod, unitsFile, verbose)
-gridunits <- get_gridunits(units, configurationFile, verbose)
+unitGridSizeTable <- get_unit_grid_size_table(configurationFile, format='xlsx')
+gridunits <- get_gridunits(units, unitGridSizeTable, verbose)
 if (verbose) message("Generating assessment Units and Grid Units... DONE.")
 
 #st_write(gridunits, file.path(outputPath, "gridunits.shp"), delete_layer = TRUE)
@@ -82,23 +83,27 @@ fwrite(stationSamples, file.path(outputPath, "StationSamples_combined.csv"), row
 
 
 # Read indicator configs -------------------------------------------------------
+indicators <- get_indicators_table(configurationFile, format="xlsx")
+indicatorUnits <- get_indicator_units_table(configurationFile, format="xlsx")
+indicatorUnitResults <- get_indicator_unit_results_table(configurationFile, format="xlsx")
+
 # Loop indicators --------------------------------------------------------------
 if (verbose) message("Looping over the indicators  (and some more)...")
-wk3 <- compute_annual_indicators(stationSamples, units, configurationFile, combined_Chlorophylla_IsWeighted, verbose)
+wk3 <- compute_annual_indicators(stationSamples, units, indicators, indicatorUnits, indicatorUnitResults, combined_Chlorophylla_IsWeighted, verbose)
 if (verbose) message("Looping over the indicators (and some more)... DONE")
 
 # ------------------------------------------------------------------------------
 # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
 # Confidence Assessment---------------------------------------------------------
 if (verbose) message("Calculating assessment means and confidence assessment...")
-wk5 <- compute_assessment_indicators(wk3, configurationFile, verbose)
+wk5 <- compute_assessment_indicators(wk3, indicators, indicatorUnits, verbose)
 if (verbose) message("Calculating assessment means and confidence assessment... DONE.")
 
 
 # Criteria ---------------------------------------------------------------------
 # Assessment -------------------------------------------------------------------
 if (verbose) message("Criteria, Assessment...")
-wk9 <- compute_assessment(wk5, configurationFile, verbose)
+wk9 <- compute_assessment(wk5, indicators, indicatorUnits, verbose)
 if (verbose) message("Criteria, Assessment... DONE.")
 
 

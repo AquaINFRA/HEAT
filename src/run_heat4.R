@@ -50,13 +50,17 @@ for (colname in columns_to_numeric) {
 }
 if (verbose) message(paste('Fixing columns types... DONE.'))
 
+# Read indicator configs -------------------------------------------------------
+indicators <- get_indicators_table(in_configurationFilePath, format="xlsx")
+indicatorUnits <- get_indicator_units_table(in_configurationFilePath, format="xlsx")
+
 
 ####################
 ### Computing... ###
 ####################
 
 if (verbose) message("Calculating assessment means and confidence assessment...")
-wk5 <- compute_assessment_indicators(wk3, in_configurationFilePath, verbose)
+wk5 <- compute_assessment_indicators(wk3, indicators, indicatorUnits, verbose)
 if (verbose) message("Calculating assessment means and confidence assessment... DONE.")
 if (verbose) message('Calculation done.')
 

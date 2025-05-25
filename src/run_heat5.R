@@ -33,13 +33,17 @@ if (verbose) message(paste('Reading input table from', in_AssessmentIndicatorPat
 wk5 = data.table::fread(file=in_AssessmentIndicatorPath)
 if (verbose) message(paste('Reading input table from', in_AssessmentIndicatorPath, '... DONE.'))
 
+# Read indicator configs -------------------------------------------------------
+indicators <- get_indicators_table(in_configurationFilePath, format="xlsx")
+indicatorUnits <- get_indicator_units_table(in_configurationFilePath, format="xlsx")
+
 
 ####################
 ### Computing... ###
 ####################
 
 if (verbose) message("Calculating criteria, assessment...")
-wk9 <- compute_assessment(wk5, in_configurationFilePath, verbose)
+wk9 <- compute_assessment(wk5, indicators, indicatorUnits, verbose)
 if (verbose) message("Calculating criteria, Assessment... DONE.")
 if (verbose) message('Calculation done.')
 

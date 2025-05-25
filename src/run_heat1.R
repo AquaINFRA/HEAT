@@ -30,6 +30,8 @@ if (is.na(verbose)) {
 ### Read inputs ###
 ###################
 
+unitGridSizeTable <- get_unit_grid_size_table(in_unitGridSizePath, format='xlsx')
+
 
 ####################
 ### Computing... ###
@@ -37,7 +39,7 @@ if (is.na(verbose)) {
 
 ## Generate assessment units and gridunits
 units <- get_units(assessmentPeriod, in_unitsFilePath, verbose)
-gridunits <- get_gridunits(units, in_unitGridSizePath, verbose)
+gridunits <- get_gridunits(units, unitGridSizeTable, verbose)
 if (verbose) message('Calculation done.')
 
 
