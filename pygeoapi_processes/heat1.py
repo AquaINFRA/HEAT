@@ -18,6 +18,7 @@ curl -X POST 'https://localhost:5000/processes/heat1/execution' \
     }
 }'
 
+# This one will complain:
 curl -X POST 'https://localhost:5000/processes/heat1/execution' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -26,22 +27,6 @@ curl -X POST 'https://localhost:5000/processes/heat1/execution' \
     }
 }'
 
-NOTCOMMIT:
-curl -X POST 'https://aquainfra.ogc.igb-berlin.de/pygeoapi/processes/heat1/execution' \
---header 'Content-Type: application/json' \
---data '{
-    "inputs": {
-        "assessment_period": "holas-2"
-    }
-}'
-NOTCOMMIT:
-curl -X POST 'https://aquainfra.ogc.igb-berlin.de/pygeoapi/processes/heat1/execution' \
---header 'Content-Type: application/json' \
---data '{
-    "inputs": {
-        "assessment_period": "2016-2021"
-    }
-}'
 '''
 
 
@@ -135,6 +120,7 @@ class HEAT1Processor(BaseProcessor):
         # Where to store output data
         out_units_gridded_filepath = self.download_dir+'/out/units_gridded-%s.shp' % self.job_id
         out_units_cleaned_filepath = self.download_dir+'/out/units_cleaned-%s.shp' % self.job_id
+
         # Where to access output data
         out_units_gridded_url      = self.download_url+'/out/'+out_units_gridded_filepath.split('/')[-1]
         out_units_cleaned_url      = self.download_url+'/out/'+out_units_cleaned_filepath.split('/')[-1]

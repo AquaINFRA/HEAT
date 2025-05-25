@@ -12,7 +12,7 @@ def run_docker_container(
         inputs_read_only,
         script_args
     ):
-    LOGGER.debug('Prepare running docker container')
+    LOGGER.debug('Prepare running docker container (image %s)' % image_name)
 
     # Create container name
     # Note: Only [a-zA-Z0-9][a-zA-Z0-9_.-] are allowed
@@ -31,6 +31,7 @@ def run_docker_container(
 
     # Replace paths in args:
     sanitized_args = []
+    LOGGER.debug('Args before sanitizing: %s' % script_args)
     for arg in script_args:
         newarg = arg
         if arg is None:
@@ -60,11 +61,11 @@ def run_docker_container(
     
     # Run container
     try:
-        LOGGER.debug('Start running docker container')
+        LOGGER.debug('Start running docker container (image %s)' % image_name)
         result = subprocess.run(docker_command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout = result.stdout.decode()
         stderr = result.stderr.decode()
-        LOGGER.debug('Finished running docker container')
+        LOGGER.debug('Finished running docker container (image %s)' % image_name)
         return result.returncode, stdout, stderr, "no error"
 
     except subprocess.CalledProcessError as e:

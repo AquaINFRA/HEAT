@@ -116,14 +116,15 @@ class HEAT2Processor(BaseProcessor):
         # Directory where static input data can be found. It will be mounted read-only to the container:
         path_input_data = self.inputs_read_only
 
+        ## Use pre-computed input shapes, as they are always the same anyway:
+        in_unitsGriddedFilePath = get_path_gridded_units(assessment_period, path_input_data)
+
         # Download input data, or provide path to default, or None
         # (Currently, downloading+unzipping is not allowed, because it is unsafe)
         in_stationSamplesBOTFilePath = get_path_bottle_input_data(assessment_period, bot_url, path_input_data, self.download_dir)
         in_stationSamplesCTDFilePath = get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, self.download_dir)
         in_stationSamplesPMPFilePath = get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, self.download_dir)
 
-        ## Use pre-computed input shapes, as they are always the same anyway:
-        in_unitsGriddedFilePath = get_path_gridded_units(assessment_period, path_input_data)
 
 
         ###############
