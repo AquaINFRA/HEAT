@@ -2,21 +2,15 @@ library(sf)         # %>%
 library(data.table) # setkey, fread
 library(readxl)     # read_excel
 
-compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE, veryverbose=FALSE) {
+compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE) {
+    if (verbose) message("START: compute_assessment_indicators")
 
     # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
 
-    ## Re-reading indicators (also needed in heat3...)
-    if (verbose) message("Reading indicator configs...")
     indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
-    if (verbose) message("Reading indicator configs... DONE.")
-    if (verbose) message("Reading indicator units...")
     indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
-    if (verbose) message("Reading indicator units... DONE.")
 
     if (verbose) message("Calculating assessment means...")
-    if (veryverbose) message("Creating wk4 (from wk3)...")
-
     wk4 <- wk3[, .(Period = ifelse(min(Period) > 9999, min(Period), min(Period) * 10000 + max(Period)), ES = mean(ES), SD = sd(ES), ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
 
     wk4[, EQRS_Class := ifelse(EQRS >= 0.8, "High",
@@ -32,9 +26,7 @@ compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE, v
 
     # Combine with indicator and indicator unit configuration tables
     if (verbose) message("Combining with indicator and indicator unit configuration tables...")
-    if (veryverbose) message("Creating wk5 (from wk4)...")
     wk5 <- indicators[indicatorUnits[wk4]]
-    if (verbose) message("Calculating assessment means... DONE.")
 
     # Confidence Assessment---------------------------------------------------------
 
@@ -81,7 +73,6 @@ compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE, v
 
     wk5[, C_Class := ifelse(C >= 75, "High", ifelse(C >= 50, "Moderate", "Low"))]
 
-    if (verbose) message("Confidence assessment... DONE.")
-
+    if (verbose) message("END:   compute_assessment_indicators")
     return(wk5)
 }

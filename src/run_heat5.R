@@ -11,7 +11,6 @@ in_AssessmentIndicatorPath = args[1]
 in_configurationFilePath = args[2]
 out_AssessmentPath = args[3]
 verbose = args[4]
-veryverbose = args[5]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -20,13 +19,6 @@ if (is.na(verbose)) {
     verbose <- FALSE
 } else {
     verbose <- TRUE
-}
-if (is.na(veryverbose)) {
-    veryverbose <- FALSE
-} else if (tolower(veryverbose) == "true") {
-    veryverbose <- TRUE
-} else {
-    veryverbose <- FALSE
 }
 
 
@@ -46,7 +38,7 @@ if (verbose) message(paste('Reading input table from', in_AssessmentIndicatorPat
 ####################
 
 if (verbose) message("Calculating criteria, assessment...")
-wk9 <- compute_assessment(wk5, in_configurationFilePath, verbose, veryverbose)
+wk9 <- compute_assessment(wk5, in_configurationFilePath, verbose)
 if (verbose) message("Calculating criteria, Assessment... DONE.")
 if (verbose) message('Calculation done.')
 

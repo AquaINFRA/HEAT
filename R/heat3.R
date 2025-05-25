@@ -1,13 +1,12 @@
 library(readxl)
 
-compute_annual_indicators <- function(stationSamples, units, configurationFile, combined_Chlorophylla_IsWeighted, verbose=TRUE, veryverbose=FALSE) {
+compute_annual_indicators <- function(stationSamples, units, configurationFile, combined_Chlorophylla_IsWeighted, verbose=TRUE) {
+  if (verbose) message("START: compute_annual_indicators")
 
   # Read indicator configs -------------------------------------------------------
-  if (verbose) message(paste("Reading indicator configs from", configurationFile, "..."))
   indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
   indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
   indicatorUnitResults <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnitResults", col_types = "numeric")) %>% setkey(IndicatorID, UnitID, Period)
-  if (verbose) message("Reading indicator configs... DONE.")
 
   # Loop indicators --------------------------------------------------------------
   if (verbose) message("Looping")
@@ -111,7 +110,6 @@ compute_annual_indicators <- function(stationSamples, units, configurationFile, 
 
   # Combine annual indicator results
   if (verbose) message("Combine annual indicator results...")
-  if (veryverbose) message("Creating wk2 (from wk2list created during loop)...")
   wk2 <- rbindlist(wk2list)
 
   # Combine with indicator results reported
@@ -121,7 +119,6 @@ compute_annual_indicators <- function(stationSamples, units, configurationFile, 
 
   # Combine with indicator and indicator unit configuration tables
   if (verbose) message("Combining with indicator and indicator unit configuration tables...")
-  if (veryverbose) message("Creating wk3 (from wk2)...")
   wk3 <- indicators[indicatorUnits[wk2]]
 
   # Calculate General Temporal Confidence (GTC) - Confidence in number of annual observations
@@ -195,6 +192,6 @@ compute_annual_indicators <- function(stationSamples, units, configurationFile, 
                                     ifelse(EQRS >= 0.4, "Moderate",
                                            ifelse(EQRS >= 0.2, "Poor","Bad"))))]
 
-  if (verbose) message("Combining with indicator and indicator unit configuration tables... DONE.")
+  if (verbose) message("END:   compute_annual_indicators")
   return(wk3)
 }

@@ -14,7 +14,6 @@ out_unitsCleanedFilePath = args[4]
 out_unitsGriddedFilePath = args[5]
 out_plotsPath = args[6] # NA if not passed by user, then interpreted as "don't plot"
 verbose = args[6]
-veryverbose = args[7]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -36,8 +35,8 @@ if (is.na(verbose)) {
 ####################
 
 ## Generate assessment units and gridunits
-units <- get_units(assessmentPeriod, in_unitsFilePath)
-gridunits <- get_gridunits(units, in_unitGridSizePath)
+units <- get_units(assessmentPeriod, in_unitsFilePath, verbose)
+gridunits <- get_gridunits(units, in_unitGridSizePath, verbose)
 if (verbose) message('Calculation done.')
 
 
@@ -63,9 +62,9 @@ if (!is.na(out_plotsPath)) {
     ggsave(file.path(out_plotsPath, "Assessment_GridUnits.png"), width = 12, height = 9, dpi = 300)
 
     # Plot the individual ones:
-    gridunits10 <- make.gridunits(units, 10000)
-    gridunits30 <- make.gridunits(units, 30000)
-    gridunits60 <- make.gridunits(units, 60000)
+    gridunits10 <- make.gridunits(units, 10000, verbose)
+    gridunits30 <- make.gridunits(units, 30000, verbose)
+    gridunits60 <- make.gridunits(units, 60000, verbose)
     ggplot() + geom_sf(data = gridunits10) + coord_sf()
     ggsave(file.path(out_plotsPath, "Assessment_GridUnits10.png"), width = 12, height = 9, dpi = 300)
     ggplot() + geom_sf(data = gridunits30) + coord_sf()

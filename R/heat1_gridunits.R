@@ -4,7 +4,8 @@ library(readxl)     # read_excel
 library(tidyverse)  # select
 
 
-get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE, veryverbose=FALSE) {
+get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
+  if (verbose) message(paste("START: get_units"))
 
   if (assessmentPeriod == "2011-2016") {
     # Read assessment unit from shape file, requires sf
@@ -64,17 +65,17 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE, veryverbose=FAL
   # Identify overlapping assessment units
   #st_overlaps(units)
 
+  if (verbose) message(paste("END:   get_units"))
   return(units)
 }
 
-get_gridunits <- function(units, configurationFile, verbose=TRUE, veryverbose=FALSE) {
-  if (veryverbose) message(paste("DEBUG: get_gridunits"))
+get_gridunits <- function(units, configurationFile, verbose=TRUE) {
+  if (verbose) message(paste("START: get_gridunits"))
 
-  gridunits10 <- make.gridunits(units, 10000, verbose, veryverbose)
-  gridunits30 <- make.gridunits(units, 30000, verbose, veryverbose)
-  gridunits60 <- make.gridunits(units, 60000, verbose, veryverbose)
+  gridunits10 <- make.gridunits(units, 10000, verbose)
+  gridunits30 <- make.gridunits(units, 30000, verbose)
+  gridunits60 <- make.gridunits(units, 60000, verbose)
 
-  if (veryverbose) message(paste('DEBUG: Reading indicators from', configurationFile))
   unitGridSize <- as.data.table(readxl::read_excel(configurationFile, sheet = "UnitGridSize")) %>% data.table::setkey(UnitID)
 
   a <- merge(unitGridSize[GridSize == 10000], gridunits10 %>% select(UnitID, GridID, GridArea = Area))
@@ -86,15 +87,14 @@ get_gridunits <- function(units, configurationFile, verbose=TRUE, veryverbose=FA
 
   rm(a,b,c)
 
+  if (verbose) message(paste("END:   get_gridunits"))
   return(gridunits)
-
 }
 
 
 # Make grid units
-make.gridunits <- function(units, gridSize, verbose=TRUE, veryverbose=FALSE) {
-
-  if (veryverbose) message(paste("DEBUG: make.gridunits for size", gridSize))
+make.gridunits <- function(units, gridSize, verbose=TRUE) {
+  if (verbose) message(paste("START: make.gridunits for size", gridSize))
 
   units <- st_transform(units, crs = 3035)
 
@@ -116,6 +116,7 @@ make.gridunits <- function(units, gridSize, verbose=TRUE, veryverbose=FALSE) {
   gridunits <- st_intersection(grid, units)
   gridunits$Area <- st_area(gridunits)
 
+  if (verbose) message(paste("END:   make.gridunits for size", gridSize))
   return(gridunits)
 }
 

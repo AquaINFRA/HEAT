@@ -14,7 +14,6 @@ in_configurationFilePath = args[3]
 combined_Chlorophylla_IsWeighted = args[4]
 out_AnnualIndicatorPath = args[5]
 verbose = args[6]
-veryverbose = args[7]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -23,13 +22,6 @@ if (is.na(verbose)) {
     verbose <- FALSE
 } else {
     verbose <- TRUE
-}
-if (is.na(veryverbose)) {
-    veryverbose <- FALSE
-} else if (tolower(veryverbose) == "true") {
-    veryverbose <- TRUE
-} else {
-    veryverbose <- FALSE
 }
 
 # Flag to determine if the combined chlorophyll a in-situ/satellite indicator is
@@ -70,7 +62,7 @@ if (! "UnitArea" %in% names(units)) {
 ####################
 
 if (verbose) message("Looping over the indicators  (and some more)...")
-wk3 <- compute_annual_indicators(stationSamples, units, in_configurationFilePath, combined_Chlorophylla_IsWeighted, verbose, veryverbose)
+wk3 <- compute_annual_indicators(stationSamples, units, in_configurationFilePath, combined_Chlorophylla_IsWeighted, verbose)
 if (verbose) message("Looping over the indicators  (and some more)... DONE.")
 if (verbose) message('Calculation done.')
 

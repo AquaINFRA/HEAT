@@ -11,7 +11,6 @@ in_AnnualIndicatorPath = args[1]
 in_configurationFilePath = args[2]
 out_AssessmentIndicatorPath = args[3]
 verbose = args[4]
-veryverbose = args[5]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -20,13 +19,6 @@ if (is.na(verbose)) {
     verbose <- FALSE
 } else {
     verbose <- TRUE
-}
-if (is.na(veryverbose)) {
-    veryverbose <- FALSE
-} else if (tolower(veryverbose) == "true") {
-    veryverbose <- TRUE
-} else {
-    veryverbose <- FALSE
 }
 
 
@@ -63,7 +55,7 @@ if (verbose) message(paste('Fixing columns types... DONE.'))
 ####################
 
 if (verbose) message("Calculating assessment means and confidence assessment...")
-wk5 <- compute_assessment_indicators(wk3, in_configurationFilePath, verbose, veryverbose)
+wk5 <- compute_assessment_indicators(wk3, in_configurationFilePath, verbose)
 if (verbose) message("Calculating assessment means and confidence assessment... DONE.")
 if (verbose) message('Calculation done.')
 

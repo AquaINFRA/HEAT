@@ -1,6 +1,7 @@
 library(data.table) # fread, uniqueN
 
-prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits, verbose=TRUE, veryverbose=FALSE) {
+prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits, verbose=TRUE) {
+    if (verbose) message("START: prepare_station_samples")
 
     if (verbose) message("Reading station sample data...")
 
@@ -28,14 +29,13 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
 
     # Assign station ID by natural key
     stationSamples[, StationID := .GRP, by = .(Cruise, Station, Type, Year, Month, Day, Hour, Minute, Longitude..degrees_east., Latitude..degrees_north.)]
-    if (verbose) message("Reading station sample data... DONE.")
 
     # Classify station samples into grid units -------------------------------------
     if (verbose) message("Classifying station samples into grid units...")
 
     # Extract unique stations i.e. longitude/latitude pairs
     stations <- unique(stationSamples[, .(Longitude..degrees_east., Latitude..degrees_north.)])
-    if (verbose) message(paste('Stations colnames:', paste(colnames(stations), collapse=",")))
+    if (verbose) message(paste('DEBUG: Stations colnames:', paste(colnames(stations), collapse=",")))
 
     # Make stations spatial keeping original latitude/longitude
     stations <- sf::st_as_sf(stations, coords = c("Longitude..degrees_east.", "Latitude..degrees_north."), remove = FALSE, crs = 4326)
@@ -54,7 +54,7 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
 
     # Merge stations back into station samples - getting rid of station samples not classified into assessment units
     stationSamples <- stations[stationSamples, on = .(Longitude..degrees_east., Latitude..degrees_north.), nomatch = 0]
-    if (verbose) message("Classifying station samples into grid units... DONE.")
 
+    if (verbose) message("END:   prepare_station_samples")
     return (stationSamples)
 }

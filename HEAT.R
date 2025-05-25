@@ -1,6 +1,5 @@
 
 verbose <- TRUE
-veryverbose <- FALSE
 
 # Install and load R packages ---------------------------------------------
 if (verbose) message("Install and load R packages...")
@@ -42,11 +41,9 @@ stationSamplesPMPFile <- paths$stationSamplesPMPFile
 
 # Assessment Units + Grid Units-------------------------------------------------
 if (verbose) message("Generating assessment Units and Grid Units...")
-if (veryverbose) message("(now running functions from sourced heat1_gridunits.R...)")
 source("./R/heat1_gridunits.R")
 units <- get_units(assessmentPeriod, unitsFile, verbose)
 gridunits <- get_gridunits(units, configurationFile, verbose)
-if (veryverbose) message("(now running functions from sourced heat1_gridunits.R... DONE.)")
 if (verbose) message("Generating assessment Units and Grid Units... DONE.")
 
 #st_write(gridunits, file.path(outputPath, "gridunits.shp"), delete_layer = TRUE)
@@ -73,10 +70,8 @@ if (verbose) message("Plotting... DONE")
 
 # Read station sample data -----------------------------------------------------
 if (verbose) message("Generating station sample data...")
-if (veryverbose) message("(now running functions from sourced heat2_stations.R...)")
 source("./R/heat2_stations.R")
 stationSamples <- prepare_station_samples(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits, verbose)
-if (veryverbose) message("(now running functions from sourced heat2_stations.R)... DONE.")
 if (verbose) message("Generating station sample data... DONE.")
 
 # Output station samples mapped to assessment units for contracting parties to check i.e. acceptance level 1
@@ -91,30 +86,24 @@ fwrite(stationSamples, file.path(outputPath, "StationSamples_combined.csv"), row
 # Read indicator configs -------------------------------------------------------
 # Loop indicators --------------------------------------------------------------
 if (verbose) message("Looping over the indicators  (and some more)...")
-if (veryverbose) message("(now running functions from sourced heat3.R...)")
 source("./R/heat3.R")
 wk3 <- compute_annual_indicators(stationSamples, units, configurationFile, combined_Chlorophylla_IsWeighted, verbose)
-if (veryverbose) message("(now running functions from sourced heat3.R... DONE.)")
 if (verbose) message("Looping over the indicators (and some more)... DONE")
 
 # ------------------------------------------------------------------------------
 # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
 # Confidence Assessment---------------------------------------------------------
 if (verbose) message("Calculating assessment means and confidence assessment...")
-if (veryverbose) message("(now running functions from sourced heat4.R...)")
 source("./R/heat4.R")
 wk5 <- compute_assessment_indicators(wk3, configurationFile, verbose)
-if (veryverbose) message("(now running functions from sourced heat4.R... DONE.)")
 if (verbose) message("Calculating assessment means and confidence assessment... DONE.")
 
 
 # Criteria ---------------------------------------------------------------------
 # Assessment -------------------------------------------------------------------
 if (verbose) message("Criteria, Assessment...")
-if (veryverbose) message("(now running sourced sub-script heat5.R)")
 source("./R/heat5.R")
 wk9 <- compute_assessment(wk5, configurationFile, verbose)
-if (veryverbose) message("(now running sourced sub-script heat5.R DONE)")
 if (verbose) message("Criteria, Assessment... DONE.")
 
 
