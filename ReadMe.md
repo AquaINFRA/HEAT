@@ -106,4 +106,36 @@ Rscript run_heat5.R "../testoutputs/AssessmentIndicators2011-2016.csv" "../Input
 # Similar for the plots...
 ```
 
+### Configuration: XLSX and CSV
+
+Originally, an Excel document with four sheets was provided that contained
+necessary configuration for the analysis:
+
+* `Configuration2016-2021`
+
+(A fifth sheet exists, but does not seem to be used in the analysis).
+
+The modularized functions can also work with the same data as four different
+CSV files (semicolon-separated):
+
+* `Configuration2016-2021_Indicators.csv`
+* `Configuration2016-2021_IndicatorUnitResults.csv`
+* `Configuration2016-2021_IndicatorUnits.csv`
+* `Configuration2016-2021_UnitGridSize.csv`
+
+For this, reading the configuration was put into four functions, which accept an
+optional parameter `format="xlsx"` or `format="csv"`:
+
+* `get_indicators_table()`
+* `get_indicator_units_table()`
+* `get_indicator_unit_results_table()`
+* `get_unit_grid_size_table()`
+
+
+Note: I did not add the CSV files to this repository, as the original Excel document
+also is not included. But they can easily be generated from the Excel document.
+
+Obviously, when using four different files instead of one, more paths have to be passed.
+As examples, R and bash scripts that work with the CSV files are included in `src`, e.g.
+`run_heat3_csv.R` and `run_heat3_csv.sh` instead of `run_heat3.R` and `run_heat3.sh`.
 
