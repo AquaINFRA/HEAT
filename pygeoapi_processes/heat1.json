@@ -1,0 +1,59 @@
+{
+    "version": "0.0.1",
+    "id": "heat1",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (1): Generate the Assessment Units (HOLAS mode)"},
+    "description": {
+        "en": "Compute the assessment units for the HEAT assessment tool. The area is gridded, the grids have different sizes. HOLAS mode means that for the HOLAS assessment periods, spatial units and configuration (e.g. grid size) are provided, which you can just use. So this just recreates the units used by HOLAS for the various periods. This process represents subpart 1 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "assessment_period": {
+            "title": "Assessment Period",
+            "description": "Ask HELCOM. Example: HOLAS-2 (2011-2016), HOLAS-3 (2016-2021), or Other (1877-9999).",
+            "schema": {
+                "type": "string",
+                "enum": [
+                  "HOLAS-2",
+                  "HOLAS-3",
+                  "Other"
+                ]
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": ["HOLAS"]
+        }
+    },
+    "outputs": {
+        "units_gridded": {
+            "title": "Gridded assessment units",
+            "description": "Grid used for confidence assessment (10k ,30k, 60k).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        },
+        "units_cleaned": {
+            "title": "Cleaned assessment units",
+            "description": "Assessment units for the HEAT assessment tool.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "assessment_period": "2011-2016"
+        }
+    }
+}
