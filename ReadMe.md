@@ -139,3 +139,29 @@ Obviously, when using four different files instead of one, more paths have to be
 As examples, R and bash scripts that work with the CSV files are included in `src`, e.g.
 `run_heat3_csv.R` and `run_heat3_csv.sh` instead of `run_heat3.R` and `run_heat3.sh`.
 
+
+### Docker
+
+In the scope of AquaINFRA, we also generated a Dockerfile that allows to run the scripts
+included in `src` inside a Docker container.
+
+To build the Docker image, please run:
+
+```
+today=$(date '+%Y%m%d')
+docker build -t heat:${today} .
+```
+
+To run, for example for script `run_heat1_csv.R` for the assessment period `2011-2016`:
+
+```
+mkdir out
+mkdir -p adapted_inputs/2011-2016 # has to contain the Configuration2011-2016_UnitGridSize.csv
+ls Input # has to contain AssessmentUnits.shp
+
+docker run -e "SCRIPT=run_heat1_csv.R" -v "./Input:/original_inputs:ro" -v "./adapted_inputs:/adapted_inputs:ro" -v "./out:/out:rw" heat:${today} "2011-2016" "/original_inputs/AssessmentUnits.shp" "/adapted_inputs/2011-2016/Configuration2011-2016_UnitGridSize.csv" "/out/unitscleaned.shp /out/unitsgridded.shp"
+
+# afterwards, results will be here:
+ls ./out
+```
+
