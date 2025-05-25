@@ -12,6 +12,7 @@ ipak <- function(pkg){
 packages <- c("sf", "data.table", "tidyverse", "readxl", "ggplot2", "ggmap", "mapview", "httr", "R.utils")
 ipak(packages)
 if (verbose) message("Install and load R packages... DONE.")
+source("./R/all_heat_functions.R")
 
 # Define assessment period i.e. uncomment the period you want to run the assessment for!
 #assessmentPeriod <- "1877-9999"
@@ -31,7 +32,6 @@ dir.create(inputPath, showWarnings = FALSE, recursive = TRUE)
 dir.create(outputPath, showWarnings = FALSE, recursive = TRUE)
 
 # Download all inputs
-source("./R/download_inputs.R")
 paths <- download_inputs(assessmentPeriod, inputPath, verbose)
 unitsFile <- paths$unitsFile
 configurationFile <- paths$configurationFile
@@ -41,7 +41,6 @@ stationSamplesPMPFile <- paths$stationSamplesPMPFile
 
 # Assessment Units + Grid Units-------------------------------------------------
 if (verbose) message("Generating assessment Units and Grid Units...")
-source("./R/heat1_gridunits.R")
 units <- get_units(assessmentPeriod, unitsFile, verbose)
 gridunits <- get_gridunits(units, configurationFile, verbose)
 if (verbose) message("Generating assessment Units and Grid Units... DONE.")
@@ -70,7 +69,6 @@ if (verbose) message("Plotting... DONE")
 
 # Read station sample data -----------------------------------------------------
 if (verbose) message("Generating station sample data...")
-source("./R/heat2_stations.R")
 stationSamples <- prepare_station_samples(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits, verbose)
 if (verbose) message("Generating station sample data... DONE.")
 
@@ -86,7 +84,6 @@ fwrite(stationSamples, file.path(outputPath, "StationSamples_combined.csv"), row
 # Read indicator configs -------------------------------------------------------
 # Loop indicators --------------------------------------------------------------
 if (verbose) message("Looping over the indicators  (and some more)...")
-source("./R/heat3.R")
 wk3 <- compute_annual_indicators(stationSamples, units, configurationFile, combined_Chlorophylla_IsWeighted, verbose)
 if (verbose) message("Looping over the indicators (and some more)... DONE")
 
@@ -94,7 +91,6 @@ if (verbose) message("Looping over the indicators (and some more)... DONE")
 # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
 # Confidence Assessment---------------------------------------------------------
 if (verbose) message("Calculating assessment means and confidence assessment...")
-source("./R/heat4.R")
 wk5 <- compute_assessment_indicators(wk3, configurationFile, verbose)
 if (verbose) message("Calculating assessment means and confidence assessment... DONE.")
 
@@ -102,7 +98,6 @@ if (verbose) message("Calculating assessment means and confidence assessment... 
 # Criteria ---------------------------------------------------------------------
 # Assessment -------------------------------------------------------------------
 if (verbose) message("Criteria, Assessment...")
-source("./R/heat5.R")
 wk9 <- compute_assessment(wk5, configurationFile, verbose)
 if (verbose) message("Criteria, Assessment... DONE.")
 

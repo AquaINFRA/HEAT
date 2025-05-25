@@ -1,4 +1,4 @@
-source("../R/download_inputs.R")
+source("../R/all_heat_functions.R")
 
 
 ## Retrieve command line arguments

@@ -1,6 +1,6 @@
 library(sf) # st_read
-#library(data.table)
-source("../R/heat2_stations.R")
+source("../R/all_heat_functions.R")
+
 
 #################
 ### Arguments ###

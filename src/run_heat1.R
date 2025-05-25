@@ -1,5 +1,6 @@
 library(sf) # st_write
-source("../R/heat1_gridunits.R")
+source("../R/all_heat_functions.R")
+
 
 #################
 ### Arguments ###

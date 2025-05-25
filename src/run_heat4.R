@@ -1,5 +1,6 @@
 library(data.table)
-source("../R/heat4.R")
+source("../R/all_heat_functions.R")
+
 
 #################
 ### Arguments ###

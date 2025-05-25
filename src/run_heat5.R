@@ -1,5 +1,6 @@
 library(data.table) # fread
-source("../R/heat5.R")
+source("../R/all_heat_functions.R")
+
 
 #################
 ### Arguments ###
