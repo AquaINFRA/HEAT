@@ -7,7 +7,12 @@
 assessmentPeriod=$1
 if [[ -z "$assessmentPeriod" ]]; then echo "Please provide an assessment period."; echo "Stopping."; exit 1; fi
 
-in_unitsFilePath="../Input/${assessmentPeriod}/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
+#in_unitsFilePath="../Input/${assessmentPeriod}/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
+if [ $(assessmentPeriod) = '2011-2016' ]; then
+    in_unitsFilePath="../Input/${assessmentPeriod}/AssessmentUnits.shp"
+else
+    in_unitsFilePath="../Input/${assessmentPeriod}/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
+fi
 #in_unitGridSizePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}.xlsx"
 in_unitGridSizePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}UnitGridSize.csv"
 out_unitsCleanedFilePath="../testoutputs/units_cleaned${assessmentPeriod}.shp"
