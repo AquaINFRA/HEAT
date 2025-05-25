@@ -178,7 +178,7 @@ if (verbose) message("Create status maps... DONE.")
 # Create Assessment Indicator maps
 if (verbose) message("Create Assessment Indicator maps...")
 ## Re-reading indicators (also needed in heat3...)
-indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
+indicators <- get_indicators_table(configurationFile)
 n <- nrow(indicators[IndicatorID < 1000,])
 for(i in 1:n) {
   indicatorID <- indicators[i, IndicatorID]

@@ -85,6 +85,33 @@ download_inputs <- function(assessmentPeriod, inputPath, verbose=TRUE) {
 }
 
 
+
+
+
+get_indicators_table <- function(configurationFilePath) {
+    indicatorsTable <- as.data.table(readxl::read_excel(configurationFilePath, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
+    return(indicatorsTable)
+}
+
+
+get_indicator_units_table <- function(configurationFilePath) {
+    indicatorUnitsTable <- as.data.table(readxl::read_excel(configurationFilePath, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
+    return(indicatorUnitsTable)
+}
+
+
+get_indicator_unit_results_table <- function(configurationFilePath) {
+    indicatorUnitResultsTable <- as.data.table(readxl::read_excel(configurationFilePath, sheet = "IndicatorUnitResults", col_types = "numeric")) %>% setkey(IndicatorID, UnitID, Period)
+    return(indicatorUnitResultsTable)
+}
+
+
+get_unit_grid_size_table <- function(configurationFilePath) {
+    unitGridSizeTable <- as.data.table(readxl::readxl::read_excel(configurationFilePath, sheet = "UnitGridSize")) %>% data.table::setkey(UnitID)
+    return(unitGridSizeTable)
+}
+
+
 get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
   if (verbose) message(paste("START: get_units"))
 
@@ -158,7 +185,7 @@ get_gridunits <- function(units, configurationFile, verbose=TRUE) {
   gridunits30 <- make.gridunits(units, 30000, verbose)
   gridunits60 <- make.gridunits(units, 60000, verbose)
 
-  unitGridSize <- as.data.table(readxl::read_excel(configurationFile, sheet = "UnitGridSize")) %>% data.table::setkey(UnitID)
+  unitGridSize <- get_unit_grid_size_table(configurationFile)
 
   a <- merge(unitGridSize[GridSize == 10000], gridunits10 %>% select(UnitID, GridID, GridArea = Area))
   b <- merge(unitGridSize[GridSize == 30000], gridunits30 %>% select(UnitID, GridID, GridArea = Area))
@@ -266,9 +293,9 @@ compute_annual_indicators <- function(stationSamples, units, configurationFile, 
   if (verbose) message("START: compute_annual_indicators")
 
   # Read indicator configs -------------------------------------------------------
-  indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
-  indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
-  indicatorUnitResults <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnitResults", col_types = "numeric")) %>% setkey(IndicatorID, UnitID, Period)
+  indicators <- get_indicators_table(configurationFile)
+  indicatorUnits <- get_indicator_units_table(configurationFile)
+  indicatorUnitResults <- get_indicator_unit_results_table(configurationFile)
 
   # Loop indicators --------------------------------------------------------------
   if (verbose) message("Looping")
@@ -463,9 +490,8 @@ compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE) {
     if (verbose) message("START: compute_assessment_indicators")
 
     # Calculate assessment means --> UnitID, Period, ES, SD, N, N_OBS, EQR, EQRS GTC, STC, SSC
-
-    indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
-    indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
+    indicators <- get_indicators_table(configurationFile)
+    indicatorUnits <- get_indicator_units_table(configurationFile)
 
     if (verbose) message("Calculating assessment means...")
     wk4 <- wk3[, .(Period = ifelse(min(Period) > 9999, min(Period), min(Period) * 10000 + max(Period)), ES = mean(ES), SD = sd(ES), ER = mean(ER), EQR = mean(EQR), EQRS = mean(EQRS), N = .N, N_OBS = sum(N), GTC = mean(GTC), STC = mean(STC), SSC = mean(SSC)), .(IndicatorID, UnitID)]
@@ -538,8 +564,8 @@ compute_assessment_indicators <-function(wk3, configurationFile, verbose=TRUE) {
 compute_assessment <- function(wk5, configurationFile, verbose=TRUE) {
     if (verbose) message("START: compute_assessment")
 
-    indicators <- as.data.table(read_excel(configurationFile, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
-    indicatorUnits <- as.data.table(read_excel(configurationFile, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
+    indicators <- get_indicators_table(configurationFile)
+    indicatorUnits <- get_indicator_units_table(configurationFile)
 
     # Criteria ---------------------------------------------------------------------
     if (verbose) message("Criteria...")
