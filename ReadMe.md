@@ -44,3 +44,66 @@ Assessment units are defined by HELCOM comtracting parties. An assessment units 
 - SSC = Specific Spatial Confidence
 - TSC = Total Spatial Confidence
 - TC = Total Confidence
+
+### Modularized
+
+The original script `HEAT.R` was one long R script that did a lot of things.
+
+In the scope of the project AquaINFRA, it was modularized: Pieces of code
+were taken out of `HEAT.R` and written as functions, which are stored in
+`R/all_heat_functions.R`, while the pieces of code that generate plots are
+stored as functions in `R/heat_plot_functions.R`.
+
+Now the `HEAT.R` sources those two files and calls the functions. The result
+should be the same, but there is no guarantee we did not mess up anything.
+Ideally, this should be thoroughly tested before used in real life.
+
+Also, the various functions can now be used separately. As examples, various
+R scripts (and also bash scripts calling those R scripts) can be found in the
+directory `/src`. The purpose of this exercise was that we wanted to provide
+various parts of HEAT separately on a server (using the OGC API).
+
+So you can eigher call the entire HEAT.R script:
+
+```
+vi HEAT.R # adapt the assessment period variable
+Rscript HEAT.R
+```
+
+Or you can call the various separate bash scripts:
+
+Note: Only the assessment period has to be specified. Paths to inputs and outputs are hard-coded, please modify them if applicable.
+
+```
+cd src
+./run_heat1.sh 2011-2016
+./run_heat2.sh 2011-2016
+./run_heat3.sh 2011-2016
+./run_heat4.sh 2011-2016
+./run_heat5.sh 2011-2016
+
+# for the plots:
+./plot_annual_indicator_barcharts.sh
+./plot_assessment_indicator_maps.sh
+./plot_status_maps.sh
+```
+
+What the bash scripts do is basically they call separate R scripts and pass the paths to the inputs and outputs to them:
+
+```
+cd src
+
+Rscript run_heat1.R "2011-2016" "../Input/2011-2016/AssessmentUnits.shp" "../Input/2011-2016/Configuration2011-2016.xlsx" "../testoutputs/units_cleaned2011-2016.shp" "../testoutputs/units_gridded2011-2016.shp" "../testoutputs/"
+
+Rscript run_heat2.R "../Input/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz" "../Input/2011-2016/StationSamples2011-2016CTD_2022-12-09.txt.gz" "../Input/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz" "../testoutputs/units_gridded2011-2016.shp" "../testoutputs/StationSamples2011-2016BOT.csv" "../testoutputs/StationSamples2011-2016CTD.csv" "../testoutputs/StationSamples2011-2016PMP.csv" "../testoutputs/StationSamples2011-2016.csv"
+
+Rscript run_heat3.R "../testoutputs/StationSamples2011-2016.csv" "../testoutputs/units_cleaned2011-2016.shp" "../Input/2011-2016/Configuration2011-2016.xlsx" "true" "../testoutputs/AnnualIndicators2011-2016.csv"
+
+Rscript run_heat4.R "../testoutputs/AnnualIndicators2011-2016.csv" "../Input/2011-2016/Configuration2011-2016.xlsx" "../testoutputs/AssessmentIndicators2011-2016.csv"
+
+Rscript run_heat5.R "../testoutputs/AssessmentIndicators2011-2016.csv" "../Input/2011-2016/Configuration2011-2016.xlsx" "../testoutputs/Assessment2011-2016.csv"
+
+# Similar for the plots...
+```
+
+
