@@ -33,6 +33,7 @@ RUN Rscript /src/install.R
 
 # Reinstall that package that somehow didnt make it...
 RUN R -e "install.packages('sf')"
+RUN R -e "install.packages('R.utils')"
 
 # Copy the scripts to be called by the OGC processes:
 COPY R /R
