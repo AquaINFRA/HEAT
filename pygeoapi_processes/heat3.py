@@ -117,7 +117,7 @@ class HEAT3Processor(BaseProcessor):
         in_configIndicatorUnitResultsFilePath = get_config_file_path('IndicatorUnitResults', assessment_period, path_input_data)
 
         filename_samples = 'samples-%s.csv' % self.job_id
-        in_relevantStationSamplesPath = download_samples(samples_url, self.download_dir+'/out/', filename_samples)
+        in_relevantStationSamplesPath = download_file(samples_url, self.download_dir+'/out/', filename_samples)
         # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
         # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
 
@@ -210,8 +210,9 @@ def get_config_file_path(which_config, assessment_period, path_input_data):
         return path_input_data+"/adapted_inputs/2016-2021/Configuration2016-2021_%s.csv" % which_config
 
 
-def download_samples(data_url, download_dir, filename):
+def download_file(data_url, download_dir, filename):
     # TODO: Make better download function! SAFER!
+    # TODO same in heat3 and heat4
     if not "igb-berlin.de" in data_url:
         # This is super stupid, as it can easily be faked... TODO!!!!
         raise NotImplementedError("Currently not allowed")
@@ -220,7 +221,7 @@ def download_samples(data_url, download_dir, filename):
     # TODO: If the download URL is from our domain, it might be the result of a previous tool, and we
     # could re-use instead of download...
     data_path = download_dir+'/'+filename
-    LOGGER.debug('Downloading samples: %s from %s' % (filename, data_url))
+    LOGGER.debug('Downloading file: %s from %s' % (filename, data_url))
     resp = requests.get(data_url)
     if not resp.status_code == 200:
         raise ProcessorExecuteError('Could not download input file (HTTP status %s): %s' % (resp.status_code, data_url))
@@ -232,3 +233,4 @@ def download_samples(data_url, download_dir, filename):
 
     LOGGER.debug('Downloaded to: %s' % data_path)
     return data_path
+
