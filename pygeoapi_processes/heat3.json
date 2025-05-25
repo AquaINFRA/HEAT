@@ -1,0 +1,71 @@
+{
+    "version": "0.0.1",
+    "id": "heat3",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (3): Compute the Annual Indicator (HOLAS Mode)"},
+    "description": {
+        "en": "Compute the HELCOM Annual Indicator for the HEAT assessment tool. HOLAS mode means that for the HOLAS periods, default spatial grids, configuration and default data is provided, which you can just use. This process represents subpart 3 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "assessment_period": {
+            "title": "Assessment Period",
+            "description": "Ask HELCOM. Example: HOLAS-2 (2011-2016), HOLAS-3 (2016-2021), or Other (1877-9999).",
+            "schema": {
+                "type": "string",
+                "enum": [
+                  "HOLAS-2",
+                  "HOLAS-3",
+                  "Other"
+                ]
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": ["HOLAS"]
+        },
+        "samples": {
+            "title": "Relevant Samples",
+            "description": "Ask HELCOM. From last process.",
+            "schema": {"type": "string"},
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "combined_Chlorophylla_IsWeighted": {
+            "title": "combined_Chlorophylla_IsWeighted",
+            "description": "Ask HELCOM. Example: true",
+            "schema": {"type": "bool"},
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "annual_indicators": {
+            "title": "Annual Indicators",
+            "description": "Annual Indicator CSV (AnnualIndicators.csv), ask HELCOM.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "assessment_period": "HOLAS-2",
+            "combined_Chlorophylla_IsWeighted": "true",
+            "samples": "https://testserver.com/StationSamples.csv"
+        }
+    }
+}

@@ -37,6 +37,13 @@ def run_docker_container(
         if arg is None:
             newarg = 'null'
             LOGGER.debug("Replaced argument %s by %s..." % (arg, newarg))
+        elif type(arg) == type(True):
+            LOGGER.debug('Found a boolean: %s' % arg)
+            if arg == True:
+                newarg = 'true'
+            elif arg == False:
+                newarg = 'false'
+            LOGGER.debug("Replaced argument %s by %s..." % (arg, newarg))
         elif inputs_read_only in arg:
             newarg = arg.replace(inputs_read_only, container_in_readonly)
             LOGGER.debug("Replaced argument %s by %s..." % (arg, newarg))
