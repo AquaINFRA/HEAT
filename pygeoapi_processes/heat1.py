@@ -4,9 +4,9 @@ LOGGER = logging.getLogger(__name__)
 
 import json
 import os
-#import sys
 import traceback
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_path
 
 
 '''
@@ -161,11 +161,8 @@ class HEAT1Processor(BaseProcessor):
         ######################
         ### Return results ###
         ######################
-
-        # Return output csv file as string directly in HTTP payload:
-        # TODO check requested_outputs for user preference!
         
-        # Or return link to output csv file and return it wrapped in JSON:
+        # Return link to output csv files and return it wrapped in JSON:
         # TODO: add png, maybe cleaned
         # TODO: Returning shp makes no sense without all the other files!!! 
         outputs = {
@@ -194,20 +191,4 @@ def get_unit_file_path(assessment_period, path_input_data):
         return path_input_data+"/2011-2016/AssessmentUnits.shp"
     elif assessment_period == "2016-2021":
         return path_input_data+"/2016-2021/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
-
-
-def get_config_file_path(which_config, assessment_period, path_input_data):
-    # TODO: Move to utils, used in heat1, heat3, heat4, heat5...
-
-    if not which_config in ['Indicators', 'IndicatorUnits', 'IndicatorUnitResults', 'UnitGridSize']:
-        err_msg = 'Trying to retrieve unknown config file: %s' % which_config
-        LOGGER.error(err_msg)
-        raise ValueError(err_msg)
-
-    if assessment_period == "1877-9999":
-        return path_input_data+"/adapted_inputs/1877-9999/Configuration1877-9999_%s.csv" % which_config
-    elif assessment_period == "2011-2016":
-        return path_input_data+"/adapted_inputs/2011-2016/Configuration2011-2016_%s.csv" % which_config
-    elif assessment_period == "2016-2021":
-        return path_input_data+"/adapted_inputs/2016-2021/Configuration2016-2021_%s.csv" % which_config
 
