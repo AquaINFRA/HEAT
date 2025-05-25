@@ -1,0 +1,64 @@
+{
+    "version": "0.0.1",
+    "id": "heat4",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "HELCOM HEAT (4): Compute the Assessment Indicators (HOLAS Mode)"},
+    "description": {
+        "en": "Process to compute the HELCOM Assessment for the HEAT assessment tool. HOLAS mode means that for the HOLAS periods, default spatial grids, configuration and default data is provided, which you can just use. This process represents subpart 4 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "assessment_period": {
+            "title": "Assessment Period",
+            "description": "Ask HELCOM. Example: HOLAS-2 (2011-2016), HOLAS-3 (2016-2021), or Other (1877-9999).",
+            "schema": {
+                "type": "string",
+                "enum": [
+                  "HOLAS-2",
+                  "HOLAS-3",
+                  "Other"
+                ]
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": ["HOLAS"]
+        },
+        "annual_indicators": {
+            "title": "Annual Indicators",
+            "description": "Result from last process (AnnualIndicators.csv).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "text/csv"
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "assessment_indicators": {
+            "title": "Assessment Indicator Table",
+            "description": "Assessment Indicator CSV (AssessmentIndicators.csv), TODO ask HELCOM.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "text/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "annual_indicators_csv": "http://exampleserver.fi/AnnualIndicators.csv",
+            "assessment_period": "HOLAS-2"
+        }
+    }
+}
