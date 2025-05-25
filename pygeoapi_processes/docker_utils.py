@@ -34,7 +34,8 @@ def run_docker_container(
     for arg in script_args:
         newarg = arg
         if arg is None:
-            arg = 'null'
+            newarg = 'null'
+            LOGGER.debug("Replaced argument %s by %s..." % (arg, newarg))
         elif inputs_read_only in arg:
             newarg = arg.replace(inputs_read_only, container_in_readonly)
             LOGGER.debug("Replaced argument %s by %s..." % (arg, newarg))
