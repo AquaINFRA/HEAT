@@ -10,9 +10,9 @@ if [[ -z "$assessmentPeriod" ]]; then echo "Please provide an assessment period.
 in_relevantStationSamplesPath="../testoutputs/StationSamples${assessmentPeriod}.csv"
 in_unitsCleanedFilePath="../testoutputs/units_cleaned${assessmentPeriod}.shp"
 #in_configurationFilePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}.xlsx"
-in_configIndicatorsFilePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}_Indicators.csv"
-in_configIndicatorUnitsFilePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}_IndicatorUnits.csv"
-in_configIndicatorUnitResultsFilePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}_IndicatorUnits.csv"
+in_configIndicatorsFilePath="../adapted_inputs/${assessmentPeriod}/Configuration${assessmentPeriod}_Indicators.csv"
+in_configIndicatorUnitsFilePath="../adapted_inputs/${assessmentPeriod}/Configuration${assessmentPeriod}_IndicatorUnits.csv"
+in_configIndicatorUnitResultsFilePath="../adapted_inputs/${assessmentPeriod}/Configuration${assessmentPeriod}_IndicatorUnitResults.csv"
 in_combined_Chlorophylla_IsWeighted="true"
 out_AnnualIndicatorPath="../testoutputs/AnnualIndicators${assessmentPeriod}.csv"
 

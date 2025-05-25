@@ -14,7 +14,7 @@ else
     in_unitsFilePath="../Input/${assessmentPeriod}/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
 fi
 #in_unitGridSizePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}.xlsx"
-in_unitGridSizePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}UnitGridSize.csv"
+in_unitGridSizePath="../adapted_inputs/${assessmentPeriod}/Configuration${assessmentPeriod}_UnitGridSize.csv"
 out_unitsCleanedFilePath="../testoutputs/units_cleaned${assessmentPeriod}.shp"
 out_unitsGriddedFilePath="../testoutputs/units_gridded${assessmentPeriod}.shp"
 out_plotsPath="../testoutputs"

@@ -9,8 +9,8 @@ if [[ -z "$assessmentPeriod" ]]; then echo "Please provide an assessment period.
 
 in_AnnualIndicatorPath="../testoutputs/AnnualIndicators${assessmentPeriod}.csv"
 #in_configurationFilePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}.xlsx"
-in_configIndicatorsFilePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}_Indicators.csv"
-in_configIndicatorUnitsFilePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}_IndicatorUnits.csv"
+in_configIndicatorsFilePath="../adapted_inputs/${assessmentPeriod}/Configuration${assessmentPeriod}_Indicators.csv"
+in_configIndicatorUnitsFilePath="../adapted_inputs/${assessmentPeriod}/Configuration${assessmentPeriod}_IndicatorUnits.csv"
 out_AssessmentIndicatorPath="../testoutputs/AssessmentIndicators${assessmentPeriod}.csv"
 
 # Run R script:
