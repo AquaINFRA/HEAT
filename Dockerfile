@@ -31,6 +31,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY /.binder/install.R /src/install.R
 RUN Rscript /src/install.R
 
+# Reinstall that package that somehow didnt make it...
+RUN R -e "install.packages('sf')"
+
 # Copy the scripts to be called by the OGC processes:
 COPY R /R
 COPY src /src
