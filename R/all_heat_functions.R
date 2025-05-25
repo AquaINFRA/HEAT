@@ -1,6 +1,7 @@
 library(sf)         # %>%, st_...
 library(data.table) # setkey, fread, uniqueN
 library(readxl)     # read_excel
+library(readr)      # read_delim
 library(tidyverse)  # select
 library(stringr) # "str_sub"
 

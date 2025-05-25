@@ -18,4 +18,4 @@ out_AnnualIndicatorPath="../testoutputs/AnnualIndicators${assessmentPeriod}.csv"
 
 # Run R script:
 echo "Running run_heat3_csv.R for assessment period "${assessmentPeriod}" (with configuration files passed as CSV files)."
-Rscript --vanilla run_heat3_csv.R $in_relevantStationSamplesPath $in_unitsCleanedFilePath $in_configIndicatorsFilePath $in_configIndicatorUnitsFilePath $ in_configIndicatorUnitResultsFilePath $in_combined_Chlorophylla_IsWeighted $out_AnnualIndicatorPath
+Rscript --vanilla run_heat3_csv.R $in_relevantStationSamplesPath $in_unitsCleanedFilePath $in_configIndicatorsFilePath $in_configIndicatorUnitsFilePath $in_configIndicatorUnitResultsFilePath $in_combined_Chlorophylla_IsWeighted $out_AnnualIndicatorPath

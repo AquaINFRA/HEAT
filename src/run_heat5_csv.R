@@ -9,10 +9,10 @@ source("../R/all_heat_functions.R")
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
 in_AssessmentIndicatorPath = args[1]
-in_configIndicatorsFilePath = args[3]
-in_configIndicatorUnitsFilePath = args[4]
-out_AssessmentPath = args[5]
-verbose = args[6]
+in_configIndicatorsFilePath = args[2]
+in_configIndicatorUnitsFilePath = args[3]
+out_AssessmentPath = args[4]
+verbose = args[5]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -29,7 +29,6 @@ if (is.na(verbose)) {
 ###################
 
 # Load R input data: AssessmentIndicators.csv
-# This was HTTP-POSTed by the user, then stored to disk by pygeoapi, and now read by R:
 if (verbose) message(paste('Reading input table from', in_AssessmentIndicatorPath, '...'))
 wk5 = data.table::fread(file=in_AssessmentIndicatorPath)
 if (verbose) message(paste('Reading input table from', in_AssessmentIndicatorPath, '... DONE.'))
