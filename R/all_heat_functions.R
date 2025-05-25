@@ -85,30 +85,47 @@ download_inputs <- function(assessmentPeriod, inputPath, verbose=TRUE) {
 }
 
 
+get_indicators_table <- function(configurationFilePath, format='xlsx') {
 
-
-
-get_indicators_table <- function(configurationFilePath) {
+  if (format=='xlsx') {
     indicatorsTable <- as.data.table(readxl::read_excel(configurationFilePath, sheet = "Indicators", col_types = c("numeric", "numeric", "text", "text", "text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))) %>% setkey(IndicatorID)
-    return(indicatorsTable)
+  } else if (format=='csv') {
+    indicatorsTable <- as.data.table(readr::read_delim(configurationFilePath, delim=";", col_types = "iicccciiiinncnncnnnnnn")) %>% setkey(IndicatorID)
+  }
+  return(indicatorsTable)
 }
 
 
-get_indicator_units_table <- function(configurationFilePath) {
+get_indicator_units_table <- function(configurationFilePath, format='xlsx') {
+
+  if (format=='xlsx') {
     indicatorUnitsTable <- as.data.table(readxl::read_excel(configurationFilePath, sheet = "IndicatorUnits", col_types = "numeric")) %>% setkey(IndicatorID, UnitID)
-    return(indicatorUnitsTable)
+  } else if (format=='csv') {
+    indicatorUnitsTable <- as.data.table(readr::read_delim(configurationFilePath, delim=";", col_types = "iinnnnn")) %>% setkey(IndicatorID, UnitID)
+  }
+  return(indicatorUnitsTable)
 }
 
 
-get_indicator_unit_results_table <- function(configurationFilePath) {
+get_indicator_unit_results_table <- function(configurationFilePath, format='xlsx') {
+
+  if (format=='xlsx') {
     indicatorUnitResultsTable <- as.data.table(readxl::read_excel(configurationFilePath, sheet = "IndicatorUnitResults", col_types = "numeric")) %>% setkey(IndicatorID, UnitID, Period)
-    return(indicatorUnitResultsTable)
+  } else if (format=='csv') {
+    indicatorUnitResultsTable <- as.data.table(readr::read_delim(configurationFilePath, delim=";", col_types = "iiinninnnnnn")) %>% setkey(IndicatorID, UnitID, Period)
+  }
+  return(indicatorUnitResultsTable)
 }
 
 
-get_unit_grid_size_table <- function(configurationFilePath) {
-    unitGridSizeTable <- as.data.table(readxl::readxl::read_excel(configurationFilePath, sheet = "UnitGridSize")) %>% data.table::setkey(UnitID)
-    return(unitGridSizeTable)
+get_unit_grid_size_table <- function(configurationFilePath, format='xlsx') {
+
+  if (format=='xlsx') {
+    unitGridSizeTable <- as.data.table(readxl::read_excel(configurationFilePath, sheet = "UnitGridSize")) %>% data.table::setkey(UnitID)
+  } else if (format=='csv') {
+    unitGridSizeTable <- as.data.table(readr::read_delim(configurationFilePath, delim=";", col_types = "ii")) %>% setkey(UnitID)
+  }
+  return(unitGridSizeTable)
 }
 
 
