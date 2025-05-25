@@ -27,6 +27,11 @@ if (is.na(verbose)) {
     verbose <- TRUE
 }
 
+## If users pass "null" for a file:
+if (in_stationSamplesBOTFilePath == 'null') in_stationSamplesBOTFilePath <- NA
+if (in_stationSamplesCTDFilePath == 'null') in_stationSamplesCTDFilePath <- NA
+if (in_stationSamplesPMPFilePath == 'null') in_stationSamplesPMPFilePath <- NA
+
 
 ###################
 ### Read inputs ###

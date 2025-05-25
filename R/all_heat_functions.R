@@ -251,19 +251,38 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
     if (verbose) message("Reading station sample data...")
 
     # Ocean hydro chemistry - Bottle and low resolution CTD data
-    stationSamplesBOT <- data.table::fread(input = stationSamplesBOTFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-    stationSamplesBOT[, Type := "B"]
+    if (is.na(stationSamplesBOTFile)) {
+      message('No bottle data provided.')
+      stationSamplesBOT <- NULL
+    } else {
+      stationSamplesBOT <- data.table::fread(input = stationSamplesBOTFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+      stationSamplesBOT[, Type := "B"]
+    }
 
     # Ocean hydro chemistry - High resolution CTD data
-    stationSamplesCTD <- data.table::fread(input = stationSamplesCTDFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-    stationSamplesCTD[, Type := "C"]
+    if (is.na(stationSamplesCTDFile)) {
+      message('No CTD data provided.')
+      stationSamplesCTD <- NULL
+    } else {
+      stationSamplesCTD <- data.table::fread(input = stationSamplesCTDFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+      stationSamplesCTD[, Type := "C"]
+    }
 
     # Ocean hydro chemistry - Pump data
-    stationSamplesPMP <- data.table::fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
-    stationSamplesPMP[, Type := "P"]
+    if (is.na(stationSamplesPMPFile)) {
+      message('No pump data provided.')
+      stationSamplesPMP <- NULL
+    } else {
+      stationSamplesPMP <- data.table::fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+      stationSamplesPMP[, Type := "P"]
+    }
 
     # Combine station samples
     stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP), use.names = TRUE, fill = TRUE)
+
+    if (length(stationSamples) == 0) {
+      stop("Station samples has zero length. Did you provide no input data?")
+    }
 
     # Remove original data tables
     rm(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP)
