@@ -244,6 +244,25 @@ make.gridunits <- function(units, gridSize, verbose=TRUE) {
   return(gridunits)
 }
 
+parseDateColumn <- function(stationSamplesTable) {
+  # If there is no column "Year", we likely have data dowloaded from ICES, which has the date in one column.
+  # In this case, separate it into various columns:
+  if (!('Year' %in% colnames(stationSamplesTable))){
+    message('Column "Year" not found. Looking for other date column.') # TODO Use "missing()" here? For all required columns?
+    if ('yyyy.mm.ddThh.mm.ss.sss' %in% colnames(stationSamplesTable)) {
+      message('We found column "yyyy.mm.ddThh.mm.ss.sss"... Will try to parse it.')
+      stationSamplesTable$tempdate <- as.POSIXct(stationSamplesTable$yyyy.mm.ddThh.mm.ss.sss, format="%Y-%m-%dT%H:%M")
+      stationSamplesTable$Year <- lubridate::year(stationSamplesTable$tempdate)
+      stationSamplesTable$Month <- lubridate::month(stationSamplesTable$tempdate)
+      stationSamplesTable$Day <- lubridate::day(stationSamplesTable$tempdate)
+      stationSamplesTable$Hour <- lubridate::hour(stationSamplesTable$tempdate)
+      stationSamplesTable$Minute <- lubridate::minute(stationSamplesTable$tempdate)
+      #message(paste0('All col names: ', paste(colnames(stationSamplesTable), collapse=',')))
+    }
+  }
+  return(stationSamplesTable)
+}
+
 
 prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits, verbose=TRUE) {
     if (verbose) message("START: prepare_station_samples")
@@ -262,6 +281,10 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
         stationSamplesBOT <- data.table::fread(input = stationSamplesBOTFile, sep = ",", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
       }
       stationSamplesBOT[, Type := "B"]
+
+      if (!('Year' %in% colnames(stationSamplesBOT))){
+        stationSamplesBOT <- parseDateColumn(stationSamplesBOT)
+      }
     }
 
     # Ocean hydro chemistry - High resolution CTD data
@@ -276,6 +299,11 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
         stop('Not implemented yet: Parsing CTD data with comma.') # TODO: Implement this
       }
       stationSamplesCTD[, Type := "C"]
+
+      # Data that was downloaded from ICES portal recently does not have "Year" etc, but "yyyy.mm.ddThh.mm.ss.sss"...
+      if (!('Year' %in% colnames(stationSamplesCTD))){
+        stationSamplesCTD <- parseDateColumn(stationSamplesCTD)
+      }
     }
 
     # Ocean hydro chemistry - Pump data
@@ -290,6 +318,11 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
         stop('Not implemented yet: Parsing PMP data with comma.') # TODO: Implement this
       }
       stationSamplesPMP[, Type := "P"]
+
+        # Data that was downloaded from ICES portal recently does not have "Year" etc, but "yyyy.mm.ddThh.mm.ss.sss"...
+      if (!('Year' %in% colnames(stationSamplesPMP))){
+        stationSamplesPMP <- parseDateColumn(stationSamplesPMP)
+      }
     }
 
     # Combine station samples
