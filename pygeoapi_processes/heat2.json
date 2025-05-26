@@ -1,24 +1,31 @@
 {
     "version": "0.0.1",
     "id": "heat2",
-    "use_case": "HELCOM HEAT",
-    "title": {"en": "HELCOM HEAT (2): Combine the Samples (HOLAS mode)"},
+    "use_case": "HELCOM HEAT HOLAS",
+    "title": {"en": "Reproducing HEAT HOLAS results: Combine the samples"},
     "description": {
-        "en": "Process to compute the HELCOM Annual Indicator for the HEAT assessment tool. HOLAS mode means that for the HOLAS periods, default spatial grids, configuration and default data is provided, which you can just use. You can also provide custom Bottle samples, which will then replace the default data. (Right now, CTD and PUMP data are not implemented, but can be, if required.) Please make sure the data you provide matches the time period (assessment period) you choose. (TODO: How does the tool deal with non-matching time periods? E.g. choose HOLAS 2 but provide data for different time period? How should we deal with this? Should we prevent this? If yes, how?). This process represents subpart 2 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+        "en": "Combine the various types of samples to be used for reproducing the HOLAS assessment using HELCOM's HEAT assessment tool, for a selected HOLAS assessment period. For every assessment period, the configation and the spatial grid are predefined. Default data is included for all three sample types (bottle, pump/ferrybox, CTD). You can specify whether to use the default data or leave it out. You can also provide custom bottle samples, which will then be used instead of the default bottle data. Currently, usage of custom pump/ferrybox and CTD data are not envisaged, but can be enabled, if required. Please make sure the data you provide matches the selected assessment period. (TODO: How does the tool deal with non-matching time periods? E.g. choose HOLAS 2 but provide data for different time period? How should we deal with this? Should we prevent this? If yes, how?). This tool represents the second part of the original HEAT assessment computation script."
     },
     "jobControlOptions": ["sync-execute", "async-execute"],
-    "keywords": ["HELCOM", "HEAT"],
+    "keywords": ["HELCOM", "HEAT", "HOLAS"],
     "links": [{
         "type": "text/html",
         "rel": "about",
         "title": "GitHub repo for the original HEAT analysis",
         "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
         "hreflang": "en-US"
+    },
+    {
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the continued HEAT analysis",
+        "href": "https://github.com/AquaINFRA/HEAT/tree/aquabranch",
+        "hreflang": "en-US"
     }],
     "inputs": {
         "assessment_period": {
             "title": "Assessment Period",
-            "description": "Ask HELCOM. Example: HOLAS-2 (2011-2016), HOLAS-3 (2016-2021), or Other (1877-9999).",
+            "description": "The HOLAS assessment period which is used for the HEAT analysis. It can be HOLAS-2 (2011-2016) or HOLAS-3 (2016-2021) or custom for whole monitoring period (1877-9999). Note that assessment period defines the indicators used and integrations rules, where as the sample data needs to be defined separately. Allowed values: HOLAS-2, HOLAS-3, Other.",
             "schema": {
                 "type": "string",
                 "enum": [
@@ -34,7 +41,7 @@
         },
         "bottle_data": {
             "title": "Input samples (bottle)",
-            "description": "In-situ bottle sample data (nutrients, chl-a)(StationamplesBOT.csv). ICES Oceanographic data type 'BOT'. Write 'default' for default data. Leave out for none at all.",
+            "description": "In-situ bottle sample data (nutrients, chl-a)(StationSamplesBOT.csv). ICES Oceanographic data type 'BOT'. Write 'default' for default data. Leave out for none at all.",
             "schema": { "type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,
@@ -62,7 +69,7 @@
     },
     "outputs": {
         "samples": {
-            "title": "Station samples (combined)",
+            "title": "Station samples (filtered, combined)",
             "description": "Merged sample data of BOT, PMP and CTD data for indicator calculation (StationSamples.csv).",
             "schema": {
                 "type": "object",
@@ -70,32 +77,32 @@
             }
         },
         "bottle_samples": {
-            "title": "Station samples (bottle)",
-            "description": "In-situ bottle sample data (nutrients, chl-a)(StationamplesBOT.csv). ICES Oceanographic data type 'BOT'.",
+            "title": "Station samples (bottle), filtered",
+            "description": "In-situ bottle sample data (nutrients, chl-a), ICES Oceanographic data type 'BOT'. Filtered by the spatial units for HOLAS assessment. This will not be used further on and is rather a by-product that you may use for progress verification.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/csv"
             }
         },
         "pump_samples": {
-            "title": "Station samples (pump)",
-            "description": "Ferrybox data (chl-a) (StationSamplesPMP.csv). ICES Oceanographic data type 'PMP' ",
+            "title": "Station samples (pump), filtered",
+            "description": "Ferrybox data (chl-a) (StationSamplesPMP.csv), ICES Oceanographic data type 'PMP'. Filtered by the spatial units for HOLAS assessment. This will not be used further on and is rather a by-product that you may use for progress verification.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/csv"
             }
         },
         "ctd_samples": {
-            "title": "Station samples (CTD)",
-            "description": " CTD depth profiles, relevant for oxygen debt indicator (StationSamplesCTD.csv). ICES Oceanographic data type 'CTD'.",
+            "title": "Station samples (CTD), filtered",
+            "description": " CTD depth profiles, relevant for oxygen debt indicator, ICES Oceanographic data type 'CTD'. Filtered by the spatial units for HOLAS assessment. This will not be used further on and is rather a by-product that you may use for progress verification.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/csv"
             }
         },
         "units_gridded": {
-            "title": "units_gridded.shp",
-            "description": "Grid used for confidence assessment (10k ,30k, 60k), which was used for this process.",
+            "title": "Gridded assessment units",
+            "description": "Grid used for confidence assessment (10k ,30k, 60k), which was used for this process.  This will not be used further on and is rather a by-product that you may use for progress verification.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"

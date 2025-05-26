@@ -1,24 +1,31 @@
 {
     "version": "0.0.1",
     "id": "heat5",
-    "use_case": "HELCOM HEAT",
-    "title": {"en": "HELCOM HEAT (5): Compute the Assessment (HOLAS mode)"},
+    "use_case": "HELCOM HEAT HOLAS",
+    "title": {"en": "Reproducing HEAT HOLAS results: Compute Assessment"},
     "description": {
-        "en": "Process to compute the HELCOM Assessment for the HEAT assessment tool. HOLAS mode means that for the HOLAS periods, default spatial grids, configuration and default data is provided, which you can just use. This process represents subpart 5 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+        "en": "Compute the Assessment (i.e. EQRS per assessment unit, grouped by overall and criterial level indicators) using HELCOM's HEAT assessment code, for a selected HOLAS assessment period. The calculation is based on the Assessment Indicators (i.e. EQRS per assessment period per assessment unit) which you have to provide as a CSV file. This tool represents the fifth and last part of the original HEAT assessment computation script."
     },
     "jobControlOptions": ["sync-execute", "async-execute"],
-    "keywords": ["HELCOM", "HEAT"],
+    "keywords": ["HELCOM", "HEAT", "HOLAS"],
     "links": [{
         "type": "text/html",
         "rel": "about",
         "title": "GitHub repo for the original HEAT analysis",
         "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
         "hreflang": "en-US"
+    },
+    {
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the continued HEAT analysis",
+        "href": "https://github.com/AquaINFRA/HEAT/tree/aquabranch",
+        "hreflang": "en-US"
     }],
     "inputs": {
         "assessment_period": {
             "title": "Assessment Period",
-            "description": "Ask HELCOM. Example: HOLAS-2 (2011-2016), HOLAS-3 (2016-2021), or Other (1877-9999).",
+            "description": "The HOLAS assessment period which is used for the HEAT analysis. It can be HOLAS-2 (2011-2016) or HOLAS-3 (2016-2021) or custom for whole monitoring period (1877-9999). Note that assessment period defines the indicators used and integrations rules, where as the sample data needs to be defined separately. Allowed values: HOLAS-2, HOLAS-3, Other.",
             "schema": {
                 "type": "string",
                 "enum": [

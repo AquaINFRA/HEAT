@@ -1,24 +1,31 @@
 {
     "version": "0.0.1",
     "id": "heat1",
-    "use_case": "HELCOM HEAT",
-    "title": {"en": "HELCOM HEAT (1): Generate the Assessment Units (HOLAS mode)"},
+    "use_case": "HELCOM HEAT HOLAS",
+    "title": {"en": "Reproducing HEAT HOLAS results: Generate the Assessment Units"},
     "description": {
-        "en": "Compute the assessment units for the HEAT assessment tool. The area is gridded, the grids have different sizes. HOLAS mode means that for the HOLAS assessment periods, spatial units and configuration (e.g. grid size) are provided, which you can just use. So this just recreates the units used by HOLAS for the various periods. This process represents subpart 1 of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/master"
+        "en": "Generate the gridded assessment units to be used for reproducing the HOLAS assessment using HELCOM's HEAT assessment tool, covering the Baltic Sea, for a selected HOLAS assessment period. The area is gridded, the grid cells have different sizes. For every period, spatial units and configuration (e.g. grid size) are predefined, so this tool just recreates the units used by HOLAS for the various periods. This tool represents the first part of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/aquabranch."
     },
     "jobControlOptions": ["sync-execute", "async-execute"],
-    "keywords": ["HELCOM", "HEAT"],
+    "keywords": ["HELCOM", "HEAT", "HOLAS"],
     "links": [{
         "type": "text/html",
         "rel": "about",
         "title": "GitHub repo for the original HEAT analysis",
         "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
         "hreflang": "en-US"
+    },
+    {
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the continued HEAT analysis",
+        "href": "https://github.com/AquaINFRA/HEAT/tree/aquabranch",
+        "hreflang": "en-US"
     }],
     "inputs": {
         "assessment_period": {
             "title": "Assessment Period",
-            "description": "Ask HELCOM. Example: HOLAS-2 (2011-2016), HOLAS-3 (2016-2021), or Other (1877-9999).",
+            "description": "The HOLAS assessment period which is used for the HEAT analysis. It can be HOLAS-2 (2011-2016) or HOLAS-3 (2016-2021) or custom for whole monitoring period (1877-9999). Note that assessment period defines the indicators used and integrations rules, where as the sample data needs to be defined separately. Allowed values: HOLAS-2, HOLAS-3, Other.",
             "schema": {
                 "type": "string",
                 "enum": [
@@ -43,8 +50,8 @@
             }
         },
         "units_cleaned": {
-            "title": "Cleaned assessment units",
-            "description": "Assessment units for the HEAT assessment tool.",
+            "title": "Non-gridded assessment units",
+            "description": "Non-gridded Assessment units which were cleaned, slightly adapted (e.g. some stations added manually), and extended (e.g. with the units's area and a UnitID). This will not be used further on and is rather a by-product, an intermediate step before gridding the data.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"
