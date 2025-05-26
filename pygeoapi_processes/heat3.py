@@ -117,6 +117,7 @@ class HEAT3Processor(BaseProcessor):
         in_configIndicatorUnitsFilePath = get_config_file_path('IndicatorUnits', assessment_period, path_input_data)
         in_configIndicatorUnitResultsFilePath = get_config_file_path('IndicatorUnitResults', assessment_period, path_input_data)
 
+        # Download station samples from user...
         filename_samples = 'samples-%s.csv' % self.job_id
         in_relevantStationSamplesPath = download_file(samples_url, self.download_dir+'/out/', filename_samples)
         # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is

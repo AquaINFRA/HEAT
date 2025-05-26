@@ -247,11 +247,11 @@ def get_path_default_bottle_data(assessment_period, path_input_data):
 
     bot_path = None
     if assessment_period == "1877-9999":
-        bot_path = path_input_data+"/1877-9999/StationSamples1877-9999BOT_2022-12-09.txt.gz"
+        bot_path = path_input_data+"/original_inputs/1877-9999/StationSamples1877-9999BOT_2022-12-09.txt.gz"
     elif assessment_period == "2011-2016":
-        bot_path = path_input_data+"/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz"
+        bot_path = path_input_data+"/original_inputs/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz"
     elif assessment_period == "2016-2021":
-        bot_path = path_input_data+"/2016-2021/StationSamples2016-2021BOT_2022-12-09.txt.gz"
+        bot_path = path_input_data+"/original_inputs/2016-2021/StationSamples2016-2021BOT_2022-12-09.txt.gz"
     return bot_path
 
 
@@ -259,11 +259,11 @@ def get_path_default_pmp_data(assessment_period, path_input_data):
 
     pmp_path = None
     if assessment_period == "1877-9999":
-        pmp_path = path_input_data+"/1877-9999/StationSamples1877-9999PMP_2022-12-09.txt.gz"
+        pmp_path = path_input_data+"/original_inputs/1877-9999/StationSamples1877-9999PMP_2022-12-09.txt.gz"
     elif assessment_period == "2011-2016":
-        pmp_path = path_input_data+"/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz"
+        pmp_path = path_input_data+"/original_inputs/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz"
     elif assessment_period == "2016-2021":
-        pmp_path = path_input_data+"/2016-2021/StationSamples2016-2021PMP_2022-12-09.txt.gz"
+        pmp_path = path_input_data+"/original_inputs/2016-2021/StationSamples2016-2021PMP_2022-12-09.txt.gz"
     return pmp_path
 
 
@@ -271,11 +271,11 @@ def get_path_default_ctd_data(assessment_period, path_input_data):
 
     ctd_path = None
     if assessment_period == "1877-9999":
-        ctd_path = path_input_data+"/1877-9999/StationSamples1877-9999CTD_2022-12-09.txt.gz"
+        ctd_path = path_input_data+"/original_inputs/1877-9999/StationSamples1877-9999CTD_2022-12-09.txt.gz"
     elif assessment_period == "2011-2016":
-        ctd_path = path_input_data+"/2011-2016/StationSamples2011-2016CTD_2022-12-09.txt.gz"
+        ctd_path = path_input_data+"/original_inputs/2011-2016/StationSamples2011-2016CTD_2022-12-09.txt.gz"
     elif assessment_period == "2016-2021":
-        ctd_path = path_input_data+"/2016-2021/StationSamples2016-2021CTD_2022-12-09.txt.gz"
+        ctd_path = path_input_data+"/original_inputs/2016-2021/StationSamples2016-2021CTD_2022-12-09.txt.gz"
     return ctd_path
 
 

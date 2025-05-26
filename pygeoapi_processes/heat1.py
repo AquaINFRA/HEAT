@@ -187,9 +187,9 @@ class HEAT1Processor(BaseProcessor):
 def get_unit_file_path(assessment_period, path_input_data):
 
     if assessment_period == "1877-9999":
-        return path_input_data+"/1877-9999/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
+        return path_input_data+"/original_inputs/1877-9999/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
     elif assessment_period == "2011-2016":
-        return path_input_data+"/2011-2016/AssessmentUnits.shp"
+        return path_input_data+"/original_inputs/2011-2016/AssessmentUnits.shp"
     elif assessment_period == "2016-2021":
-        return path_input_data+"/2016-2021/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
+        return path_input_data+"/original_inputs/2016-2021/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
 
