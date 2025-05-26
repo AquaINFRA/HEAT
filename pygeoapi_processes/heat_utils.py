@@ -1,6 +1,8 @@
 import requests
+import zipfile
 import logging
 LOGGER = logging.getLogger(__name__)
+
 
 def get_config_file_path(which_config, assessment_period, path_input_data):
 
@@ -16,8 +18,12 @@ def get_config_file_path(which_config, assessment_period, path_input_data):
     elif assessment_period == "2016-2021":
         return path_input_data+"/adapted_inputs/2016-2021/Configuration2016-2021_%s.csv" % which_config
 
+
 def download_file(data_url, download_dir, filename):
     # TODO: Make better download function! SAFER!
+    #filename = data_url.split('/')[-1]
+    LOGGER.debug('Downloading file: %s from %s' % (filename, data_url))
+
     if not "igb-berlin.de" in data_url:
         # This is super stupid, as it can easily be faked... TODO!!!!
         raise NotImplementedError("Currently not allowed")
@@ -26,7 +32,6 @@ def download_file(data_url, download_dir, filename):
     # TODO: If the download URL is from our domain, it might be the result of a previous tool, and we
     # could re-use instead of download...
     data_path = download_dir+'/'+filename
-    LOGGER.debug('Downloading file: %s from %s' % (filename, data_url))
     resp = requests.get(data_url)
     if not resp.status_code == 200:
         raise ProcessorExecuteError('Could not download input file (HTTP status %s): %s' % (resp.status_code, data_url))
@@ -38,3 +43,32 @@ def download_file(data_url, download_dir, filename):
 
     LOGGER.debug('Downloaded to: %s' % data_path)
     return data_path
+
+
+def download_zipped_data(data_url, download_dir, filename, suffix="csv"):
+    #filename = data_url.split('/')[-1]
+    LOGGER.debug('Downloading zipped file: %s from %s' % (filename, data_url))
+
+    data_path = download_file(data_url, download_dir, filename)
+
+    ## Unzip downloaded data, if zipped, and return the first csv file found
+    ## in the unzipped directory...
+    ## TODO: Potentially unsafe, move to inside container!
+    if not zipfile.is_zipfile(data_path):
+        return data_path
+    else:
+        data_path_unzipped = download_dir+'/unzipped_'+filename
+        LOGGER.debug('Unzipping to %s' % data_path_unzipped)
+        with zipfile.ZipFile(data_path, 'r') as zip_ref:
+            zip_ref.extractall(data_path_unzipped)
+
+        for item in os.listdir(data_path_unzipped):
+            if item.endswith('.'+suffix):
+                data_path = data_path_unzipped.rstrip('/')+'/'+item
+                LOGGER.debug('Will use this file from unzipped dir: %s' % data_path)
+                return data_path
+
+        err_msg = 'No %s file found in unzipped data...' % suffix
+        LOGGER.error(err_msg)
+        raise ProcessorExecuteError(err_msg)
+

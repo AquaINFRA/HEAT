@@ -7,6 +7,8 @@ import requests
 import os
 import traceback
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
+
 
 
 '''
@@ -125,7 +127,6 @@ class HEAT2Processor(BaseProcessor):
         in_stationSamplesBOTFilePath = get_path_bottle_input_data(assessment_period, bot_url, path_input_data, self.download_dir)
         in_stationSamplesCTDFilePath = get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, self.download_dir)
         in_stationSamplesPMPFilePath = get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, self.download_dir)
-
 
 
         ###############
@@ -273,7 +274,7 @@ def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, down
 
     if bot_url is None:
         # If the user passed nothing or "null", no bottle data is used!
-        # TODO: Dont return/store results for PMP, if no PMP inputs are given!
+        # TODO: Dont return/store results for BOT, if no bottle inputs are given!
         return None
 
     elif bot_url is not None and bot_url.lower() == 'default':
@@ -283,11 +284,14 @@ def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, down
 
     elif bot_url is not None and bot_url.startswith('http'):
         LOGGER.info('Client requested bottle data: %s' % bot_url)
-        raise NotImplementedError("Currently, only default bottle data can be used!")
+        #raise NotImplementedError("Currently, only default bottle data can be used!")
         # TODO: Ideally, the download should not happen here (in the process python file), but
         # inside the docker container.
-        #bot_path = download_zipped_data(bot_url, download_dir, 'BOT')
-        #return bot_path
+        filename = bot_url.split('/')[-1]
+        bot_path = download_zipped_data(bot_url, download_dir+'/out/', filename, suffix="csv")
+        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
+        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
+        return bot_path
 
     else:
         err_msg = 'Could not understand bottle data: %s' % bot_url
@@ -343,41 +347,6 @@ def get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, downloa
 
     else:
         err_msg = 'Could not understand ctd data: %s' % ctd_url
-        LOGGER.error(err_msg)
-        raise ProcessorExecuteError(err_msg)
-
-
-def download_zipped_data(data_url, download_dir, word):
-    # TODO: Make better download function! SAFER!
-    raise NotImplementedError("Need to implement download inside container...")
-    # TODO: If the download URL is from our domain, it might be the result of a previous tool, and we
-    # could re-use instead of download...
-    filename = data_url.split('/')[-1]
-    data_path = download_dir+'/'+filename
-    LOGGER.debug('Downloading %s data: %s from %s' % (word, filename, data_url))
-    resp = requests.get(data_url)
-    with open(data_path, 'w') as myfile:
-        myfile.write(resp.content)
-    LOGGER.debug('Downloaded to: %s' % data_path)
-
-    ## Unzip downloaded data, if zipped, and return the first csv file found
-    ## in the unzipped directory...
-    ## TODO: Potentially unsafe, move to inside container!
-    if not zipfile.is_zipfile(data_path):
-        return data_path
-    else:
-        data_path_unzipped = download_dir+'/unzipped_'+filename
-        LOGGER.debug('Unzipping to %s' % data_path_unzipped)
-        with zipfile.ZipFile(data_path, 'r') as zip_ref:
-            zip_ref.extractall(data_path_unzipped)
-
-        for item in os.listdir(data_path_unzipped):
-            if item.endswith('.csv'):
-                data_path = data_path_unzipped.rstrip('/')+'/'+item
-                LOGGER.debug('Will use this file from unzipped dir: %s' % data_path)
-                return data_path
-
-        err_msg = 'No csv file found in unzipped data...'
         LOGGER.error(err_msg)
         raise ProcessorExecuteError(err_msg)
 
