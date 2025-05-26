@@ -358,14 +358,21 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       message('No bottle data provided.')
       stationSamplesBOT <- NULL
     } else {
+
+      # Try reading data with tab separator:
       stationSamplesBOT <- data.table::fread(input = stationSamplesBOTFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+
+      # Try reading data with comma separator:
       if (ncol(stationSamplesBOT) == 1) {
         message(paste('Only one column found in:', stationSamplesBOTFile))
         message('Probably used the wrong separator (tab). Trying with comma...')
         stationSamplesBOT <- data.table::fread(input = stationSamplesBOTFile, sep = ",", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
       }
+
+      # Set "Type" to B:
       stationSamplesBOT[, Type := "B"]
 
+      # Data that was downloaded from ICES portal recently does not have "Year" etc, but "yyyy.mm.ddThh.mm.ss.sss"...
       if (!('Year' %in% colnames(stationSamplesBOT))){
         stationSamplesBOT <- parseDateColumn(stationSamplesBOT)
       }
@@ -379,12 +386,18 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       message('No CTD data provided.')
       stationSamplesCTD <- NULL
     } else {
+
+      # Try reading data with tab separator:
       stationSamplesCTD <- data.table::fread(input = stationSamplesCTDFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+
+      # Try reading data with comma separator:
       if (ncol(stationSamplesCTD) == 1) {
         message(paste('Only one column found in:', stationSamplesCTDFile))
         message('Probably used the wrong separator (tab). Should try with comma...')
         stop('Not implemented yet: Parsing CTD data with comma.') # TODO: Implement this
       }
+
+      # Set "Type" to C:
       stationSamplesCTD[, Type := "C"]
 
       # Data that was downloaded from ICES portal recently does not have "Year" etc, but "yyyy.mm.ddThh.mm.ss.sss"...
@@ -401,15 +414,21 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       message('No pump data provided.')
       stationSamplesPMP <- NULL
     } else {
+
+      # Try reading data with tab separator:
       stationSamplesPMP <- data.table::fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+
+      # Try reading data with comma separator:
       if (ncol(stationSamplesPMP) == 1) {
         message(paste('Only one column found in:', stationSamplesPMPFile))
         message('Probably used the wrong separator (tab). Should try with comma...')
         stop('Not implemented yet: Parsing PMP data with comma.') # TODO: Implement this
       }
+
+      # Set "Type" to P:
       stationSamplesPMP[, Type := "P"]
 
-        # Data that was downloaded from ICES portal recently does not have "Year" etc, but "yyyy.mm.ddThh.mm.ss.sss"...
+      # Data that was downloaded from ICES portal recently does not have "Year" etc, but "yyyy.mm.ddThh.mm.ss.sss"...
       if (!('Year' %in% colnames(stationSamplesPMP))){
         stationSamplesPMP <- parseDateColumn(stationSamplesPMP)
       }
