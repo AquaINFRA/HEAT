@@ -256,6 +256,11 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       stationSamplesBOT <- NULL
     } else {
       stationSamplesBOT <- data.table::fread(input = stationSamplesBOTFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+      if (ncol(stationSamplesBOT) == 1) {
+        message(paste('Only one column found in:', stationSamplesBOTFile))
+        message('Probably used the wrong separator (tab). Trying with comma...')
+        stationSamplesBOT <- data.table::fread(input = stationSamplesBOTFile, sep = ",", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+      }
       stationSamplesBOT[, Type := "B"]
     }
 
@@ -265,6 +270,11 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       stationSamplesCTD <- NULL
     } else {
       stationSamplesCTD <- data.table::fread(input = stationSamplesCTDFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+      if (ncol(stationSamplesCTD) == 1) {
+        message(paste('Only one column found in:', stationSamplesCTDFile))
+        message('Probably used the wrong separator (tab). Should try with comma...')
+        stop('Not implemented yet: Parsing CTD data with comma.') # TODO: Implement this
+      }
       stationSamplesCTD[, Type := "C"]
     }
 
@@ -274,6 +284,11 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       stationSamplesPMP <- NULL
     } else {
       stationSamplesPMP <- data.table::fread(input = stationSamplesPMPFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+      if (ncol(stationSamplesPMP) == 1) {
+        message(paste('Only one column found in:', stationSamplesPMPFile))
+        message('Probably used the wrong separator (tab). Should try with comma...')
+        stop('Not implemented yet: Parsing PMP data with comma.') # TODO: Implement this
+      }
       stationSamplesPMP[, Type := "P"]
     }
 
