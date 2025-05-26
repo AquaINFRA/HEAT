@@ -81,7 +81,7 @@ class HEAT5Processor(BaseProcessor):
         if assessment_period is None:
             raise ProcessorExecuteError('Missing parameter "assessment_period". Please provide a string.')
         if assessment_indicators_csv_url is None:
-            raise ProcessorExecuteError('Missing parameter "assessment_indicators_csv_url". Please provide a URL to your input data.')
+            raise ProcessorExecuteError('Missing parameter "assessment_indicators". Please provide a URL to your input data.')
 
         # Check validity of argument:
         valid_assessment_periods = ["holas-2", "holas-3", "other"]

@@ -4,7 +4,7 @@
     "use_case": "HELCOM HEAT HOLAS",
     "title": {"en": "Reproducing HEAT HOLAS results: Generate the Assessment Units"},
     "description": {
-        "en": "Generate the gridded assessment units to be used for reproducing the HOLAS assessment using HELCOM's HEAT assessment tool, covering the Baltic Sea, for a selected HOLAS assessment period. The area is gridded, the grid cells have different sizes. For every period, spatial units and configuration (e.g. grid size) are predefined, so this tool just recreates the units used by HOLAS for the various periods. This tool represents the first part of the original HEAT assessment computation script. For more info, please go to: https://github.com/ices-tools-prod/HEAT/tree/aquabranch."
+        "en": "Generate the gridded assessment units to be used for reproducing the HOLAS assessment using HELCOM's HEAT assessment tool, covering the Baltic Sea, for a selected HOLAS assessment period. The area is gridded, the grid cells have different sizes. For every period, spatial units and configuration (e.g. grid size) are predefined, so this tool just recreates the units used by HOLAS for the various periods. This tool represents the first part of the original HEAT assessment computation script."
     },
     "jobControlOptions": ["sync-execute", "async-execute"],
     "keywords": ["HELCOM", "HEAT", "HOLAS"],

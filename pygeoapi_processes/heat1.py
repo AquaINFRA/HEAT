@@ -122,8 +122,9 @@ class HEAT1Processor(BaseProcessor):
         out_units_cleaned_filepath = self.download_dir+'/out/units_cleaned-%s.shp' % self.job_id
 
         # Where to access output data
-        out_units_gridded_url      = self.download_url+'/out/'+out_units_gridded_filepath.split('/')[-1]
-        out_units_cleaned_url      = self.download_url+'/out/'+out_units_cleaned_filepath.split('/')[-1]
+        out_units_gridded_url      = self.download_url+'/out/units_gridded-%s.shp' % self.job_id
+        out_units_cleaned_url      = self.download_url+'/out/units_cleaned-%s.shp' % self.job_id
+
 
         ###########
         ### Run ###
