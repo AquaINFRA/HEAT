@@ -73,6 +73,7 @@ def run_docker_container(
         stdout = result.stdout.decode()
         stderr = result.stderr.decode()
         LOGGER.debug('Finished running docker container (image %s)' % image_name)
+        log_all_docker_output(stdout, stderr)
         return result.returncode, stdout, stderr, "no error"
 
     except subprocess.CalledProcessError as e:
@@ -82,6 +83,17 @@ def run_docker_container(
         LOGGER.error('Failed running docker container (exit code %s)' % returncode)
         user_err_msg = get_error_message_from_docker_stderr(stderr)
         return returncode, stdout, stderr, user_err_msg
+
+
+def log_all_docker_output(stdout, stderr):
+
+    for line in stdout.split('\n'):
+        if line:
+            LOGGER.debug('Docker stdout: %s' % line)
+
+    for line in stderr.split('\n'):
+        if line:
+            LOGGER.debug('Docker stderr: %s' % line)
 
 
 def get_error_message_from_docker_stderr(stderr, log_all_lines = True):
