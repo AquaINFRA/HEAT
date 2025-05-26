@@ -33,8 +33,8 @@
             "keywords": ["HOLAS"]
         },
         "samples": {
-            "title": "Relevant Samples",
-            "description": "Ask HELCOM. From last process.",
+            "title": "Station samples (combined)",
+            "description": "Merged sample data of BOT, PMP and CTD data for indicator calculation (StationSamples.csv).",
             "schema": {"type": "string"},
             "minOccurs": 1,
             "maxOccurs": 1,
@@ -42,8 +42,8 @@
             "keywords": []
         },
         "combined_Chlorophylla_IsWeighted": {
-            "title": "combined_Chlorophylla_IsWeighted",
-            "description": "Ask HELCOM. Example: true",
+            "title": "Chlorophyll A Weighted?",
+            "description": "If true, script calculates combined chlorophyll a indicator results per assessment unit as a weighted average from BOT, PMP and EO. If false, then simple average.",
             "schema": {"type": "bool"},
             "minOccurs": 1,
             "maxOccurs": 1,
@@ -53,8 +53,8 @@
     },
     "outputs": {
         "annual_indicators": {
-            "title": "Annual Indicators",
-            "description": "Annual Indicator CSV (AnnualIndicators.csv), ask HELCOM.",
+            "title": "Annual Indicators Table",
+            "description": "CSV file of calculated HEAT EQRS per indicator per year per assessment unit (AnnualIndicators.csv).",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/csv"

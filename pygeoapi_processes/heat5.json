@@ -33,8 +33,8 @@
             "keywords": ["HOLAS"]
         },
         "assessment_indicators": {
-            "title": "Assessment Indicators",
-            "description": "TODO Ask HELCOM. Result from last process.",
+            "title": "Assessment Indicators Table",
+            "description": "CSV file of calculated EQRS per assessment period per assessment unit (AssessmentIndicators.csv).",
             "schema": {
                 "type": "object",
                 "contentMediaType": "text/csv"
@@ -48,7 +48,7 @@
     "outputs": {
         "assessment": {
             "title": "Assessment Table",
-            "description": "Assessment CSV (Assessment.csv), TODO ask HELCOM.",
+            "description": "CSV file: table of calculated EQRS per assessment unit, grouped by overall and criterial level indicators (Assessment.csv).",
             "schema": {
                 "type": "object",
                 "contentMediaType": "text/csv"

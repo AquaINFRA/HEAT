@@ -33,8 +33,8 @@
             "keywords": ["HOLAS"]
         },
         "bottle_data": {
-            "title": "Input bottle data TODO",
-            "description": "Input bottle data. Write 'default' for default data. Leave out for none at all.",
+            "title": "Input samples (bottle)",
+            "description": "In-situ bottle sample data (nutrients, chl-a)(StationamplesBOT.csv). ICES Oceanographic data type 'BOT'. Write 'default' for default data. Leave out for none at all.",
             "schema": { "type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,
@@ -42,8 +42,8 @@
             "keywords": []
         },
         "ctd_data": {
-            "title": "Input CTD data TODO",
-            "description": "Input CTD data: Write 'default' for default data. Leave out for none at all.",
+            "title": "Input samples (CTD)",
+            "description": " CTD depth profiles, relevant for oxygen debt indicator (StationSamplesCTD.csv). ICES Oceanographic data type 'CTD'. Write 'default' for default data. Leave out for none at all.",
             "schema": { "type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,
@@ -51,8 +51,8 @@
             "keywords": []
         },
         "pump_data": {
-            "title": "Input pump data TODO",
-            "description": "Input pump data: Write 'default' for default data. Leave out for none at all.",
+            "title": "Input samples (pump)",
+            "description": "Ferrybox data (chl-a) (StationSamplesPMP.csv). ICES Oceanographic data type 'PMP'. Write 'default' for default data. Leave out for none at all.",
             "schema": { "type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,
@@ -62,32 +62,32 @@
     },
     "outputs": {
         "samples": {
-            "title": "StationSamples.csv",
-            "description": "Combined StationSamples.csv. Relevant samples only, whatever that means.",
+            "title": "Station samples (combined)",
+            "description": "Merged sample data of BOT, PMP and CTD data for indicator calculation (StationSamples.csv).",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/csv"
             }
         },
         "bottle_samples": {
-            "title": "StationSamplesBOT.csv",
-            "description": "Bottle samples used for this.",
+            "title": "Station samples (bottle)",
+            "description": "In-situ bottle sample data (nutrients, chl-a)(StationamplesBOT.csv). ICES Oceanographic data type 'BOT'.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/csv"
             }
         },
         "pump_samples": {
-            "title": "StationSamplesPMP.csv",
-            "description": "Pump samples used for this.",
+            "title": "Station samples (pump)",
+            "description": "Ferrybox data (chl-a) (StationSamplesPMP.csv). ICES Oceanographic data type 'PMP' ",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/csv"
             }
         },
         "ctd_samples": {
-            "title": "StationSamplesCTD.csv",
-            "description": "CTD samples used for this.",
+            "title": "Station samples (CTD)",
+            "description": " CTD depth profiles, relevant for oxygen debt indicator (StationSamplesCTD.csv). ICES Oceanographic data type 'CTD'.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/csv"
@@ -95,7 +95,7 @@
         },
         "units_gridded": {
             "title": "units_gridded.shp",
-            "description": "Gridded spatial units, as shapefile, used for this process.",
+            "description": "Grid used for confidence assessment (10k ,30k, 60k), which was used for this process.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"

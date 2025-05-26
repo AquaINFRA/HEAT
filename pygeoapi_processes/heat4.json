@@ -33,8 +33,8 @@
             "keywords": ["HOLAS"]
         },
         "annual_indicators": {
-            "title": "Annual Indicators",
-            "description": "Result from last process (AnnualIndicators.csv).",
+            "title": "Annual Indicators Table",
+            "description": "CSV file of calculated HEAT EQRS per indicator per year per assessment unit (AnnualIndicators.csv).",
             "schema": {
                 "type": "object",
                 "contentMediaType": "text/csv"
@@ -47,8 +47,8 @@
     },
     "outputs": {
         "assessment_indicators": {
-            "title": "Assessment Indicator Table",
-            "description": "Assessment Indicator CSV (AssessmentIndicators.csv), TODO ask HELCOM.",
+            "title": "Assessment Indicators Table",
+            "description": "CSV file of calculated EQRS per assessment period per assessment unit (AssessmentIndicators.csv).",
             "schema": {
                 "type": "object",
                 "contentMediaType": "text/csv"
