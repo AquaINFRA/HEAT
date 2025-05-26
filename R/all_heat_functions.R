@@ -264,6 +264,90 @@ parseDateColumn <- function(stationSamplesTable) {
 }
 
 
+
+# Difference between column names in HEAT input data provided as part of the GitHub repo,
+# and HEAT input data downloaded from ICES database.
+# This is how the column names look after importing to R, so we can replace the right side
+# by the left side to make sure the script works with freshly downloaded data.
+#
+# Merret Buurman (IGB Berlin), October 2024
+colname_pairs_for_ices_replacement <- list(
+  c('Secchi.Depth..m..METAVAR.FLOAT', 'Secchi.Depth..m.'),
+  c('Depth..m.', 'Depth..ADEPZZ01_ULAA...m.'),
+  c('QV.ODV.Depth..m.', 'QV.ODV.Depth..ADEPZZ01_ULAA.'),
+  c('Temperature..degC.', 'Temperature..TEMPPR01_UPAA...degC.'),
+  c('QV.ODV.Temperature..degC.', 'QV.ODV.Temperature..TEMPPR01_UPAA.'),
+  c('Practical.Salinity..dmnless.', 'Salinity..PSALPR01_UUUU...dmnless.'),
+  c('QV.ODV.Practical.Salinity..dmnless.', 'QV.ODV.Salinity..PSALPR01_UUUU.'),
+  c('Dissolved.Oxygen..ml.l.', 'Oxygen..DOXYZZXX_UMLL...ml.l.'),
+  c('QV.ODV.Dissolved.Oxygen..ml.l.', 'QV.ODV.Oxygen..DOXYZZXX_UMLL.'),
+  c('Phosphate.Phosphorus..PO4.P...umol.l.', 'Phosphate..PHOSZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Phosphate.Phosphorus..PO4.P...umol.l.', 'QV.ODV.Phosphate..PHOSZZXX_UPOX.'),
+  c('Total.Phosphorus..P...umol.l.', 'Total.Phosphorus..TPHSZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Total.Phosphorus..P...umol.l.', 'QV.ODV.Total.Phosphorus..TPHSZZXX_UPOX.'),
+  c('Silicate.Silicon..SiO4.Si...umol.l.', 'Silicate..SLCAZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Silicate.Silicon..SiO4.Si...umol.l.', 'QV.ODV.Silicate..SLCAZZXX_UPOX.'),
+  c('Nitrate.Nitrogen..NO3.N...umol.l.', 'Nitrate..NTRAZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Nitrate.Nitrogen..NO3.N...umol.l.', 'QV.ODV.Nitrate..NTRAZZXX_UPOX.'),
+  c('Nitrite.Nitrogen..NO2.N...umol.l.', 'Nitrite..NTRIZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Nitrite.Nitrogen..NO2.N...umol.l.', 'QV.ODV.Nitrite..NTRIZZXX_UPOX.'),
+  c('Ammonium.Nitrogen..NH4.N...umol.l.', 'Ammonium..AMONZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Ammonium.Nitrogen..NH4.N...umol.l.', 'QV.ODV.Ammonium..AMONZZXX_UPOX.'),
+  c('Total.Nitrogen..N...umol.l.', 'Total.Nitrogen..NTOTZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Total.Nitrogen..N...umol.l.', 'QV.ODV.Total.Nitrogen..NTOTZZXX_UPOX.'),
+  c('Hydrogen.Sulphide..H2S.S...umol.l.', 'Hydrogen.Sulphide..H2SXZZXX_UPOX...umol.l.'),
+  c('QV.ODV.Hydrogen.Sulphide..H2S.S...umol.l.', 'QV.ODV.Hydrogen.Sulphide..H2SXZZXX_UPOX.'),
+  c('Hydrogen.Ion.Concentration..pH...pH.', 'pH..PHXXZZXX_UUPH...pH.units.'),
+  c('QV.ODV.Hydrogen.Ion.Concentration..pH...pH.', 'QV.ODV.pH..PHXXZZXX_UUPH.'),
+  c('Alkalinity..mEq.l.', 'Total.Alkalinity..ALKYZZXX_MEQL...mEq.l.'),
+  c('QV.ODV.Alkalinity..mEq.l.', 'QV.ODV.Total.Alkalinity..ALKYZZXX_MEQL.'),
+  c('Chlorophyll.a..ug.l.', 'Chlorophyll.a..CPHLZZXX_UGPL...ug.l.'),
+  c('QV.ODV.Chlorophyll.a..ug.l.', 'QV.ODV.Chlorophyll.a..CPHLZZXX_UGPL.'),
+  c('QV.ODV.Bot.Depth..m.', 'TODO_dunno_missing'),
+  c('QV.ODV.Secchi.Depth..m.', 'TODO_dunno_missing'),
+  c('Pressure..dbar.', 'TODO_dunno_missing'),
+  c('QV.ODV.Pressure..dbar.', 'TODO_dunno_missing')
+)
+
+
+replaceColnamesICES <- function(stationSamplesTable, dataset_name, verbose=TRUE, debug=FALSE) {
+  # Replace column names in the ICES format by column names the HELCOM format!
+  if (verbose) message('Checking/replacing the column names (', dataset_name, ')...')
+  if (debug) message(paste('Column names before checking/replacing:', paste(colnames(stationSamplesTable), collapse=', ')))
+
+  # Iterate over all possible pairs for column names (HELCOM/ICES data):
+  for (colname_pair in colname_pairs_for_ices_replacement) {
+
+    # Retrieve both names:
+    colname_helcom = colname_pair[1]
+    colname_ices = colname_pair[2]
+    if (debug) message(paste('* colname_helcom: ', colname_helcom))
+    if (debug) message(paste('* colname_ices  : ', colname_ices))
+
+    # Check if they occur, replace if applicable:
+    if (colname_helcom %in% colnames(stationSamplesTable)) {
+      # The data already contains the proper required column name
+      if (debug) message(paste0('Colname exists (not replacing): "', colname_helcom, '".'))
+
+    } else {
+      if (colname_ices %in% colnames(stationSamplesTable)) {
+        # The data contains the new(-ish) ICES column name, whichh has to be replaced...
+        if (verbose) message(paste0('Replacing column name           "', colname_ices, '" by "', colname_helcom, '"...'))
+        colnames(stationSamplesTable)[colnames(stationSamplesTable)==colname_ices] <- colname_helcom
+
+      } else {
+        # None of both column names is present in the data:
+        if (debug) message(paste0('Column missing (cannot replace) "', colname_helcom, '" (or its ICES alternative "', colname_ices, '")...'))
+      }
+    }
+  }
+
+  if (verbose) message('Checking/replacing the column names (', dataset_name, ')... DONE.')
+  if (debug) message(paste('Column names after checking/replacing:', paste(colnames(stationSamplesTable), collapse=', ')))
+  return(stationSamplesTable)
+}
+
+
 prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits, verbose=TRUE) {
     if (verbose) message("START: prepare_station_samples")
 
@@ -285,6 +369,9 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       if (!('Year' %in% colnames(stationSamplesBOT))){
         stationSamplesBOT <- parseDateColumn(stationSamplesBOT)
       }
+
+      # Data that was downloaded from ICES portal recently may have different column names, that will be an obstacle later in the analysis...
+      stationSamplesBOT <- replaceColnamesICES(stationSamplesBOT, 'BOT data', verbose)
     }
 
     # Ocean hydro chemistry - High resolution CTD data
@@ -304,6 +391,9 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       if (!('Year' %in% colnames(stationSamplesCTD))){
         stationSamplesCTD <- parseDateColumn(stationSamplesCTD)
       }
+
+      # Data that was downloaded from ICES portal recently may have different column names, that will be an obstacle later in the analysis...
+      stationSamplesCTD <- replaceColnamesICES(stationSamplesCTD, 'CTD data', verbose)
     }
 
     # Ocean hydro chemistry - Pump data
@@ -323,6 +413,9 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       if (!('Year' %in% colnames(stationSamplesPMP))){
         stationSamplesPMP <- parseDateColumn(stationSamplesPMP)
       }
+
+      # Data that was downloaded from ICES portal recently may have different column names, that will be an obstacle later in the analysis...
+      stationSamplesPMP <- replaceColnamesICES(stationSamplesPMP, 'PMP data', verbose)
     }
 
     # Combine station samples
