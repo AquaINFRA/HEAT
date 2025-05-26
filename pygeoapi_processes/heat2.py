@@ -12,6 +12,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_
 
 
 '''
+# Using default (static on server) for all three:
 curl -X POST 'https://localhost:5000/processes/heat2/execution' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -23,15 +24,23 @@ curl -X POST 'https://localhost:5000/processes/heat2/execution' \
     }
 }'
 
-NOTCOMMIT:
-curl -X POST 'https://aquainfra.ogc.igb-berlin.de/pygeoapi/processes/heat2/execution' \
+# Omitting PMP and CTD:
+curl -X POST 'https://localhost:5000/processes/heat2/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
         "assessment_period": "holas-2",
-        "bottle_data": "default",
-        "pump_data": "default",
-        "ctd_data": "default"
+        "bottle_data": "default"
+    }
+}'
+
+# Omitting PMP and CTD, using external data for BOT:
+curl -X POST 'https://localhost:5000/processes/heat2/execution' \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-2",
+        "bottle_data": "https://example.com/download/StationSamplesBOT.txt.gz"
     }
 }'
 
