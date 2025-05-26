@@ -7,7 +7,8 @@
 assessmentPeriod=$1
 if [[ -z "$assessmentPeriod" ]]; then echo "Please provide an assessment period."; echo "Stopping."; exit 1; fi
 
-in_stationSamplesBOTFilePath="../Input/${assessmentPeriod}/StationSamples${assessmentPeriod}BOT_2022-12-09.txt.gz"
+in_stationSamplesBOTFilePath="../Input/${assessmentPeriod}/StationSamples${assessmentPeriod}BOT_2022-12-09.txt.gz" # tab-separated
+#in_stationSamplesBOTFilePath="../adapted_inputs/ICESDataPortalDownload_Ocean_fb56918f-4cb5-40e0-bab8-f138f1238d6e/7908cc01-42d4-460c-8b47-c960f97191ef.csv" # comma-separated
 in_stationSamplesCTDFilePath="../Input/${assessmentPeriod}/StationSamples${assessmentPeriod}CTD_2022-12-09.txt.gz"
 in_stationSamplesPMPFilePath="../Input/${assessmentPeriod}/StationSamples${assessmentPeriod}PMP_2022-12-09.txt.gz"
 in_unitsGriddedFilePath="../testoutputs/units_gridded${assessmentPeriod}.shp"
