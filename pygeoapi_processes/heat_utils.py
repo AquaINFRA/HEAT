@@ -2,6 +2,8 @@ import requests
 import zipfile
 import logging
 LOGGER = logging.getLogger(__name__)
+from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
+
 
 
 def get_config_file_path(which_config, assessment_period, path_input_data):
