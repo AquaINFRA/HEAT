@@ -43,33 +43,33 @@ stationSamplesCTDFile <- file.path(inputPath, "")
 stationSamplesPMPFile <- file.path(inputPath, "")
 
 if (assessmentPeriod == "1877-9999"){
-  urls <- c("https://www.dropbox.com/s/qw4gsrj3yeri5k2/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip?dl=1",
-            "https://www.dropbox.com/s/q42p5jneai2c4lh/Configuration1877-9999.xlsx?dl=1",
-            "https://www.dropbox.com/s/zwxdcgpivbjrr2f/StationSamples1877-9999BOT_2022-12-09.txt.gz?dl=1",
-            "https://www.dropbox.com/s/hissa42qvzit3ou/StationSamples1877-9999CTD_2022-12-09.txt.gz?dl=1",
-            "https://www.dropbox.com/s/dqqezbeco1dudy0/StationSamples1877-9999PMP_2022-12-09.txt.gz?dl=1")
+  urls <- c("https://icesoceanography.blob.core.windows.net/heat/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/Configuration1877-9999.xlsx",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples1877-9999BOT_2022-12-09.txt.gz",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples1877-9999CTD_2022-12-09.txt.gz",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples1877-9999PMP_2022-12-09.txt.gz")
   unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration1877-9999.xlsx")
   stationSamplesBOTFile <- file.path(inputPath, "StationSamples1877-9999BOT_2022-12-09.txt.gz")
   stationSamplesCTDFile <- file.path(inputPath, "StationSamples1877-9999CTD_2022-12-09.txt.gz")
   stationSamplesPMPFile <- file.path(inputPath, "StationSamples1877-9999PMP_2022-12-09.txt.gz")
 } else if (assessmentPeriod == "2011-2016"){
-  urls <- c("https://www.dropbox.com/s/rub2x8k4d2qy8cu/AssessmentUnits.zip?dl=1",
-            "https://www.dropbox.com/s/nzcllbb1vf7plvq/Configuration2011-2016.xlsx?dl=1",
-            "https://www.dropbox.com/s/ee6ngcmyjakhbrt/StationSamples2011-2016BOT_2022-12-09.txt.gz?dl=1",
-            "https://www.dropbox.com/s/qxooza0yuie3tlk/StationSamples2011-2016CTD_2022-12-09.txt.gz?dl=1",
-            "https://www.dropbox.com/s/9t758julyxeuv6n/StationSamples2011-2016PMP_2022-12-09.txt.gz?dl=1")
+  urls <- c("https://icesoceanography.blob.core.windows.net/heat/AssessmentUnits.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/Configuration2011-2016.xlsx",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2011-2016BOT_2022-12-09.txt.gz",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2011-2016CTD_2022-12-09.txt.gz",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2011-2016PMP_2022-12-09.txt.gz")
   unitsFile <- file.path(inputPath, "AssessmentUnits.shp")
   configurationFile <- file.path(inputPath, "Configuration2011-2016.xlsx")
   stationSamplesBOTFile <- file.path(inputPath, "StationSamples2011-2016BOT_2022-12-09.txt.gz")
   stationSamplesCTDFile <- file.path(inputPath, "StationSamples2011-2016CTD_2022-12-09.txt.gz")
   stationSamplesPMPFile <- file.path(inputPath, "StationSamples2011-2016PMP_2022-12-09.txt.gz")
 } else if (assessmentPeriod == "2016-2021") {
-  urls <- c("https://www.dropbox.com/s/qw4gsrj3yeri5k2/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip?dl=1",
-            "https://www.dropbox.com/s/tp5yh0v92faica2/Configuration2016-2021.xlsx?dl=1",
-            "https://www.dropbox.com/s/rymfxidvimqbpxl/StationSamples2016-2021BOT_2022-12-09.txt.gz?dl=1",
-            "https://www.dropbox.com/s/drk5clui9s3pc8v/StationSamples2016-2021CTD_2022-12-09.txt.gz?dl=1",
-            "https://www.dropbox.com/s/dn1v9jbyj35hud6/StationSamples2016-2021PMP_2022-12-09.txt.gz?dl=1")
+  urls <- c("https://icesoceanography.blob.core.windows.net/heat/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.zip",
+            "https://icesoceanography.blob.core.windows.net/heat/Configuration2016-2021.xlsx",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2016-2021BOT_2022-12-09.txt.gz",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2016-2021CTD_2022-12-09.txt.gz",
+            "https://icesoceanography.blob.core.windows.net/heat/StationSamples2016-2021PMP_2022-12-09.txt.gz")
   unitsFile <- file.path(inputPath, "HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp")
   configurationFile <- file.path(inputPath, "Configuration2016-2021.xlsx")
   stationSamplesBOTFile <- file.path(inputPath, "StationSamples2016-2021BOT_2022-12-09.txt.gz")
