@@ -1,0 +1,74 @@
+{
+    "version": "0.0.1",
+    "id": "heat4A",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "Assessing Eutrophication: Compute Assessment Indicators [MIGHT ALREADY WORK]"},
+    "description": {
+        "en": "Compute the Assessment Indicators (i.e. EQRS per assessment period per assessment unit), as part the eutrophication assessment using HELCOM's HEAT assessment tool. The calculation is based on the Annual Indicators (i.e. the calculated HEAT EQRS per indicator per year per assessment unit) which you have to provide as a CSV file. In addition to that ,you may define your own custom configuration files to set your own indicator thresholds etc. This tool represents the fourth part of the original HEAT assessment computation script."
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    },
+    {
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the continued HEAT analysis",
+        "href": "https://github.com/AquaINFRA/HEAT/tree/aquabranch",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "annual_indicators": {
+            "title": "Annual Indicators Table",
+            "description": "CSV file of calculated HEAT EQRS per indicator per year per assessment unit (AnnualIndicators.csv).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "text/csv"
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "table_indicators": {
+            "title": "Table of Indicators",
+            "description": "A table listing the indicators. Needs the following column names: IndicatorID; CriteriaID; Name; Code; Parameters; Units; YearMin; YearMax; MonthMin; MonthMax; DepthMin; DepthMax; Metric; Response; Applied; Comments; GTC_HM; GTC_ML; STC_HM; STC_ML; SSC_HM; SSC_ML. Please ask HELCOM for details. Please provide a URL to the table as a CSV file. QUESTION: Should we provide defaults? If so, which ones - HEAT has different ones for each HOLAS period.",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "table_indicator_units": {
+            "title": "Table of Indicator Units",
+            "description": "A table listing something about the indicators. Needs the following column names: IndicatorID; UnitID; ET; ACDEV; EQR_HG; EQR_GM; EQR_MP; EQR_PB; IW. Please ask HELCOM for details. Please provide a URL to the table as a CSV file. QUESTION: Should we provide defaults? If so, which ones - HEAT has different ones for each HOLAS period.",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "assessment_indicators": {
+            "title": "Assessment Indicators Table",
+            "description": "CSV file of calculated EQRS per assessment period per assessment unit (AssessmentIndicators.csv).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "text/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "annual_indicators": "https://testserver.com/download/AnnualIndicators.csv",
+            "table_indicators": "https://example.fi/download/table_indicators.csv",
+            "table_indicator_units": "https://example.fi/download/table_indicator_units.csv"
+        }
+    }
+}

@@ -1,0 +1,104 @@
+{
+    "version": "0.0.1",
+    "id": "heat2A",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "Assessing Eutrophication: Combine the samples [MIGHT ALREADY WORK]"},
+    "description": {
+        "en": "Combine the various types of samples to be used for the eutrophication assessment using HELCOM's HEAT assessment tool. Please provide input data for at least one of the three sample types (bottle, pump/ferrybox, CTD). Of course you can also provide all three types. TODO: Should several files per type be allowed? Should we provide any defaults at all? This tool extends the second part of the original HEAT assessment computation script."
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    },
+    {
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the continued HEAT analysis",
+        "href": "https://github.com/AquaINFRA/HEAT/tree/aquabranch",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "units_gridded": {
+            "title": "Gridded assessment units",
+            "description": "Grid to be used for filtering the samples. Has to be in CRS ETRS89-extended / LAEA Europe (EPSG3035. Please provide a URL to the layer as a shapefile (TODO: Or possibly other formats).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        },
+        "bottle_data": {
+            "title": "Input samples (bottle)",
+            "description": "In-situ bottle sample data (nutrients, chl-a)(StationSamplesBOT.csv), ICES Oceanographic data type 'BOT'. Ideally downloaded from the ICES portal. Omit this parameter if you do not want to include bottle data. Please provide a URL to the table as a CSV file.",
+            "schema": { "type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "ctd_data": {
+            "title": "Input samples (CTD)",
+            "description": " CTD depth profiles, relevant for oxygen debt indicator (StationSamplesCTD.csv). ICES Oceanographic data type 'CTD'. Ideally downloaded from the ICES portal. Omit this parameter if you do not want to include CTD data. Please provide a URL to the table as a CSV file.",
+            "schema": { "type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "pump_data": {
+            "title": "Input samples (pump)",
+            "description": "Ferrybox data (chl-a) (StationSamplesPMP.csv). ICES Oceanographic data type 'PMP'. Ideally downloaded from the ICES portal. Omit this parameter if you do not want to include pump/ferrybox data. Please provide a URL to the table as a CSV file.",
+            "schema": { "type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "station_samples": {
+            "title": "Station samples (filtered, combined)",
+            "description": "Merged sample data of BOT, PMP and CTD data for indicator calculation (StationSamples.csv).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        },
+        "bottle_samples": {
+            "title": "Station samples (bottle), filtered",
+            "description": "In-situ bottle sample data (nutrients, chl-a), ICES Oceanographic data type 'BOT'. Filtered by the specified spatial units. This will not be used further on and is rather a by-product that you may use for progress verification.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        },
+        "pump_samples": {
+            "title": "Station samples (pump), filtered",
+            "description": "Ferrybox data (chl-a) (StationSamplesPMP.csv), ICES Oceanographic data type 'PMP'. Filtered by the specified spatial units. This will not be used further on and is rather a by-product that you may use for progress verification.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        },
+        "ctd_samples": {
+            "title": "Station samples (CTD), filtered",
+            "description": " CTD depth profiles, relevant for oxygen debt indicator, ICES Oceanographic data type 'CTD'. Filtered by the specified spatial units. This will not be used further on and is rather a by-product that you may use for progress verification.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "units_gridded": "https://example.fi/download/gridded.shp.zip",
+            "bottle_data": "https://example.fi/download/bot.csv",
+            "pump_data": "https://example.fi/download/pmp.csv",
+            "ctd_data": "https://example.fi/download/ctd.csv"
+        }
+    }
+}

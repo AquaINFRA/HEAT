@@ -1,0 +1,97 @@
+{
+    "version": "0.0.1",
+    "id": "heat3A",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "Assessing Eutrophication: Compute Annual Indicators [MIGHT ALREADY WORK]"},
+    "description": {
+        "en": "Compute the Annual Indicators (i.e. the calculated HEAT EQRS per indicator per year per assessment unit), as part the eutrophication assessment using HELCOM's HEAT assessment tool. As input, please provide a file containing combined and filtered station samples (CTD, bottle and pump/ferrybox combined in one file). Besides your custom station samples, you may define your own custom configuration files to set your own indicator thresholds etc. In addition, please specify how Chlorophyll-A should be handled.  This tool extends the third part of the original HEAT assessment computation script."
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    },
+    {
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the continued HEAT analysis",
+        "href": "https://github.com/AquaINFRA/HEAT/tree/aquabranch",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "station_samples": {
+            "title": "Station samples (filtered, combined)",
+            "description": "Merged sample data of BOT, PMP and CTD data for indicator calculation (StationSamples.csv).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        },
+        "combined_Chlorophylla_IsWeighted": {
+            "title": "Chlorophyll A Weighted?",
+            "description": "If true, script calculates combined chlorophyll a indicator results per assessment unit as a weighted average from BOT, PMP and EO. If false, then simple average.",
+            "schema": {"type": "bool"},
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "table_indicators": {
+            "title": "Table of Indicators",
+            "description": "A table listing the indicators. Needs the following column names: IndicatorID; CriteriaID; Name; Code; Parameters; Units; YearMin; YearMax; MonthMin; MonthMax; DepthMin; DepthMax; Metric; Response; Applied; Comments; GTC_HM; GTC_ML; STC_HM; STC_ML; SSC_HM; SSC_ML. Please ask HELCOM for details. Please provide a URL to the table as a CSV file. QUESTION: Should we provide defaults? If so, which ones - HEAT has different ones for each HOLAS period.",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "table_indicator_units": {
+            "title": "Table of Indicator Units",
+            "description": "A table listing something about the indicators. Needs the following column names: IndicatorID; UnitID; ET; ACDEV; EQR_HG; EQR_GM; EQR_MP; EQR_PB; IW. Please ask HELCOM for details. Please provide a URL to the table as a CSV file. QUESTION: Should we provide defaults? If so, which ones - HEAT has different ones for each HOLAS period.",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "table_indicator_unit_results": {
+            "description": "A table listing something about the indicators. Needs the following column names: IndicatorID; UnitID; Period; ES; SD; N; NM; EQR; EQRS; GTC; STC; SSC. Please ask HELCOM for details. Please provide a URL to the table as a CSV file. QUESTION: Should we provide defaults? If so, which ones - HEAT has different ones for each HOLAS period.",
+            "schema": {"type": "string"},
+            "minOccurs": 0,
+            "maxOccurs": 1,
+            "metadata": null, 
+            "keywords": []
+        },
+        "spatial_units": {
+            "title": "units_cleaned.shp",
+            "description": "Non-Gridded spatial units, as shapefile, used for this process. Please provide a URL to the layer as a shapefile or possible other formats. What exactly needed for? Ask HELCOM. I think only for the unit size. TODO: We use the cleaned one (outcome of heat_1), but the cleaning is very individual, so probably we must require users to already provide a 'clean' file / one with unit area included.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        }
+    },
+    "outputs": {
+        "annual_indicators": {
+            "title": "Annual Indicators Table",
+            "description": "CSV file of calculated HEAT EQRS per indicator per year per assessment unit (AnnualIndicators.csv).",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/csv"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "station_samples": "https://testserver.com/download/StationSamples.csv",
+            "combined_Chlorophylla_IsWeighted": true,
+            "table_indicators": "https://example.fi/download/table_indicators.csv",
+            "table_indicator_units": "https://example.fi/download/table_indicator_units.csv",
+            "table_indicator_unit_results": "https://example.fi/download/table_indicator_unit_results.csv"
+        }
+    }
+}

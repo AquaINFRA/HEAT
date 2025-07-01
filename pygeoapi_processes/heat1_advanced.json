@@ -1,0 +1,73 @@
+{
+    "version": "0.0.1",
+    "id": "heat1A",
+    "use_case": "HELCOM HEAT",
+    "title": {"en": "Assessing Eutrophication: Generate the Assessment Units [NOT IMPLEMENTED YET!]"},
+    "description": {
+        "en": "Generate the gridded assessment units to be used for the eutrophication assessment using HELCOM's HEAT assessment tool. The area is gridded, the grid cells have different sizes. The spatial units and configuration (e.g. grid size) have to be provided. This tool extends the first part of the original HEAT assessment computation script."
+    },
+    "jobControlOptions": ["sync-execute", "async-execute"],
+    "keywords": ["HELCOM", "HEAT"],
+    "links": [{
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the original HEAT analysis",
+        "href": "https://github.com/ices-tools-prod/HEAT/tree/master",
+        "hreflang": "en-US"
+    },
+    {
+        "type": "text/html",
+        "rel": "about",
+        "title": "GitHub repo for the continued HEAT analysis",
+        "href": "https://github.com/AquaINFRA/HEAT/tree/aquabranch",
+        "hreflang": "en-US"
+    }],
+    "inputs": {
+        "spatial_units": {
+            "title": "Spatial Units",
+            "description": "Please provide the spatial units you would like to grid, as vector data/polygons. Each unit must have a UnitID. Please provide a URL to the layer as a shapefile, or possibly other vector formats such as GeoJSON or gpkg, if implemented. I think this file needs to have an attribute UnitArea containing the area of that unit. In which unit, hectares, square kilometres?",
+            "schema": {
+                "type": "string"
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        },
+        "grid_size_table": {
+            "title": "Table of Grid Sizes",
+            "description": "Table with a grid cell size (GridSize) for each UnitID present in the input layer, to compute grid cells of the specified size. I assume the different grid sizes must be multiples of each other for this to work. For example, 30000, 60000 and 90000 are originally used by HELCOM for the HOLAS assessment. In which unit, metres I assume? Please provide a URL to the table as a CSV file.",
+            "schema": {
+                "type": "string"
+            },
+            "minOccurs": 1,
+            "maxOccurs": 1,
+            "metadata": null,
+            "keywords": []
+        }
+    },
+    "outputs": {
+        "units_cleaned": {
+            "title": "Cleaned assessment units",
+            "description": "The units, filtered, transformed to EPSG 3035.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        },
+        "units_gridded": {
+            "title": "Gridded assessment units",
+            "description": "Grid to be used for confidence assessment.",
+            "schema": {
+                "type": "object",
+                "contentMediaType": "application/shp"
+            }
+        }
+    },
+    "example": {
+        "inputs": {
+            "spatial_units": "https://example.com/download/myregions.shp.zip",
+            "grid_size_table": "https://example.com/download/mygridsizes.csv"
+        }
+    }
+}
