@@ -2,7 +2,7 @@
     "version": "0.0.1",
     "id": "heat1A",
     "use_case": "HELCOM HEAT",
-    "title": {"en": "Assessing Eutrophication: Generate the Assessment Units [NOT IMPLEMENTED YET!]"},
+    "title": {"en": "Assessing Eutrophication: Generate the Assessment Units"},
     "description": {
         "en": "Generate the gridded assessment units to be used for the eutrophication assessment using HELCOM's HEAT assessment tool. The area is gridded, the grid cells have different sizes. The spatial units and configuration (e.g. grid size) have to be provided. This tool extends the first part of the original HEAT assessment computation script."
     },

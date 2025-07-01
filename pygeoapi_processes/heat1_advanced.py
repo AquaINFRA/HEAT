@@ -7,6 +7,7 @@ import os
 import traceback
 import zipfile
 import glob
+import geopandas as gpd
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_path
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
@@ -191,6 +192,19 @@ class HEAT1Processor(BaseProcessor):
                 }
             }
         }
+
+        # TODO: Let user choose whether they want GeoJSON, and return not-nested maybe?
+        if True:
+            LOGGER.debug('Make GeoJSON from Shapefile...')
+            geojson_path = out_units_gridded_filepath.replace("shp", "json")
+            LOGGER.debug('Make GeoJSON to %s' % geojson_path)
+            gdf = gpd.read_file(out_units_gridded_filepath)
+            gdf_4326 = gdf.to_crs(epsg=4326)
+            gdf_4326.to_file(geojson_path, driver='GeoJSON')
+            LOGGER.debug('Make GeoJSON from Shapefile... Done')
+            with open(geojson_path, 'r') as myfile:
+                geojson_gridded = json.load(myfile)
+            outputs["outputs"]["units_gridded"]["as_geojson"] = geojson_gridded
 
         return 'application/json', outputs
 
