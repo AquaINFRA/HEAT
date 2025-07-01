@@ -15,7 +15,7 @@ in_unitGridSizePath = args[3]
 out_unitsCleanedFilePath = args[4]
 out_unitsGriddedFilePath = args[5]
 out_plotsPath = args[6] # NA if not passed by user, then interpreted as "don't plot"
-verbose = args[6]
+verbose = args[7]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -37,6 +37,7 @@ if (is.na(verbose)) {
 ####################
 
 ## Generate assessment units and gridunits
+## Units: ETRS_1989_LAEA
 units <- get_units(assessmentPeriod, in_unitsFilePath, verbose)
 unitGridSizeTable <- get_unit_grid_size_table(in_unitGridSizePath, format='csv')
 gridunits <- get_gridunits(units, unitGridSizeTable, verbose)
