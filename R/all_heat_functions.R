@@ -257,6 +257,28 @@ get_gridunits <- function(units, unitGridSize, verbose=TRUE) {
 }
 
 
+get_gridunits_generic <- function(units, unitGridSize, verbose=TRUE) {
+  if (verbose) message(paste("START: get_gridunits_generic"))
+
+  gridSizes <- unique(unitGridSize$GridSize)
+  mylist = list()
+  i <- 0
+  for (size in gridSizes) {
+    i <- i+1
+    message(paste('i =', i, ", size =", size))
+    gridunitsx <- make.gridunits(units, size, verbose)
+    a <- merge(unitGridSize[GridSize == size], gridunitsx %>% select(UnitID, GridID, GridArea = Area))
+    mylist[[i]] <- a
+  }
+
+  gridunits <- sf::st_as_sf(rbindlist(mylist))
+  gridunits <- sf::st_cast(gridunits)
+
+  if (verbose) message(paste("END:   get_gridunits_generic"))
+  return(gridunits)
+}
+
+
 make.gridunits <- function(units, gridSize, verbose=TRUE) {
   if (verbose) message(paste("START: make.gridunits for size", gridSize))
 
