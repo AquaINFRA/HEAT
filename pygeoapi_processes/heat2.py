@@ -1,11 +1,11 @@
 import logging
-from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 LOGGER = logging.getLogger(__name__)
 
 import json
 import requests
 import os
 import traceback
+from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
 
@@ -69,7 +69,7 @@ class HEAT2Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250525"
+            self.image_name = "heat:20250528"
 
 
     def set_job_id(self, job_id: str):
@@ -201,9 +201,9 @@ class HEAT2Processor(BaseProcessor):
         # TODO: Still provide it?
         outputs = {
             "outputs": {
-                "samples": {
-                    "title": PROCESS_METADATA['outputs']['samples']['title'],
-                    "description": PROCESS_METADATA['outputs']['samples']['description'],
+                "station_samples": {
+                    "title": PROCESS_METADATA['outputs']['station_samples']['title'],
+                    "description": PROCESS_METADATA['outputs']['station_samples']['description'],
                     "href": out_stationSamplesTableCSV_url
                 },
                 "bottle_samples": {

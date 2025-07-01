@@ -68,7 +68,7 @@
         }
     },
     "outputs": {
-        "samples": {
+        "station_samples": {
             "title": "Station samples (filtered, combined)",
             "description": "Merged sample data of BOT, PMP and CTD data for indicator calculation (StationSamples.csv).",
             "schema": {
