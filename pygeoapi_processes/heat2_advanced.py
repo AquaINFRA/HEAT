@@ -6,6 +6,9 @@ import json
 import requests
 import os
 import traceback
+import pandas as pd
+import geopandas as gpd
+import shapely.geometry
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
 from pygeoapi.process.HEAT.pygeoapi_processes.heat2 import get_path_bottle_input_data
@@ -174,6 +177,17 @@ class HEAT2Processor(BaseProcessor):
         if not returncode == 0:
             raise ProcessorExecuteError(user_msg = user_err_msg)
 
+        ## Make GeoJSON: TODO WIP
+        geojson_path = out_stationSamplesTableCSVFilePath.replace("csv", "json")
+        df = pd.read_csv(out_stationSamplesTableCSVFilePath)
+        df = df.drop_duplicates(subset=['Longitude..degrees_east.', 'Latitude..degrees_north.'])
+        geometry = [shapely.geometry.Point(xy) for xy in zip(df['Longitude..degrees_east.'], df['Latitude..degrees_north.'])]
+        gdf = gpd.GeoDataFrame(df, geometry=geometry)
+        gdf = gdf[['UnitID', 'geometry']]
+        gdf.to_file(geojson_path, driver='GeoJSON')
+        with open(geojson_path, 'r') as myfile:
+            geojson_samples = json.load(myfile)
+
 
         ######################
         ### Return results ###
@@ -188,7 +202,8 @@ class HEAT2Processor(BaseProcessor):
                 "station_samples": {
                     "title": PROCESS_METADATA['outputs']['station_samples']['title'],
                     "description": PROCESS_METADATA['outputs']['station_samples']['description'],
-                    "href": out_stationSamplesTableCSV_url
+                    "href": out_stationSamplesTableCSV_url,
+                    "as_geojson": geojson_samples
                 },
                 "bottle_samples": {
                     "title": PROCESS_METADATA['outputs']['bottle_samples']['title'],
