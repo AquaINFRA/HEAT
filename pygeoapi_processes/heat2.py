@@ -322,11 +322,14 @@ def get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, downloa
 
     elif pmp_url is not None and pmp_url.startswith('http'):
         LOGGER.info('Client requested pump data: %s' % pmp_url)
-        raise NotImplementedError("Currently, only default pump data can be used!")
+        #raise NotImplementedError("Currently, only default pump data can be used!")
         # TODO: Ideally, the download should not happen here (in the process python file), but
         # inside the docker container.
-        #pmp_path = download_zipped_data(pmp_url, download_dir, 'PMP')
-        #return pmp_path
+        filename = pmp_url.split('/')[-1]
+        pmp_path = download_zipped_data(pmp_url, download_dir+'/out/', filename, suffix="csv")
+        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
+        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
+        return pmp_path
 
     else:
         err_msg = 'Could not understand pump data: %s' % pmp_url
@@ -348,11 +351,14 @@ def get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, downloa
 
     elif ctd_url is not None and ctd_url.startswith('http'):
         LOGGER.info('Client requested ctd data: %s' % ctd_url)
-        raise NotImplementedError("Currently, only default ctd data can be used!")
+        #raise NotImplementedError("Currently, only default ctd data can be used!")
         # TODO: Ideally, the download should not happen here (in the process python file), but
         # inside the docker container.
-        #ctd_path = download_zipped_data(ctd_url, download_dir, 'CTD')
-        #return ctd_path
+        filename = ctd_url.split('/')[-1]
+        ctd_path = download_zipped_data(ctd_url, download_dir+'/out/', filename, suffix="csv")
+        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
+        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
+        return ctd_path
 
     else:
         err_msg = 'Could not understand ctd data: %s' % ctd_url
