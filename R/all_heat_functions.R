@@ -134,29 +134,29 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
   if (verbose) message(paste("START: get_units"))
 
   if (is.null(assessmentPeriod)) {
-    message("Preparing units for no particular HOLAS period...")
+    if (verbose) message("Preparing units for no particular HOLAS period...")
     units <- sf::st_read(unitsFile)
     bbox <- st_bbox(units)
-    message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+    if (verbose) message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
 
     # Transform projection into ETRS_1989_LAEA
     units <- sf::st_transform(units, crs = 3035)
-    message(paste('Num units: ', nrow(units)))
-    message(paste('Unit Attributes: ', paste(names(units), collapse=", ")))
+    if (verbose) message(paste('Num units: ', nrow(units)))
+    if (verbose) message(paste('Unit Attributes: ', paste(names(units), collapse=", ")))
     #bbox <- st_bbox(units)
-    #message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+    #if (verbose) message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
 
     # Calculate area
     units$UnitArea <- sf::st_area(units)
-    message(paste('Unit Attributes (now with area?!): ', paste(names(units), collapse=", ")))
+    if (verbose) message(paste('Unit Attributes (now with area): ', paste(names(units), collapse=", ")))
 
     # Check if UnitID is there?
     if (!("UnitID" %in% names(units))) {
         # Assign IDs
-        message(paste('Num units: ', nrow(units)))
+        if (verbose) message(paste('Num units: ', nrow(units)))
         if (verbose) message(paste0("Layer has no property UnitID, will assign it (1 to ", nrow(units), ")"))
         units$UnitID = 1:nrow(units)
-        #message(paste('Num units: ', nrow(units)))
+        #if (verbose) message(paste('Num units: ', nrow(units)))
     }
 
     # Filter for open sea assessment units, requires data.table
@@ -164,14 +164,14 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
         if (verbose) message(paste0("Layer has property Code, filtering based on it: ", paste(unique(units$Code), collapse=","), ")"))
         units <- units[units$Code %like% 'SEA',]
     }
-    #message(paste('Num units: ', nrow(units)))
+    #if (verbose) message(paste('Num units: ', nrow(units)))
 
 
   } else if (assessmentPeriod == "2011-2016") {
     # Read assessment unit from shape file, requires sf
     units <- sf::st_read(unitsFile)
     #bbox <- st_bbox(units)
-    #message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+    #if (verbose) message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
 
     # Filter for open sea assessment units, requires data.table
     units <- units[units$Code %like% 'SEA',]
@@ -198,7 +198,7 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
     # Read assessment unit from shape file
     units <- sf::st_read(unitsFile) %>% sf::st_zm()
     #bbox <- st_bbox(units)
-    #message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+    #if (verbose) message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
 
     # Filter for open sea assessment units
     units <- units[units$HELCOM_ID %like% 'SEA',]
@@ -228,9 +228,9 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
 
   # Identify overlapping assessment units
   #st_overlaps(units)
-  message(paste('Num units: ', nrow(units)))
+  if (verbose) message(paste('Num units: ', nrow(units)))
   bbox <- st_bbox(units)
-  message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+  if (verbose) message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
   if (verbose) message(paste("END:   get_units"))
   return(units)
 }
@@ -265,7 +265,7 @@ get_gridunits_generic <- function(units, unitGridSize, verbose=TRUE) {
   i <- 0
   for (size in gridSizes) {
     i <- i+1
-    message(paste('i =', i, ", size =", size))
+    if (verbose) message(paste('i =', i, ", size =", size))
     gridunitsx <- make.gridunits(units, size, verbose)
     a <- merge(unitGridSize[GridSize == size], gridunitsx %>% select(UnitID, GridID, GridArea = Area))
     mylist[[i]] <- a
@@ -282,17 +282,26 @@ get_gridunits_generic <- function(units, unitGridSize, verbose=TRUE) {
 make.gridunits <- function(units, gridSize, verbose=TRUE) {
   if (verbose) message(paste("START: make.gridunits for size", gridSize))
 
+  # The units before transforming...
+  if (verbose) message(paste('Num units: ', nrow(units)))
+  bbox <- st_bbox(units)
+  if (verbose) message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+
+  # Transform to coordinate system 3035:
   units <- st_transform(units, crs = 3035)
 
+  # The units after transforming...
+  if (verbose) message(paste('Num units: ', nrow(units)))
   bbox <- st_bbox(units)
-
+  if (verbose) message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
   xmin <- floor(bbox$xmin / gridSize) * gridSize
   ymin <- floor(bbox$ymin / gridSize) * gridSize
   xmax <- ceiling(bbox$xmax / gridSize) * gridSize
   ymax <- ceiling(bbox$ymax / gridSize) * gridSize
-
+  if (verbose) message(paste("     xmin =", xmin, "ymin =", ymin, "xmax =", xmax, "ymax =", ymax))
   xn <- (xmax - xmin) / gridSize
   yn <- (ymax - ymin) / gridSize
+  if (verbose) message(paste("xn =", xn, "yn =", yn))
 
   grid <- st_make_grid(units, cellsize = gridSize, c(xmin, ymin), n = c(xn, yn), crs = 3035) %>%
     st_sf()
@@ -531,10 +540,13 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
     stations <- sf::st_transform(stations, crs = 3035)
 
     # Classify stations into grid units
+    if (verbose) message(paste('DEBUG: Num stations before filter:', nrow(stations)))
     stations <- sf::st_join(stations, gridunits_epsg3035, join = st_intersects)
+    if (verbose) message(paste('DEBUG: Num stations after filter:', nrow(stations)))
 
     # Delete stations not classified
     stations <- na.omit(stations)
+    if (verbose) message(paste('DEBUG: Num stations after na-omit:', nrow(stations)))
 
     # Remove spatial column and nake into data table
     stations <- st_set_geometry(stations, NULL) %>% as.data.table()
