@@ -3,6 +3,8 @@ from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 LOGGER = logging.getLogger(__name__)
 
 import json
+import zipfile
+import glob
 import os
 import traceback
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
@@ -159,13 +161,47 @@ class HEAT1Processor(BaseProcessor):
             raise ProcessorExecuteError(user_msg = user_err_msg)
 
 
+        ###################
+        ### Zip results ###
+        ###################
+
+        # Find the files (parts of shape...)
+        dir_name = os.path.dirname(out_units_gridded_filepath)
+        base_name = os.path.splitext(os.path.basename(out_units_gridded_filepath))[0]
+        pattern = os.path.join(dir_name, f"{base_name}.*")
+        out_units_gridded_files_all = glob.glob(pattern)
+        LOGGER.debug('All gridded: %s' % out_units_gridded_files_all)
+        dir_name = os.path.dirname(out_units_gridded_filepath)
+        base_name = os.path.splitext(os.path.basename(out_units_cleaned_filepath))[0]
+        pattern = os.path.join(dir_name, f"{base_name}.*")
+        out_units_cleaned_files_all = glob.glob(pattern)
+        LOGGER.debug('All cleaned: %s' % out_units_cleaned_files_all)
+
+        # Zip the files:
+        zipname_gridded = out_units_gridded_filepath.replace("shp", "zip")
+        zipname_cleaned = out_units_cleaned_filepath.replace("shp", "zip")
+        LOGGER.debug('Names: %s, %s' % (zipname_gridded, zipname_cleaned))
+        #shutil.make_archive(zipname_gridded, "zip", out_units_gridded_files_all)
+        #shutil.make_archive(zipname_cleaned, "zip", out_units_cleaned_files_all)
+        with zipfile.ZipFile(zipname_gridded, 'w') as zipf:
+            for file in out_units_gridded_files_all:
+                arcname = os.path.basename(file)  # Optional: store without full path
+                zipf.write(file, arcname=arcname)
+        with zipfile.ZipFile(zipname_cleaned, 'w') as zipf:
+            for file in out_units_cleaned_files_all:
+                arcname = os.path.basename(file)  # Optional: store without full path
+                zipf.write(file, arcname=arcname)
+
+        # Fix URLs:
+        out_units_gridded_url = out_units_gridded_url.replace("shp", "zip")
+        out_units_cleaned_url = out_units_cleaned_url.replace("shp", "zip")
+
         ######################
         ### Return results ###
         ######################
-        
+
         # Return link to output csv files and return it wrapped in JSON:
         # TODO: add png, maybe cleaned
-        # TODO: Returning shp makes no sense without all the other files!!! 
         outputs = {
             "outputs": {
                 "units_gridded": {
