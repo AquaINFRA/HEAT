@@ -128,7 +128,7 @@ def get_error_message_from_docker_stderr(stderr, log_all_lines = True):
             LOGGER.error('Docker stderr: %s' % line)
 
         # R error messages may start with the word "Error"
-        if line.startswith("Error"):
+        if line.startswith("Error") or line.startswith("Fatal error"):
             #LOGGER.debug('### Found explicit error line: %s' % line.strip())
             user_err_msg += line.strip()
             error_on_previous_line = True

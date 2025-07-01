@@ -1,5 +1,6 @@
 import requests
 import zipfile
+import os
 import logging
 LOGGER = logging.getLogger(__name__)
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
@@ -33,7 +34,7 @@ def download_file(data_url, download_dir, filename):
     #raise NotImplementedError("Need to implement download inside container...")
     # TODO: If the download URL is from our domain, it might be the result of a previous tool, and we
     # could re-use instead of download...
-    data_path = download_dir+'/'+filename
+    data_path = download_dir.rstrip("/")+'/'+filename
     resp = requests.get(data_url)
     if not resp.status_code == 200:
         raise ProcessorExecuteError('Could not download input file (HTTP status %s): %s' % (resp.status_code, data_url))
@@ -59,7 +60,7 @@ def download_zipped_data(data_url, download_dir, filename, suffix="csv"):
     if not zipfile.is_zipfile(data_path):
         return data_path
     else:
-        data_path_unzipped = download_dir+'/unzipped_'+filename
+        data_path_unzipped = download_dir.rstrip("/")+'/unzipped_'+filename
         LOGGER.debug('Unzipping to %s' % data_path_unzipped)
         with zipfile.ZipFile(data_path, 'r') as zip_ref:
             zip_ref.extractall(data_path_unzipped)
