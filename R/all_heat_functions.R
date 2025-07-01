@@ -141,10 +141,10 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
 
     # Transform projection into ETRS_1989_LAEA
     units <- sf::st_transform(units, crs = 3035)
-    message(paste('Units: ', nrow(units)))
+    message(paste('Num units: ', nrow(units)))
     message(paste('Unit Attributes: ', paste(names(units), collapse=", ")))
-    bbox <- st_bbox(units)
-    message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+    #bbox <- st_bbox(units)
+    #message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
 
     # Calculate area
     units$UnitArea <- sf::st_area(units)
@@ -153,10 +153,10 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
     # Check if UnitID is there?
     if (!("UnitID" %in% names(units))) {
         # Assign IDs
-        message(paste('Units: ', nrow(units)))
+        message(paste('Num units: ', nrow(units)))
         if (verbose) message(paste0("Layer has no property UnitID, will assign it (1 to ", nrow(units), ")"))
         units$UnitID = 1:nrow(units)
-        message(paste('Units: ', nrow(units)))
+        #message(paste('Num units: ', nrow(units)))
     }
 
     # Filter for open sea assessment units, requires data.table
@@ -164,13 +164,15 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
         if (verbose) message(paste0("Layer has property Code, filtering based on it: ", paste(unique(units$Code), collapse=","), ")"))
         units <- units[units$Code %like% 'SEA',]
     }
-    message(paste('Units: ', nrow(units)))
+    #message(paste('Num units: ', nrow(units)))
 
 
   } else if (assessmentPeriod == "2011-2016") {
     # Read assessment unit from shape file, requires sf
     units <- sf::st_read(unitsFile)
-    
+    #bbox <- st_bbox(units)
+    #message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+
     # Filter for open sea assessment units, requires data.table
     units <- units[units$Code %like% 'SEA',]
     
@@ -195,13 +197,15 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
   } else {
     # Read assessment unit from shape file
     units <- sf::st_read(unitsFile) %>% sf::st_zm()
-    
+    #bbox <- st_bbox(units)
+    #message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+
     # Filter for open sea assessment units
     units <- units[units$HELCOM_ID %like% 'SEA',]
-    
+
     # Include stations from position 55.86667+-0.01667 12.75+-0.01667 which will include the Danish station KBH/DMU 431 and the Swedish station Wlandskrona into assessment unit 3/SEA-003
     units[3,] <- sf::st_union(units[3,], sf::st_transform( sf::st_as_sfc("POLYGON((12.73333 55.85,12.73333 55.88334,12.76667 55.88334,12.76667 55.85,12.73333 55.85))", crs = 4326), crs = 3035))
-    
+
     # Order, Rename and Remove columns
     units <- as.data.table(units)[order(HELCOM_ID), .(Code = HELCOM_ID, Description = Name, GEOM = geometry)] %>%
       sf::st_sf()
@@ -224,7 +228,9 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
 
   # Identify overlapping assessment units
   #st_overlaps(units)
-
+  message(paste('Num units: ', nrow(units)))
+  bbox <- st_bbox(units)
+  message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
   if (verbose) message(paste("END:   get_units"))
   return(units)
 }
