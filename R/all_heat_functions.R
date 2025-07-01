@@ -410,7 +410,7 @@ replaceColnamesICES <- function(stationSamplesTable, dataset_name, verbose=TRUE,
 }
 
 
-prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits, verbose=TRUE) {
+prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile, stationSamplesPMPFile, gridunits_epsg3035, verbose=TRUE) {
     if (verbose) message("START: prepare_station_samples")
 
     if (verbose) message("Reading station sample data...")
@@ -525,12 +525,13 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
 
     # Make stations spatial keeping original latitude/longitude
     stations <- sf::st_as_sf(stations, coords = c("Longitude..degrees_east.", "Latitude..degrees_north."), remove = FALSE, crs = 4326)
+    # TODO: Output stations as shapefile or GeoJSON!
 
     # Transform projection into ETRS_1989_LAEA
     stations <- sf::st_transform(stations, crs = 3035)
 
     # Classify stations into grid units
-    stations <- sf::st_join(stations, gridunits, join = st_intersects)
+    stations <- sf::st_join(stations, gridunits_epsg3035, join = st_intersects)
 
     # Delete stations not classified
     stations <- na.omit(stations)
