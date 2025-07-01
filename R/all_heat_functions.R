@@ -133,7 +133,41 @@ get_unit_grid_size_table <- function(configurationFilePath, format='xlsx') {
 get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
   if (verbose) message(paste("START: get_units"))
 
-  if (assessmentPeriod == "2011-2016") {
+  if (is.null(assessmentPeriod)) {
+    message("Preparing units for no particular HOLAS period...")
+    units <- sf::st_read(unitsFile)
+    bbox <- st_bbox(units)
+    message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+
+    # Transform projection into ETRS_1989_LAEA
+    units <- sf::st_transform(units, crs = 3035)
+    message(paste('Units: ', nrow(units)))
+    message(paste('Unit Attributes: ', paste(names(units), collapse=", ")))
+    bbox <- st_bbox(units)
+    message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
+
+    # Calculate area
+    units$UnitArea <- sf::st_area(units)
+    message(paste('Unit Attributes (now with area?!): ', paste(names(units), collapse=", ")))
+
+    # Check if UnitID is there?
+    if (!("UnitID" %in% names(units))) {
+        # Assign IDs
+        message(paste('Units: ', nrow(units)))
+        if (verbose) message(paste0("Layer has no property UnitID, will assign it (1 to ", nrow(units), ")"))
+        units$UnitID = 1:nrow(units)
+        message(paste('Units: ', nrow(units)))
+    }
+
+    # Filter for open sea assessment units, requires data.table
+    if ("Code" %in% names(units)) {
+        if (verbose) message(paste0("Layer has property Code, filtering based on it: ", paste(unique(units$Code), collapse=","), ")"))
+        units <- units[units$Code %like% 'SEA',]
+    }
+    message(paste('Units: ', nrow(units)))
+
+
+  } else if (assessmentPeriod == "2011-2016") {
     # Read assessment unit from shape file, requires sf
     units <- sf::st_read(unitsFile)
     
