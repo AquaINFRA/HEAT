@@ -2,7 +2,7 @@
     "version": "0.0.1",
     "id": "heat2A",
     "use_case": "HELCOM HEAT",
-    "title": {"en": "Assessing Eutrophication: Combine the samples [MIGHT ALREADY WORK]"},
+    "title": {"en": "Assessing Eutrophication: Combine the samples"},
     "description": {
         "en": "Combine the various types of samples to be used for the eutrophication assessment using HELCOM's HEAT assessment tool. Please provide input data for at least one of the three sample types (bottle, pump/ferrybox, CTD). Of course you can also provide all three types. TODO: Should several files per type be allowed? Should we provide any defaults at all? This tool extends the second part of the original HEAT assessment computation script."
     },

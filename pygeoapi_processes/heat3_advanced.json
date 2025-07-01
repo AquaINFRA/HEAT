@@ -2,7 +2,7 @@
     "version": "0.0.1",
     "id": "heat3A",
     "use_case": "HELCOM HEAT",
-    "title": {"en": "Assessing Eutrophication: Compute Annual Indicators [MIGHT ALREADY WORK]"},
+    "title": {"en": "Assessing Eutrophication: Compute Annual Indicators"},
     "description": {
         "en": "Compute the Annual Indicators (i.e. the calculated HEAT EQRS per indicator per year per assessment unit), as part the eutrophication assessment using HELCOM's HEAT assessment tool. As input, please provide a file containing combined and filtered station samples (CTD, bottle and pump/ferrybox combined in one file). Besides your custom station samples, you may define your own custom configuration files to set your own indicator thresholds etc. In addition, please specify how Chlorophyll-A should be handled.  This tool extends the third part of the original HEAT assessment computation script."
     },

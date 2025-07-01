@@ -45,7 +45,7 @@ class HEAT4Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250525"
+            self.image_name = "heat:20250701"
 
 
     def set_job_id(self, job_id: str):

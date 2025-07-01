@@ -2,7 +2,7 @@
     "version": "0.0.1",
     "id": "heat5A",
     "use_case": "HELCOM HEAT",
-    "title": {"en": "Assessing Eutrophication: Compute Assessment [MIGHT ALREADY WORK]"},
+    "title": {"en": "Assessing Eutrophication: Compute Assessment"},
     "description": {
         "en": "Compute the Assessment (i.e. EQRS per assessment unit, grouped by overall and criterial level indicators) u, as part the eutrophication assessment using HELCOM's HEAT assessment tool. The calculation is based on the Assessment Indicators (i.e. EQRS per assessment period per assessment unit) which you have to provide as a CSV file. In addition to that ,you may define your own custom configuration files to set your own indicator thresholds etc. This tool represents the fifth and last part of the original HEAT assessment computation script."
     },
