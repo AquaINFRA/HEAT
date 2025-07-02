@@ -177,16 +177,28 @@ class HEAT2Processor(BaseProcessor):
         if not returncode == 0:
             raise ProcessorExecuteError(user_msg = user_err_msg)
 
-        ## Make GeoJSON: TODO WIP
-        geojson_path = out_stationSamplesTableCSVFilePath.replace("csv", "json")
+        ########################
+        ### Generate GeoJSON ###
+        ########################
+
+        # Read spatial units from csv file:
+        LOGGER.debug('Make GeoJSON from Shapefile...')
         df = pd.read_csv(out_stationSamplesTableCSVFilePath)
         df = df.drop_duplicates(subset=['Longitude..degrees_east.', 'Latitude..degrees_north.'])
         geometry = [shapely.geometry.Point(xy) for xy in zip(df['Longitude..degrees_east.'], df['Latitude..degrees_north.'])]
         gdf = gpd.GeoDataFrame(df, geometry=geometry)
         gdf = gdf[['UnitID', 'geometry']]
+
+        # Write spatial units to geojson file:
+        geojson_path = out_stationSamplesTableCSVFilePath.replace("csv", "json")
         gdf.to_file(geojson_path, driver='GeoJSON')
-        with open(geojson_path, 'r') as myfile:
-            geojson_samples = json.load(myfile)
+
+        # Return GeoJSON directly: It tends to be very long, so bad idea!
+        #with open(geojson_path, 'r') as myfile:
+        #    geojson_directly = json.load(myfile)
+
+        # Return link to GeoJSON file:
+        geojson_url = out_stationSamplesTableCSV_url.replace("csv", "json")
 
 
         ######################
@@ -203,7 +215,7 @@ class HEAT2Processor(BaseProcessor):
                     "title": PROCESS_METADATA['outputs']['station_samples']['title'],
                     "description": PROCESS_METADATA['outputs']['station_samples']['description'],
                     "href": out_stationSamplesTableCSV_url,
-                    "as_geojson": geojson_samples
+                    "href_geojson": geojson_url
                 },
                 "bottle_samples": {
                     "title": PROCESS_METADATA['outputs']['bottle_samples']['title'],

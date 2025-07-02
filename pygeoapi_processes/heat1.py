@@ -197,6 +197,27 @@ class HEAT1Processor(BaseProcessor):
         out_units_gridded_url = out_units_gridded_url.replace("shp", "zip")
         out_units_cleaned_url = out_units_cleaned_url.replace("shp", "zip")
 
+        ########################
+        ### Generate GeoJSON ###
+        ########################
+
+        # Read spatial units from shapefile:
+        LOGGER.debug('Make GeoJSON from Shapefile...')
+        gdf = gpd.read_file(out_units_gridded_filepath)
+        gdf_4326 = gdf.to_crs(epsg=4326)
+
+        # Write spatial units to geojson file:
+        geojson_path = out_units_gridded_filepath.replace("shp", "json")
+        gdf_4326.to_file(geojson_path, driver='GeoJSON')
+
+        # Return GeoJSON directly: It tends to be very long, so bad idea!
+        #with open(geojson_path, 'r') as myfile:
+        #    geojson_directly = json.load(myfile)
+
+        # Return link to GeoJSON file:
+        geojson_url = out_units_gridded_url.replace("zip", "json")
+
+
         ######################
         ### Return results ###
         ######################
@@ -208,7 +229,8 @@ class HEAT1Processor(BaseProcessor):
                 "units_gridded": {
                     "title": PROCESS_METADATA['outputs']['units_gridded']['title'],
                     "description": PROCESS_METADATA['outputs']['units_gridded']['description'],
-                    "href": out_units_gridded_url
+                    "href": out_units_gridded_url,
+                    "href_geojson": geojson_url
                 },
                 "units_cleaned": {
                     "title": PROCESS_METADATA['outputs']['units_cleaned']['title'],
@@ -217,17 +239,6 @@ class HEAT1Processor(BaseProcessor):
                 }
             }
         }
-
-        # TODO: Let user choose whether they want GeoJSON, and return not-nested maybe?
-        if True:
-            geojson_path = out_units_gridded_filepath.replace("shp", "json")
-            gdf = gpd.read_file(out_units_gridded_filepath)
-            gdf_4326 = gdf.to_crs(epsg=4326)
-            gdf_4326.to_file(geojson_path, driver='GeoJSON')
-            LOGGER.debug('Make GeoJSON from Shapefile... Done')
-            with open(geojson_path, 'r') as myfile:
-                geojson_gridded = json.load(myfile)
-            outputs["units_gridded"]["as_geojson"] = geojson_gridded
 
         return 'application/json', outputs
 
