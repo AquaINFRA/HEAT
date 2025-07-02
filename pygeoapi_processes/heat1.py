@@ -217,6 +217,9 @@ class HEAT1Processor(BaseProcessor):
         # Return link to GeoJSON file:
         geojson_url = out_units_gridded_url.replace("zip", "json")
 
+        # Return a link to the viewer:
+        viewer_url = self.download_url.replace('/download', '')+"/viewer.html?filebase=units_gridded&job_id=" + self.job_id
+
 
         ######################
         ### Return results ###
@@ -230,7 +233,8 @@ class HEAT1Processor(BaseProcessor):
                     "title": PROCESS_METADATA['outputs']['units_gridded']['title'],
                     "description": PROCESS_METADATA['outputs']['units_gridded']['description'],
                     "href": out_units_gridded_url,
-                    "href_geojson": geojson_url
+                    "href_geojson": geojson_url,
+                    "href_viewer": viewer_url
                 },
                 "units_cleaned": {
                     "title": PROCESS_METADATA['outputs']['units_cleaned']['title'],

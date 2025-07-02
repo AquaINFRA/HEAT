@@ -216,6 +216,9 @@ class HEAT2Processor(BaseProcessor):
         # Return link to GeoJSON file:
         geojson_url = out_stationSamplesTableCSV_url.replace("csv", "json")
 
+        # Return a link to the viewer:
+        viewer_url = self.download_url.replace('/download', '')+"/viewer.html?filebase=StationSamples&job_id=" + self.job_id
+
 
         ######################
         ### Return results ###
@@ -231,7 +234,8 @@ class HEAT2Processor(BaseProcessor):
                     "title": PROCESS_METADATA['outputs']['station_samples']['title'],
                     "description": PROCESS_METADATA['outputs']['station_samples']['description'],
                     "href": out_stationSamplesTableCSV_url,
-                    "href_geojson": geojson_url
+                    "href_geojson": geojson_url,
+                    "href_viewer": viewer_url
                 },
                 "bottle_samples": {
                     "title": PROCESS_METADATA['outputs']['bottle_samples']['title'],
