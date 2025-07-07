@@ -11,7 +11,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
 
 
 '''
-curl -X POST 'https://localhost:5000/processes/heat5advanced/execution' \
+curl -X POST 'http://localhost:5000/processes/heat5advanced/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {

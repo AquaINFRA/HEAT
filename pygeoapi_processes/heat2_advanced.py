@@ -18,7 +18,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat2 import get_path_pmp_input_da
 
 
 '''
-curl -X POST 'https://localhost:5000/processes/heat2/execution' \
+curl -X POST 'http://localhost:5000/processes/heat2advanced/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {

@@ -16,12 +16,12 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
 
 
 '''
-curl -X POST 'https://localhost:5000/processes/heat1/execution' \
+curl -X POST 'http://localhost:5000/processes/heat1advanced/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
-        "spatial_units": "https://example.com/download/myregions.shp.zip",
-        "grid_size_table": "https://example.com/download/mygridsizes.csv"
+        "spatial_units": "http://example.com/exampledata/helcom/dummy/dummytest_epsg4326_unitid.zip",
+        "grid_size_table": "http://example.com/exampledata/helcom/dummy/Configuration_dummy_UnitGridSize.csv"
     }
 }'
 

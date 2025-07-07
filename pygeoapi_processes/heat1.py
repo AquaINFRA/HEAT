@@ -13,7 +13,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_
 
 
 '''
-curl -X POST 'https://localhost:5000/processes/heat1/execution' \
+curl -X POST 'http://localhost:5000/processes/heat1/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
@@ -22,7 +22,7 @@ curl -X POST 'https://localhost:5000/processes/heat1/execution' \
 }'
 
 # This one will complain:
-curl -X POST 'https://localhost:5000/processes/heat1/execution' \
+curl -X POST 'http://localhost:5000/processes/heat1/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {

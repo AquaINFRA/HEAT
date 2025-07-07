@@ -16,7 +16,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_
 
 '''
 # Using default (static on server) for all three:
-curl -X POST 'https://localhost:5000/processes/heat2/execution' \
+curl -X POST 'http://localhost:5000/processes/heat2/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
@@ -28,7 +28,7 @@ curl -X POST 'https://localhost:5000/processes/heat2/execution' \
 }'
 
 # Omitting PMP and CTD:
-curl -X POST 'https://localhost:5000/processes/heat2/execution' \
+curl -X POST 'http://localhost:5000/processes/heat2/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
@@ -38,7 +38,7 @@ curl -X POST 'https://localhost:5000/processes/heat2/execution' \
 }'
 
 # Omitting PMP and CTD, using external data for BOT:
-curl -X POST 'https://localhost:5000/processes/heat2/execution' \
+curl -X POST 'http://localhost:5000/processes/heat2/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {

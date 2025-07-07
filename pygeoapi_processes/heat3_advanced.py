@@ -12,7 +12,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_
 
 
 '''
-curl -X POST 'https://localhost:5000/processes/heat3/execution' \
+curl -X POST 'http://localhost:5000/processes/heat3advanced/execution' \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
