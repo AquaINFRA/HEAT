@@ -16,7 +16,7 @@ curl -X POST 'https://localhost:5000/processes/heat3/execution' \
 --data '{
     "inputs": {
         "assessment_period": "holas-2",
-        "samples": "https://example.com/download/StationSamplesCombined.csv",
+        "station_samples": "https://example.com/download/StationSamplesCombined.csv",
         "combined_Chlorophylla_IsWeighted": true
     }
 }'
@@ -76,7 +76,7 @@ class HEAT3Processor(BaseProcessor):
 
         # Retrieve user inputs:
         assessment_period = data.get('assessment_period').lower()
-        samples_url = data.get('samples')
+        samples_url = data.get('station_samples')
         combined_Chlorophylla_IsWeighted = data.get('combined_Chlorophylla_IsWeighted')
         LOGGER.debug('Chlorophyll flag: %s %s' % (combined_Chlorophylla_IsWeighted, type(combined_Chlorophylla_IsWeighted)))
 

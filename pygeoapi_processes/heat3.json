@@ -39,7 +39,7 @@
             "metadata": null,
             "keywords": ["HOLAS"]
         },
-        "samples": {
+        "station_samples": {
             "title": "Station samples (combined)",
             "description": "Merged sample data of BOT, PMP and CTD data for indicator calculation (StationSamples.csv).",
             "schema": {"type": "string"},
@@ -72,7 +72,7 @@
         "inputs": {
             "assessment_period": "HOLAS-2",
             "combined_Chlorophylla_IsWeighted": true,
-            "samples": "https://testserver.com/StationSamples.csv"
+            "station_samples": "https://testserver.com/StationSamples.csv"
         }
     }
 }
