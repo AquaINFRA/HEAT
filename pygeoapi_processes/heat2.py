@@ -101,7 +101,7 @@ class HEAT2Processor(BaseProcessor):
         ##############
 
         # Retrieve user inputs:
-        assessment_period = data.get('assessment_period').lower()
+        assessment_period = data.get('assessment_period')
         bot_url = data.get('bottle_data', None)
         ctd_url = data.get('ctd_data', None)
         pmp_url = data.get('pump_data', None)
@@ -112,6 +112,7 @@ class HEAT2Processor(BaseProcessor):
 
         # Check validity of argument:
         valid_assessment_periods = ["holas-2", "holas-3", "other"]
+        assessment_period = assessment_period.lower()
         if not assessment_period in valid_assessment_periods:
             raise ValueError('assessment_period is "%s", must be one of: %s' % (assessment_period, valid_assessment_periods))
 
