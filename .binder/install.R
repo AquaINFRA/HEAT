@@ -5,7 +5,8 @@ required_packages_versions <- list(
   "sf" = "1.0-20",
   "data.table" = "1.17.0",
   "tidyverse" = "2.0.0",
-  "readxl" = "1.4.5"
+  "readxl" = "1.4.5",
+  "R.utils" = "2.13.0"
 )
 
 if (!requireNamespace("remotes", quietly = TRUE)) {
@@ -21,7 +22,7 @@ install_if_missing <- function(pkg, version) {
 
 # Logging:
 num = length(required_packages_versions)
-list_dep = paste(required_packages_versions, collapse="+")
+list_dep = paste(names(required_packages_versions), collapse=" + ")
 print(paste0("install.R: Install ", num, " dependencies: ", list_dep, "..."))
 
 # Run the installs:
