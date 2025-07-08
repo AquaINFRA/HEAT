@@ -22,6 +22,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libharfbuzz-dev \
     libfribidi-dev \
     libfreetype6-dev \
+    libprotobuf-dev \
+    protobuf-compiler \
+    make \
+    g++ \
+    cmake \
     gdal-bin \
     pandoc \
     && apt-get clean \
@@ -30,9 +35,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install R dependencies:
 COPY /.binder/install.R /src/install.R
 RUN Rscript /src/install.R
-
-# Reinstall that package that somehow didnt make it...
-RUN R -e "install.packages('sf')"
 
 # Copy the scripts to be called by the OGC processes:
 COPY R /R
