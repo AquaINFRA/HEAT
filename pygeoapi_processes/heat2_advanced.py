@@ -97,12 +97,6 @@ class HEAT2Processor(BaseProcessor):
         if pmp_url is None:
             raise ProcessorExecuteError('Missing parameter "pump_data". Please provide URL.')
 
-        #######################
-        ### NOT IMPLEMENTED ###
-        #######################
-
-        #raise NotImplementedError("This is not implemented yet.")
-        # This could actually work!
 
         ##################
         ### Input data ###
