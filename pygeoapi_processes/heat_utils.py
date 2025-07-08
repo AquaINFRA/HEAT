@@ -1,6 +1,7 @@
 import requests
 import zipfile
 import os
+import json
 from urllib.parse import urlparse
 import logging
 LOGGER = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ def download_file(data_url, download_dir, filename):
 
     LOGGER.debug('Downloading file: %s from %s' % (filename, data_url))
 
-    if not data_url.startswith('http://') or data_url.startswith('https://'):
+    if not (data_url.startswith('http://') or data_url.startswith('https://')):
         err_msg = "Cannot download. URL lacks http/https: %s" % data_url
         LOGGER.error(err_msg)
         raise ValueError(err_msg)
