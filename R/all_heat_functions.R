@@ -850,6 +850,12 @@ compute_assessment <- function(wk5, indicators, indicatorUnits, verbose=TRUE) {
 
     wk9 <- wk7[wk8, on = .(UnitID = UnitID), nomatch=0]
 
+    # Checking for columns (EQRS_1 has been missing previously...)
+    if (!("EQRS" %in% colnames(wk9))) stop("Missing column EQRS (during compute_assessment())")
+    if (!("EQRS_1" %in% colnames(wk9))) stop("Missing column EQRS_1 (during compute_assessment())")
+    if (!("EQRS_2" %in% colnames(wk9))) stop("Missing column EQRS_2 (during compute_assessment())")
+    if (!("EQRS_3" %in% colnames(wk9))) stop("Missing column EQRS_3 (during compute_assessment())")
+
     # Assign Status and Confidence Classes
     wk9[, EQRS_Class   := ifelse(EQRS >= 0.8, "High",
                           ifelse(EQRS >= 0.6, "Good",
