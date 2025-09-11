@@ -19,3 +19,6 @@ OxygenDebt/Output/*
 testoutputs
 Rplots.pdf
 adapted_inputs
+
+# only when run via pygeoapi:
+pygeoapi_processes/__pycache__
