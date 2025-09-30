@@ -4,7 +4,7 @@
     "use_case": "HELCOM HEAT",
     "title": {"en": "Assessing Eutrophication: Combine the samples"},
     "description": {
-        "en": "Combine the various types of samples to be used for the eutrophication assessment using HELCOM's HEAT assessment tool. Please provide input data for at least one of the three sample types (bottle, pump/ferrybox, CTD). Of course you can also provide all three types. TODO: Should several files per type be allowed? Should we provide any defaults at all? This tool extends the second part of the original HEAT assessment computation script."
+        "en": "Combine the various types of samples to be used for the eutrophication assessment using HELCOM's HEAT assessment tool. Please provide input data for at least one of the three sample types (bottle, pump/ferrybox, CTD). Of course you can also provide all three types. This tool extends the second part of the original HEAT assessment computation script."
     },
     "jobControlOptions": ["sync-execute", "async-execute"],
     "keywords": ["HELCOM", "HEAT"],
@@ -25,7 +25,7 @@
     "inputs": {
         "units_gridded": {
             "title": "Gridded assessment units",
-            "description": "Grid to be used for filtering the samples. Has to be in CRS ETRS89-extended / LAEA Europe (EPSG3035. Please provide a URL to the layer as a shapefile (TODO: Or possibly other formats).",
+            "description": "Grid to be used for filtering the samples. Has to be in CRS ETRS89-extended / LAEA Europe (EPSG3035. Please provide a URL to the layer as a shapefile.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"

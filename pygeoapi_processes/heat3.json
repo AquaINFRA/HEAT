@@ -4,7 +4,7 @@
     "use_case": "HELCOM HEAT HOLAS",
     "title": {"en": "Reproducing HEAT HOLAS results: Compute Annual Indicators"},
     "description": {
-        "en": "Compute the Annual Indicators (i.e. the calculated HEAT EQRS per indicator per year per assessment unit) using HELCOM's HEAT assessment code, for a selected HOLAS assessment period. For every assessment period, the configation and the spatial grid are predefined but you can specify how Chlorophyll-A is handled. Please provide a file containing combined and filtered samples (CTD, bottle and pump/ferrybox combined in one file) and please make sure the data you provide matches the selected period (assessment period). (TODO: How does the tool deal with non-matching time periods? E.g. choose HOLAS 2 but provide data for different time period? How should we deal with this? Should we prevent this? If yes, how?). This tool represents the third part of the original HEAT assessment computation script."
+        "en": "Compute the Annual Indicators (i.e. the calculated HEAT EQRS per indicator per year per assessment unit) using HELCOM's HEAT assessment code, for a selected HOLAS assessment period. For every assessment period, the configation and the spatial grid are predefined but you can specify how Chlorophyll-A is handled. Please provide a file containing combined and filtered samples (CTD, bottle and pump/ferrybox combined in one file) and please make sure the data you provide matches the selected period (assessment period). This tool represents the third part of the original HEAT assessment computation script."
     },
     "jobControlOptions": ["sync-execute", "async-execute"],
     "keywords": ["HELCOM", "HEAT", "HOLAS"],

@@ -50,7 +50,9 @@ def download_file(data_url, download_dir, filename):
     if not parsed_url.hostname in allowed_download_hosts:
         LOGGER.debug('Not in whitelist: %s' % parsed_url.hostname)
         stripped_subdomains = '.'.join(parsed_url.hostname.split(".")[-2:])
-        if not stripped_subdomains in allowed_download_hosts:
+        if stripped_subdomains in allowed_download_hosts:
+            LOGGER.debug('Is in whitelist:  %s' % stripped_subdomains)
+        else:
             LOGGER.debug('Not in whitelist: %s' % stripped_subdomains)
             err_msg = "Currently not allowed: Downloading from %s. Host not in whitelist." % parsed_url.hostname
             LOGGER.error(err_msg)
