@@ -9,7 +9,7 @@ import pandas as pd
 import geopandas as gpd
 import shapely.geometry
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
-from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
+from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import zip_a_shapefile
 
@@ -132,44 +132,53 @@ class HEAT2Processor(BaseProcessor):
         ### Input data ###
         ##################
 
+        # Where to store input data:
+        input_dir = f'{self.download_dir}/in/{self.metadata["id"]}_job_{self.job_id}'
+        os.makedirs(input_dir, exist_ok=True)
+
         # Directory where static input data can be found. It will be mounted read-only to the container:
-        path_input_data = self.inputs_read_only
+        readonly_dir = self.inputs_read_only
 
         ## If user provided input shapes, use them, else use pre-computed input shapes (they are always the same anyway):
         if unitsGriddedFileUrl == "default":
-            in_unitsGriddedFilePath = get_path_gridded_units(assessment_period, path_input_data)
+            in_unitsGriddedFilePath = get_path_gridded_units(assessment_period, readonly_dir)
         else:
             ## TODO Maybe steal this from advanced.
             LOGGER.info('Client provided gridded spatial units: %s' % unitsGriddedFileUrl)
             # TODO: Ideally, the download should not happen here (in the process python file), but
             # inside the docker container.
             filename = unitsGriddedFileUrl.split('/')[-1]
-            in_unitsGriddedFilePath = download_zipped_data(unitsGriddedFileUrl, self.download_dir+'/out/', filename, suffix="shp")
-            # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-            # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
+            in_unitsGriddedFilePath = download_zipped_data(unitsGriddedFileUrl, input_dir, filename, suffix="shp")
 
         # Download input data, or provide path to default, or None
         # (Currently, downloading+unzipping is not allowed, because it is unsafe)
-        in_stationSamplesBOTFilePath = get_path_bottle_input_data(assessment_period, bot_url, path_input_data, self.download_dir)
-        in_stationSamplesCTDFilePath = get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, self.download_dir)
-        in_stationSamplesPMPFilePath = get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, self.download_dir)
+        in_stationSamplesBOTFilePath = get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, input_dir)
+        in_stationSamplesCTDFilePath = get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, input_dir)
+        in_stationSamplesPMPFilePath = get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, input_dir)
 
 
         ###############
         ### Outputs ###
         ###############
 
+        # Where to store output data WIP
+        output_dir = f'{self.download_dir}/out/{self.metadata["id"]}_job_{self.job_id}'
+        output_url = f'{self.download_url}/out/{self.metadata["id"]}_job_{self.job_id}'
+        os.makedirs(output_dir, exist_ok=True)
+        LOGGER.debug(f'All results will be stored     in: {output_dir}')
+        LOGGER.debug(f'All results will be accessible in: {output_url}')
+
         # Where to store output data
-        out_stationSamplesTableCSVFilePath = self.download_dir+'/out/StationSamples-%s.csv' % self.job_id
-        out_stationSamplesBOTFilePath      = self.download_dir+"/out/StationSamplesBOT-%s.csv" % self.job_id
-        out_stationSamplesCTDFilePath      = self.download_dir+"/out/StationSamplesCTD-%s.csv" % self.job_id
-        out_stationSamplesPMPFilePath      = self.download_dir+"/out/StationSamplesPMP-%s.csv" % self.job_id
+        out_stationSamplesTableCSVFilePath = f'{output_dir}/StationSamples-{self.job_id}.csv'
+        out_stationSamplesBOTFilePath      = f'{output_dir}/StationSamplesBOT-{self.job_id}.csv'
+        out_stationSamplesCTDFilePath      = f'{output_dir}/StationSamplesCTD-{self.job_id}.csv'
+        out_stationSamplesPMPFilePath      = f'{output_dir}/StationSamplesPMP-{self.job_id}.csv'
 
         # Where to access output data
-        out_stationSamplesTableCSV_url = self.download_url+'/out/StationSamples-%s.csv' % self.job_id
-        out_stationSamplesBOT_url      = self.download_url+"/out/StationSamplesBOT-%s.csv" % self.job_id
-        out_stationSamplesCTD_url      = self.download_url+"/out/StationSamplesCTD-%s.csv" % self.job_id
-        out_stationSamplesPMP_url      = self.download_url+"/out/StationSamplesPMP-%s.csv" % self.job_id
+        out_stationSamplesTableCSV_url = out_stationSamplesTableCSVFilePath.replace(self.download_dir, self.download_url)
+        out_stationSamplesBOT_url      = out_stationSamplesBOTFilePath.replace(self.download_dir, self.download_url)
+        out_stationSamplesCTD_url      = out_stationSamplesCTDFilePath.replace(self.download_dir, self.download_url)
+        out_stationSamplesPMP_url      = out_stationSamplesPMPFilePath.replace(self.download_dir, self.download_url)
 
 
         ###########
@@ -188,15 +197,16 @@ class HEAT2Processor(BaseProcessor):
             out_stationSamplesPMPFilePath,
             out_stationSamplesTableCSVFilePath
         ]
-        returncode, stdout, stderr, user_err_msg = run_docker_container(
+        returncode, stdout, stderr, user_err_msg = run_docker_container2(
             self.docker_executable,
             self.image_name,
             script_name,
-            self.job_id,
-            self.download_dir,
-            self.inputs_read_only,
+            input_dir,
+            output_dir,
+            readonly_dir,
             r_args
         )
+
         # Results:
         # * StationSamples
         # * StationSamplesBOT.csv
