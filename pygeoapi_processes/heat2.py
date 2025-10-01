@@ -23,7 +23,8 @@ curl -X POST 'http://localhost:5000/processes/heat2/execution' \
         "assessment_period": "holas-2",
         "bottle_data": "default",
         "pump_data": "default",
-        "ctd_data": "default"
+        "ctd_data": "default",
+        "units_gridded": "default"
     }
 }'
 
@@ -102,6 +103,7 @@ class HEAT2Processor(BaseProcessor):
 
         # Retrieve user inputs:
         assessment_period = data.get('assessment_period')
+        unitsGriddedFileUrl = data.get('units_gridded', None)
         bot_url = data.get('bottle_data', None)
         ctd_url = data.get('ctd_data', None)
         pmp_url = data.get('pump_data', None)
@@ -132,8 +134,18 @@ class HEAT2Processor(BaseProcessor):
         # Directory where static input data can be found. It will be mounted read-only to the container:
         path_input_data = self.inputs_read_only
 
-        ## Use pre-computed input shapes, as they are always the same anyway:
-        in_unitsGriddedFilePath = get_path_gridded_units(assessment_period, path_input_data)
+        ## If user provided input shapes, use them, else use pre-computed input shapes (they are always the same anyway):
+        if unitsGriddedFileUrl == "default":
+            in_unitsGriddedFilePath = get_path_gridded_units(assessment_period, path_input_data)
+        else:
+            ## TODO Maybe steal this from advanced.
+            LOGGER.info('Client provided gridded spatial units: %s' % unitsGriddedFileUrl)
+            # TODO: Ideally, the download should not happen here (in the process python file), but
+            # inside the docker container.
+            filename = unitsGriddedFileUrl.split('/')[-1]
+            in_unitsGriddedFilePath = download_zipped_data(unitsGriddedFileUrl, self.download_dir+'/out/', filename, suffix="shp")
+            # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
+            # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
 
         # Download input data, or provide path to default, or None
         # (Currently, downloading+unzipping is not allowed, because it is unsafe)
