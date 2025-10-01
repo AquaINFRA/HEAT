@@ -102,3 +102,31 @@ def download_zipped_data(data_url, download_dir, filename, suffix="csv"):
         LOGGER.error(err_msg)
         raise ProcessorExecuteError(err_msg)
 
+
+
+
+def zip_a_shapefile(full_path):
+
+    shapefile_extensions = [".shp", ".shx", ".dbf", ".prj", ".cpg"]
+
+    # If we know dir and filename separately:
+    #basename = filename.replace('shp', '')
+
+    # If we know the path of the shapefile:
+    containing_dir = os.path.dirname(full_path)
+    basename_with_ext = os.path.basename(full_path)
+    basename = os.path.splitext(basename_with_ext)[0]
+
+    # Path to the zip file to create
+    zip_path = os.path.join(containing_dir, f"{basename}.zip")
+
+    # Create the zip file
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        for ext in shapefile_extensions:
+            file_path = os.path.join(containing_dir, f"{basename}{ext}")
+            if os.path.exists(file_path):
+                zipf.write(file_path, arcname=os.path.basename(file_path))
+
+    LOGGER.debug(f"Zipped shapefile written to: {zip_path}")
+    return zip_path
+

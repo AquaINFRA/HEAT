@@ -11,6 +11,7 @@ import shapely.geometry
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import zip_a_shapefile
 
 
 
@@ -232,6 +233,32 @@ class HEAT2Processor(BaseProcessor):
         # Return a link to the viewer:
         viewer_url = self.download_url.replace('/download', '')+"/viewer.html?filebase=StationSamples&job_id=" + self.job_id
 
+        # Return link to gridded units:
+        if unitsGriddedFileUrl == "default":
+            if self.download_dir in in_unitsGriddedFilePath:
+                LOGGER.debug('Gridded units: Located in downloadable directory...')
+                gridded_url = in_unitsGriddedFilePath.replace(self.download_dir, self.download_url)
+                if in_unitsGriddedFilePath.endswith('shp'):
+                    LOGGER.debug('Gridded units: Is shapefile. Check if zipped...')
+                    if os.path.isfile(in_unitsGriddedFilePath.replace('shp', 'zip')):
+                        LOGGER.debug('Gridded units: Is shapefile. Yes, is zipped...')
+                        gridded_url = gridded_url.replace('shp', 'zip')
+                    else:
+                        LOGGER.debug('Gridded units: Is shapefile. Zipping...')
+                        zip_path = zip_a_shapefile(in_unitsGriddedFilePath)
+                        gridded_url = gridded_url.replace('shp', 'zip')
+                LOGGER.debug(f'Gridded units: Will access default file here: {gridded_url}...')
+            else:
+                LOGGER.debug('Gridded units: Not located in downloadable directory, will not provide url...')
+                gridded_url = None
+                # TODO (maybe one day): Currently not needed, as the files sit in a directory which is below
+                # /var/www/nginx. If we ever need this, we'd need to zip and copy the shapefile to download dir.
+                # That's slow, so possibly, we could check if it already exist and compare md5sums or so.
+
+        else:
+            LOGGER.debug('Gridded units: Returning URL that the user provided...')
+            gridded_url = unitsGriddedFileUrl
+
 
         ######################
         ### Return results ###
@@ -268,7 +295,7 @@ class HEAT2Processor(BaseProcessor):
                 "units_gridded": {
                     "title": PROCESS_METADATA['outputs']['units_gridded']['title'],
                     "description": PROCESS_METADATA['outputs']['units_gridded']['description'],
-                    "href": None
+                    "href": gridded_url
                 }
             }
         }
