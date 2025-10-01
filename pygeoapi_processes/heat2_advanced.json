@@ -42,7 +42,7 @@
         },
         "ctd_data": {
             "title": "Input samples (CTD)",
-            "description": " CTD depth profiles, relevant for oxygen debt indicator (StationSamplesCTD.csv). ICES Oceanographic data type 'CTD'. Ideally downloaded from the ICES portal. Omit this parameter if you do not want to include CTD data. Please provide a URL to the table as a CSV file.",
+            "description": "CTD depth profiles, relevant for oxygen debt indicator (StationSamplesCTD.csv). ICES Oceanographic data type 'CTD'. Ideally downloaded from the ICES portal. Omit this parameter if you do not want to include CTD data. Please provide a URL to the table as a CSV file.",
             "schema": { "type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,

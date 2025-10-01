@@ -25,7 +25,7 @@
     "inputs": {
         "spatial_units": {
             "title": "Spatial Units",
-            "description": "Please provide the spatial units you would like to grid, as vector data/polygons. Each unit must have a UnitID. Please provide a URL to the layer as a shapefile, or possibly other vector formats such as GeoJSON or gpkg, if implemented. I think this file needs to have an attribute UnitArea containing the area of that unit. In which unit, hectares, square kilometres?",
+            "description": "Please provide the spatial units you would like to grid, as vector data/polygons. Each unit must have a UnitID. Please provide a URL to the layer as a shapefile, or possibly other vector formats such as GeoJSON or gpkg, if implemented.",
             "schema": {
                 "type": "string"
             },
@@ -36,7 +36,7 @@
         },
         "grid_size_table": {
             "title": "Table of Grid Sizes",
-            "description": "Table with a grid cell size (GridSize) for each UnitID present in the input layer, to compute grid cells of the specified size. I assume the different grid sizes must be multiples of each other for this to work. For example, 30000, 60000 and 90000 are originally used by HELCOM for the HOLAS assessment. In which unit, metres I assume? Please provide a URL to the table as a CSV file.",
+            "description": "Table with a grid cell size (GridSize) for each UnitID present in the input layer, to compute grid cells of the specified size. For example, 30000, 60000 and 90000 are originally used by HELCOM for the HOLAS assessment. Please provide a URL to the table as a CSV file.",
             "schema": {
                 "type": "string"
             },

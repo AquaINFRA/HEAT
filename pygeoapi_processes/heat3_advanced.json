@@ -33,7 +33,7 @@
         },
         "combined_Chlorophylla_IsWeighted": {
             "title": "Chlorophyll A Weighted?",
-            "description": "If true, script calculates combined chlorophyll a indicator results per assessment unit as a weighted average from BOT, PMP and EO. If false, then simple average.",
+            "description": "If true, the script calculates combined chlorophyll A indicator results per assessment unit as a weighted average from BOT, PMP and EO. If false, then simple average.",
             "schema": {"type": "bool"},
             "minOccurs": 1,
             "maxOccurs": 1,
@@ -42,7 +42,7 @@
         },
         "table_indicators": {
             "title": "Table of Indicators",
-            "description": "A table listing the indicators. Needs the following column names: IndicatorID; CriteriaID; Name; Code; Parameters; Units; YearMin; YearMax; MonthMin; MonthMax; DepthMin; DepthMax; Metric; Response; Applied; Comments; GTC_HM; GTC_ML; STC_HM; STC_ML; SSC_HM; SSC_ML. Please ask HELCOM for details. Please provide a URL to the table as a CSV file. QUESTION: Should we provide defaults? If so, which ones - HEAT has different ones for each HOLAS period.",
+            "description": "A table listing the indicators. Needs the following column names: IndicatorID; CriteriaID; Name; Code; Parameters; Units; YearMin; YearMax; MonthMin; MonthMax; DepthMin; DepthMax; Metric; Response; Applied; Comments; GTC_HM; GTC_ML; STC_HM; STC_ML; SSC_HM; SSC_ML (please ask HELCOM for details). Please provide a URL to the table as a CSV file.",
             "schema": {"type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,
@@ -51,7 +51,7 @@
         },
         "table_indicator_units": {
             "title": "Table of Indicator Units",
-            "description": "A table listing something about the indicators. Needs the following column names: IndicatorID; UnitID; ET; ACDEV; EQR_HG; EQR_GM; EQR_MP; EQR_PB; IW. Please ask HELCOM for details. Please provide a URL to the table as a CSV file. QUESTION: Should we provide defaults? If so, which ones - HEAT has different ones for each HOLAS period.",
+            "description": "A table listing something about the indicators. Needs the following column names: IndicatorID; UnitID; ET; ACDEV; EQR_HG; EQR_GM; EQR_MP; EQR_PB; IW. Please ask HELCOM for details. Please provide a URL to the table as a CSV file.",
             "schema": {"type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,
@@ -59,7 +59,7 @@
             "keywords": []
         },
         "table_indicator_unit_results": {
-            "description": "A table listing something about the indicators. Needs the following column names: IndicatorID; UnitID; Period; ES; SD; N; NM; EQR; EQRS; GTC; STC; SSC. Please ask HELCOM for details. Please provide a URL to the table as a CSV file. QUESTION: Should we provide defaults? If so, which ones - HEAT has different ones for each HOLAS period.",
+            "description": "A table listing something about the indicators. Needs the following column names: IndicatorID; UnitID; Period; ES; SD; N; NM; EQR; EQRS; GTC; STC; SSC. Please ask HELCOM for details. Please provide a URL to the table as a CSV file.",
             "schema": {"type": "string"},
             "minOccurs": 0,
             "maxOccurs": 1,
@@ -68,7 +68,7 @@
         },
         "spatial_units": {
             "title": "units_cleaned.shp",
-            "description": "Non-Gridded spatial units, as a shapefile, used for this process. Please provide a URL to the layer as a shapefile or possible other formats.",
+            "description": "Non-Gridded spatial units, as a shapefile, used for this process. Please provide a URL to the layer as a shapefile or possible other format.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"
