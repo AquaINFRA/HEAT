@@ -350,7 +350,7 @@ def get_path_default_ctd_data(assessment_period, path_input_data):
     return ctd_path
 
 
-def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, download_dir):
+def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, target_dir):
 
     if bot_url is None:
         # If the user passed nothing or "null", no bottle data is used!
@@ -368,7 +368,7 @@ def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, down
         # TODO: Ideally, the download should not happen here (in the process python file), but
         # inside the docker container.
         filename = bot_url.split('/')[-1]
-        bot_path = download_zipped_data(bot_url, download_dir+'/out/', filename, suffix="csv")
+        bot_path = download_zipped_data(bot_url, target_dir, filename, suffix="csv")
         # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
         # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
         return bot_path
@@ -379,7 +379,7 @@ def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, down
         raise ProcessorExecuteError(err_msg)
 
 
-def get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, download_dir):
+def get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, target_dir):
 
     if pmp_url is None:
         # If the user passed nothing or "null", no pump data is used!
@@ -397,7 +397,7 @@ def get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, downloa
         # TODO: Ideally, the download should not happen here (in the process python file), but
         # inside the docker container.
         filename = pmp_url.split('/')[-1]
-        pmp_path = download_zipped_data(pmp_url, download_dir+'/out/', filename, suffix="csv")
+        pmp_path = download_zipped_data(pmp_url, target_dir, filename, suffix="csv")
         # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
         # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
         return pmp_path
@@ -408,7 +408,7 @@ def get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, downloa
         raise ProcessorExecuteError(err_msg)
 
 
-def get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, download_dir):
+def get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, target_dir):
 
     if ctd_url is None:
         # If the user passed nothing or "null", no pump data is used!
@@ -426,7 +426,7 @@ def get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, downloa
         # TODO: Ideally, the download should not happen here (in the process python file), but
         # inside the docker container.
         filename = ctd_url.split('/')[-1]
-        ctd_path = download_zipped_data(ctd_url, download_dir+'/out/', filename, suffix="csv")
+        ctd_path = download_zipped_data(ctd_url, target_dir, filename, suffix="csv")
         # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
         # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
         return ctd_path
