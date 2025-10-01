@@ -68,7 +68,7 @@
         },
         "spatial_units": {
             "title": "units_cleaned.shp",
-            "description": "Non-Gridded spatial units, as a shapefile, used for this process. Please provide a URL to the layer as a shapefile or possible other format.",
+            "description": "Non-Gridded spatial units, as a shapefile, used for this process. Please provide a URL to the layer as a zipped shapefile.",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"
