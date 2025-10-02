@@ -8,6 +8,7 @@ import traceback
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_path
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
 
 
 '''
@@ -79,6 +80,7 @@ class HEAT3Processor(BaseProcessor):
         assessment_period = data.get('assessment_period').lower()
         samples_url = data.get('station_samples')
         combined_Chlorophylla_IsWeighted = data.get('combined_Chlorophylla_IsWeighted')
+        unitsCleanedFileUrl = data.get('units_cleaned', None)
         LOGGER.debug('Chlorophyll flag: %s %s' % (combined_Chlorophylla_IsWeighted, type(combined_Chlorophylla_IsWeighted)))
 
         # Check user inputs:
@@ -88,6 +90,8 @@ class HEAT3Processor(BaseProcessor):
             raise ProcessorExecuteError('Missing parameter "samples". Please provide a URL to your input data.')
         if combined_Chlorophylla_IsWeighted is None:
             raise ProcessorExecuteError('Missing parameter "combined_Chlorophylla_IsWeighted". Please provide an boolean.')
+        if unitsCleanedFileUrl is None:
+            raise ProcessorExecuteError('Missing parameter "units_cleaned". Please provide a URL to your cleaned spatial units, or write "default.')
 
         # Check validity of argument:
         valid_assessment_periods = ["holas-2", "holas-3", "other"]
@@ -116,6 +120,17 @@ class HEAT3Processor(BaseProcessor):
 
         ## Use pre-computed input shapes, as they are always the same anyway:
         in_unitsCleanedFilePath = get_path_cleaned_units(assessment_period, readonly_dir)
+
+        ## If user provided input shapes, use them, else use pre-computed input shapes (they are always the same anyway):
+        if unitsCleanedFileUrl == "default":
+            in_unitsCleanedFilePath = get_path_cleaned_units(assessment_period, readonly_dir)
+        else:
+            ## TODO Maybe steal this from advanced.
+            LOGGER.info('Client provided claned spatial units: %s' % unitsCleanedFileUrl)
+            # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+            # yet, so temporarily, I will download this in this python process file.
+            filename = unitsCleanedFileUrl.split('/')[-1]
+            in_unitsCleanedFilePath = download_zipped_data(unitsCleanedFileUrl, input_dir, filename, suffix="shp")
 
         # Define paths to static input paths depending on assessment_period
         in_configIndicatorsFilePath = get_config_file_path('Indicators', assessment_period, readonly_dir)
@@ -172,7 +187,6 @@ class HEAT3Processor(BaseProcessor):
             r_args
         )
 
-
         # Result:
         # * AnnualIndicators.csv
 
@@ -208,5 +222,4 @@ def get_path_cleaned_units(assessment_period, readonly_dir):
         return readonly_dir+"/adapted_inputs/2011-2016/units_cleaned.shp"
     elif assessment_period == "2016-2021":
         return readonly_dir+"/adapted_inputs/2016-2021/units_cleaned.shp"
-
 

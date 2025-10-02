@@ -51,7 +51,7 @@
         },
         "units_cleaned": {
             "title": "Non-gridded assessment units",
-            "description": "Non-gridded Assessment units which were cleaned, slightly adapted (e.g. some stations added manually), and extended (e.g. with the units's area and a UnitID). This will not be used further on and is rather a by-product, an intermediate step before gridding the data.",
+            "description": "Non-gridded Assessment units which were cleaned, slightly adapted (e.g. some stations added manually), and extended (e.g. with the units's area and a UnitID).",
             "schema": {
                 "type": "object",
                 "contentMediaType": "application/shp"
