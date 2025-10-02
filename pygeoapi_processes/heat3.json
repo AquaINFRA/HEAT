@@ -51,7 +51,7 @@
         "combined_Chlorophylla_IsWeighted": {
             "title": "Chlorophyll A Weighted?",
             "description": "If true, script calculates combined chlorophyll a indicator results per assessment unit as a weighted average from BOT, PMP and EO. If false, then simple average.",
-            "schema": {"type": "bool"},
+            "schema": {"type": "boolean"},
             "minOccurs": 1,
             "maxOccurs": 1,
             "metadata": null, 
