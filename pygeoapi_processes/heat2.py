@@ -133,11 +133,11 @@ class HEAT2Processor(BaseProcessor):
         ### Input data ###
         ##################
 
-        # Where to store input data:
+        # Where to store input data (will be mounted read-write into container):
         input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
         os.makedirs(input_dir, exist_ok=True)
 
-        # Directory where static input data can be found. It will be mounted read-only to the container:
+        # Directory where static input data can be found (will be mounted readonly into container):
         readonly_dir = self.inputs_read_only
 
         ## If user provided input shapes, use them, else use pre-computed input shapes (they are always the same anyway):
@@ -146,13 +146,14 @@ class HEAT2Processor(BaseProcessor):
         else:
             ## TODO Maybe steal this from advanced.
             LOGGER.info('Client provided gridded spatial units: %s' % unitsGriddedFileUrl)
-            # TODO: Ideally, the download should not happen here (in the process python file), but
-            # inside the docker container.
+            # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+            # yet, so temporarily, I will download this in this python process file.
             filename = unitsGriddedFileUrl.split('/')[-1]
             in_unitsGriddedFilePath = download_zipped_data(unitsGriddedFileUrl, input_dir, filename, suffix="shp")
 
         # Download input data, or provide path to default, or None
-        # (Currently, downloading+unzipping is not allowed, because it is unsafe)
+        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+        # yet, so temporarily, I will download this in this python process file.
         in_stationSamplesBOTFilePath = get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, input_dir)
         in_stationSamplesCTDFilePath = get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, input_dir)
         in_stationSamplesPMPFilePath = get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, input_dir)
@@ -162,7 +163,7 @@ class HEAT2Processor(BaseProcessor):
         ### Outputs ###
         ###############
 
-        # Where to store output data WIP
+        # Where to store output data
         output_dir = f'{self.download_dir}/out/{self.process_id}_job_{self.job_id}'
         output_url = f'{self.download_url}/out/{self.process_id}_job_{self.job_id}'
         os.makedirs(output_dir, exist_ok=True)
@@ -242,8 +243,9 @@ class HEAT2Processor(BaseProcessor):
         geojson_url = out_stationSamplesTableCSV_url.replace("csv", "json")
 
         # Return a link to the viewer:
+        filename = 'StationSamples'
         viewer_url = self.download_url.replace('/download', '')
-        viewer_url += f'/viewer.html?filebase=StationSamples&job_id={self.job_id}&process_id={self.process_id}'
+        viewer_url += f'/viewer.html?filebase={filename}&job_id={self.job_id}&process_id={self.process_id}'
 
         # Return link to gridded units:
         if unitsGriddedFileUrl == "default":
@@ -314,55 +316,55 @@ class HEAT2Processor(BaseProcessor):
 
         return 'application/json', outputs
 
-def get_path_gridded_units(assessment_period, path_input_data):
+def get_path_gridded_units(assessment_period, readonly_dir):
 
     unitsGriddedFilePath = None
     if assessment_period == "1877-9999":
-        unitsGriddedFilePath = path_input_data+"/adapted_inputs/1877-9999/units_gridded.shp"
+        unitsGriddedFilePath = readonly_dir+"/adapted_inputs/1877-9999/units_gridded.shp"
     elif assessment_period == "2011-2016":
-        unitsGriddedFilePath = path_input_data+"/adapted_inputs/2011-2016/units_gridded.shp"
+        unitsGriddedFilePath = readonly_dir+"/adapted_inputs/2011-2016/units_gridded.shp"
     elif assessment_period == "2016-2021":
-        unitsGriddedFilePath = path_input_data+"/adapted_inputs/2016-2021/units_gridded.shp"
+        unitsGriddedFilePath = readonly_dir+"/adapted_inputs/2016-2021/units_gridded.shp"
     return unitsGriddedFilePath
 
 
-def get_path_default_bottle_data(assessment_period, path_input_data):
+def get_path_default_bottle_data(assessment_period, readonly_dir):
 
     bot_path = None
     if assessment_period == "1877-9999":
-        bot_path = path_input_data+"/original_inputs/1877-9999/StationSamples1877-9999BOT_2022-12-09.txt.gz"
+        bot_path = readonly_dir+"/original_inputs/1877-9999/StationSamples1877-9999BOT_2022-12-09.txt.gz"
     elif assessment_period == "2011-2016":
-        bot_path = path_input_data+"/original_inputs/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz"
+        bot_path = readonly_dir+"/original_inputs/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz"
     elif assessment_period == "2016-2021":
-        bot_path = path_input_data+"/original_inputs/2016-2021/StationSamples2016-2021BOT_2022-12-09.txt.gz"
+        bot_path = readonly_dir+"/original_inputs/2016-2021/StationSamples2016-2021BOT_2022-12-09.txt.gz"
     return bot_path
 
 
-def get_path_default_pmp_data(assessment_period, path_input_data):
+def get_path_default_pmp_data(assessment_period, readonly_dir):
 
     pmp_path = None
     if assessment_period == "1877-9999":
-        pmp_path = path_input_data+"/original_inputs/1877-9999/StationSamples1877-9999PMP_2022-12-09.txt.gz"
+        pmp_path = readonly_dir+"/original_inputs/1877-9999/StationSamples1877-9999PMP_2022-12-09.txt.gz"
     elif assessment_period == "2011-2016":
-        pmp_path = path_input_data+"/original_inputs/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz"
+        pmp_path = readonly_dir+"/original_inputs/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz"
     elif assessment_period == "2016-2021":
-        pmp_path = path_input_data+"/original_inputs/2016-2021/StationSamples2016-2021PMP_2022-12-09.txt.gz"
+        pmp_path = readonly_dir+"/original_inputs/2016-2021/StationSamples2016-2021PMP_2022-12-09.txt.gz"
     return pmp_path
 
 
-def get_path_default_ctd_data(assessment_period, path_input_data):
+def get_path_default_ctd_data(assessment_period, readonly_dir):
 
     ctd_path = None
     if assessment_period == "1877-9999":
-        ctd_path = path_input_data+"/original_inputs/1877-9999/StationSamples1877-9999CTD_2022-12-09.txt.gz"
+        ctd_path = readonly_dir+"/original_inputs/1877-9999/StationSamples1877-9999CTD_2022-12-09.txt.gz"
     elif assessment_period == "2011-2016":
-        ctd_path = path_input_data+"/original_inputs/2011-2016/StationSamples2011-2016CTD_2022-12-09.txt.gz"
+        ctd_path = readonly_dir+"/original_inputs/2011-2016/StationSamples2011-2016CTD_2022-12-09.txt.gz"
     elif assessment_period == "2016-2021":
-        ctd_path = path_input_data+"/original_inputs/2016-2021/StationSamples2016-2021CTD_2022-12-09.txt.gz"
+        ctd_path = readonly_dir+"/original_inputs/2016-2021/StationSamples2016-2021CTD_2022-12-09.txt.gz"
     return ctd_path
 
 
-def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, target_dir):
+def get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, target_dir):
 
     if bot_url is None:
         # If the user passed nothing or "null", no bottle data is used!
@@ -371,7 +373,7 @@ def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, targ
 
     elif bot_url is not None and bot_url.lower() == 'default':
         LOGGER.info('Client did not provide bottle data, using pre-stored ones...')
-        bot_path = get_path_default_bottle_data(assessment_period, path_input_data)
+        bot_path = get_path_default_bottle_data(assessment_period, readonly_dir)
         return bot_path
 
     elif bot_url is not None and bot_url.startswith('http'):
@@ -391,7 +393,7 @@ def get_path_bottle_input_data(assessment_period, bot_url, path_input_data, targ
         raise ProcessorExecuteError(err_msg)
 
 
-def get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, target_dir):
+def get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, target_dir):
 
     if pmp_url is None:
         # If the user passed nothing or "null", no pump data is used!
@@ -400,7 +402,7 @@ def get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, target_
 
     elif pmp_url.lower() == 'default':
         LOGGER.info('Client did not provide pump data, using pre-stored ones...')
-        pmp_path = get_path_default_pmp_data(assessment_period, path_input_data)
+        pmp_path = get_path_default_pmp_data(assessment_period, readonly_dir)
         return pmp_path
 
     elif pmp_url is not None and pmp_url.startswith('http'):
@@ -420,7 +422,7 @@ def get_path_pmp_input_data(assessment_period, pmp_url, path_input_data, target_
         raise ProcessorExecuteError(err_msg)
 
 
-def get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, target_dir):
+def get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, target_dir):
 
     if ctd_url is None:
         # If the user passed nothing or "null", no pump data is used!
@@ -429,7 +431,7 @@ def get_path_ctd_input_data(assessment_period, ctd_url, path_input_data, target_
 
     elif ctd_url.lower() == 'default':
         LOGGER.info('Client did not provide ctd data, using pre-stored ones...')
-        ctd_path = get_path_default_pmp_data(assessment_period, path_input_data)
+        ctd_path = get_path_default_pmp_data(assessment_period, readonly_dir)
         return ctd_path
 
     elif ctd_url is not None and ctd_url.startswith('http'):

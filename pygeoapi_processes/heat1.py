@@ -8,7 +8,7 @@ import glob
 import os
 import traceback
 import geopandas as gpd
-from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
+from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_path
 
 
@@ -46,6 +46,7 @@ class HEAT1Processor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
         self.job_id = None
+        self.process_id = self.metadata["id"]
 
         # Set config:
         config_file_path = os.environ.get('AQUAINFRA_CONFIG_FILE', "./config.json")
@@ -108,12 +109,18 @@ class HEAT1Processor(BaseProcessor):
         ### Input data ###
         ##################
 
+        # Where to store input data:
+        #input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
+        #os.makedirs(input_dir, exist_ok=True)
+        # Not needed, no input data is downloaded!
+        input_dir = None
+
         # Directory where static input data can be found. It will be mounted read-only to the container:
-        path_input_data = self.inputs_read_only
+        readonly_dir = self.inputs_read_only
 
         # Define paths to static input paths depending on assessment_period
-        in_unitsFilePath = get_unit_file_path(assessment_period, path_input_data)
-        in_unitGridSizePath = get_config_file_path('UnitGridSize', assessment_period, path_input_data)
+        in_unitsFilePath = get_unit_file_path(assessment_period, readonly_dir)
+        in_unitGridSizePath = get_config_file_path('UnitGridSize', assessment_period, readonly_dir)
 
 
         ###############
@@ -121,12 +128,19 @@ class HEAT1Processor(BaseProcessor):
         ###############
 
         # Where to store output data
-        out_units_gridded_filepath = self.download_dir+'/out/units_gridded-%s.shp' % self.job_id
-        out_units_cleaned_filepath = self.download_dir+'/out/units_cleaned-%s.shp' % self.job_id
+        output_dir = f'{self.download_dir}/out/{self.process_id}_job_{self.job_id}'
+        output_url = f'{self.download_url}/out/{self.process_id}_job_{self.job_id}'
+        os.makedirs(output_dir, exist_ok=True)
+        LOGGER.debug(f'All results will be stored     in: {output_dir}')
+        LOGGER.debug(f'All results will be accessible in: {output_url}')
+
+        # Where to store output data
+        out_units_gridded_filepath = f'{output_dir}/units_gridded-{self.job_id}.shp'
+        out_units_cleaned_filepath = f'{output_dir}/units_cleaned-{self.job_id}.shp'
 
         # Where to access output data
-        out_units_gridded_url      = self.download_url+'/out/units_gridded-%s.shp' % self.job_id
-        out_units_cleaned_url      = self.download_url+'/out/units_cleaned-%s.shp' % self.job_id
+        out_units_gridded_url = out_units_gridded_filepath.replace(self.download_dir, self.download_url)
+        out_units_cleaned_url = out_units_cleaned_filepath.replace(self.download_dir, self.download_url)
 
 
         ###########
@@ -136,15 +150,16 @@ class HEAT1Processor(BaseProcessor):
         # Actually call R script:
         script_name = 'run_heat1_csv.R'
         r_args = [assessment_period, in_unitsFilePath, in_unitGridSizePath, out_units_cleaned_filepath, out_units_gridded_filepath]
-        returncode, stdout, stderr, user_err_msg = run_docker_container(
+        returncode, stdout, stderr, user_err_msg = run_docker_container2(
             self.docker_executable,
             self.image_name,
             script_name,
-            self.job_id,
-            self.download_dir,
-            self.inputs_read_only,
+            input_dir,
+            output_dir,
+            readonly_dir,
             r_args
         )
+
         # The results are two shapefiles:
         # * units_cleaned.shp
         # * units_gridded.shp
@@ -218,7 +233,9 @@ class HEAT1Processor(BaseProcessor):
         geojson_url = out_units_gridded_url.replace("zip", "json")
 
         # Return a link to the viewer:
-        viewer_url = self.download_url.replace('/download', '')+"/viewer.html?filebase=units_gridded&job_id=" + self.job_id
+        filename = 'units_gridded'
+        viewer_url = self.download_url.replace('/download', '')
+        viewer_url += f'/viewer.html?filebase={filename}&job_id={self.job_id}&process_id={self.process_id}'
 
 
         ######################
