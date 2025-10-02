@@ -107,11 +107,11 @@ class HEAT3Processor(BaseProcessor):
         ### Input data ###
         ##################
 
-        # Where to store input data:
+        # Where to store input data (will be mounted read-write into container):
         input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
         os.makedirs(input_dir, exist_ok=True)
 
-        # Directory where static input data can be found. It will be mounted read-only to the container:
+        # Directory where static input data can be found (will be mounted readonly into container):
         readonly_dir = self.inputs_read_only
 
         ## Use pre-computed input shapes, as they are always the same anyway:
@@ -125,8 +125,8 @@ class HEAT3Processor(BaseProcessor):
         # Download station samples from user...
         filename_samples = 'samples-%s.csv' % self.job_id
         in_relevantStationSamplesPath = download_file(samples_url, input_dir, filename_samples)
-        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
+        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+        # yet, so temporarily, I will download this in this python process file.
 
 
         ###############

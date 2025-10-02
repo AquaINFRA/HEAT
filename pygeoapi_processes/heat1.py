@@ -109,13 +109,13 @@ class HEAT1Processor(BaseProcessor):
         ### Input data ###
         ##################
 
-        # Where to store input data:
+        # Where to store input data (will be mounted read-write into container):
         #input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
         #os.makedirs(input_dir, exist_ok=True)
         # Not needed, no input data is downloaded!
         input_dir = None
 
-        # Directory where static input data can be found. It will be mounted read-only to the container:
+        # Directory where static input data can be found (will be mounted readonly into container):
         readonly_dir = self.inputs_read_only
 
         # Define paths to static input paths depending on assessment_period
@@ -264,12 +264,12 @@ class HEAT1Processor(BaseProcessor):
         return 'application/json', outputs
 
 
-def get_unit_file_path(assessment_period, path_input_data):
+def get_unit_file_path(assessment_period, readonly_dir):
 
     if assessment_period == "1877-9999":
-        return path_input_data+"/original_inputs/1877-9999/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
+        return readonly_dir+"/original_inputs/1877-9999/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
     elif assessment_period == "2011-2016":
-        return path_input_data+"/original_inputs/2011-2016/AssessmentUnits.shp"
+        return readonly_dir+"/original_inputs/2011-2016/AssessmentUnits.shp"
     elif assessment_period == "2016-2021":
-        return path_input_data+"/original_inputs/2016-2021/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
+        return readonly_dir+"/original_inputs/2016-2021/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
 

@@ -102,17 +102,18 @@ class HEAT4Processor(BaseProcessor):
         ### Input data ###
         ##################
 
-        # Where to store input data:
+        # Where to store input data (will be mounted read-write into container):
         input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
         os.makedirs(input_dir, exist_ok=True)
 
-        # Directory where static input data can be found. It will be mounted read-only to the container:
+        # Directory where static input data can be found (will be mounted readonly into container):
         readonly_dir = self.inputs_read_only
 
         # Define paths to static input paths depending on assessment_period
         in_configIndicatorsFilePath = get_config_file_path('Indicators', assessment_period, readonly_dir)
         in_configIndicatorUnitsFilePath = get_config_file_path('IndicatorUnits', assessment_period, readonly_dir)
 
+        # Download input csv provided by user:
         filename_annual_indicators = 'annual_indicators-%s.csv' % self.job_id
         in_AnnualIndicatorPath = download_file(annual_indicators_csv_url, input_dir, filename_annual_indicators)
         # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
@@ -130,10 +131,10 @@ class HEAT4Processor(BaseProcessor):
         LOGGER.debug(f'All results will be stored     in: {output_dir}')
         LOGGER.debug(f'All results will be accessible in: {output_url}')
 
-        # Where to store output data
+        # Where to store output csv file
         out_assessment_indicators_filepath = f'{output_dir}/AssessmentIndicators-{self.job_id}.csv'
 
-        # Where to access output data
+        # Where to access output csv file
         out_assessment_indicators_url      = out_assessment_indicators_filepath.replace(self.download_dir, self.download_url)
 
 
@@ -159,7 +160,7 @@ class HEAT4Processor(BaseProcessor):
             r_args
         )
 
-        # There are no results, except for one CSV of the Assessment Indicator:
+        # Result:
         # * AssessmentIndicators.csv
 
         # Return R error message if exit code not 0:
