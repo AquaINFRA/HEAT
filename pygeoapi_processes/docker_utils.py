@@ -122,7 +122,10 @@ def run_docker_container2(
     sanitized_args = []
     for arg in script_args:
         newarg = arg
-        if host_in is not None and host_in in arg:
+        if isinstance(arg, bool):
+            newarg = "true" if arg else "false"
+            #LOGGER.debug(f'Arg: {arg}, type {type(arg)}, newarg {newarg}, type {type(newarg)}...)')
+        elif host_in is not None and host_in in arg:
             newarg = arg.replace(host_in, container_in)
             LOGGER.debug("Replaced argument %s by %s..." % (arg, newarg))
         elif host_out is not None and host_out in arg:
