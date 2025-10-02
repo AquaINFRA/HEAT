@@ -5,7 +5,7 @@ LOGGER = logging.getLogger(__name__)
 import json
 import os
 import traceback
-from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
+from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_path
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
 
@@ -37,6 +37,7 @@ class HEAT4Processor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
         self.job_id = None
+        self.process_id = self.metadata["id"]
 
         # Set config:
         config_file_path = os.environ.get('AQUAINFRA_CONFIG_FILE', "./config.json")
@@ -70,9 +71,6 @@ class HEAT4Processor(BaseProcessor):
 
     def _execute(self, data):
 
-        #raise NotImplementedError("This is not implemented yet.")
-        # This might already work!
-
         ##############
         ### Inputs ###
         ##############
@@ -95,25 +93,42 @@ class HEAT4Processor(BaseProcessor):
         ### Input data ###
         ##################
 
-        # Download config tables (instead of retrieving from static data)...
-        in_configIndicatorsFilePath = download_file(table_indicators_url, self.download_dir+'/out/', 'indicators-%s.csv' % self.job_id)
-        in_configIndicatorUnitsFilePath = download_file(table_indicator_units_url, self.download_dir+'/out/', 'indicatorunits-%s.csv' % self.job_id)
+        # Where to store input data (will be mounted read-write into container):
+        input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
+        os.makedirs(input_dir, exist_ok=True)
 
-        # Download station samples from user... (same as in HOLAS)
+        # Directory where static input data can be found (will be mounted readonly into container):
+        readonly_dir = self.inputs_read_only
+
+        # Download config tables (instead of retrieving from static data)...
+        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+        # yet, so temporarily, I will download this in this python process file.
+        in_configIndicatorsFilePath = download_file(table_indicators_url, input_dir, 'indicators-%s.csv' % self.job_id)
+        in_configIndicatorUnitsFilePath = download_file(table_indicator_units_url, input_dir, 'indicatorunits-%s.csv' % self.job_id)
+
+        # Download input csv provided by user: (same as in HOLAS)
         filename = 'annual_indicators-%s.csv' % self.job_id
-        in_AnnualIndicatorPath = download_file(annual_indicators_csv_url, self.download_dir+'/out/', filename)
-        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
+        in_AnnualIndicatorPath = download_file(annual_indicators_csv_url, input_dir, filename)
+        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+        # yet, so temporarily, I will download this in this python process file.
+
 
         ###############
         ### Outputs ###
         ###############
 
         # Where to store output data
-        out_assessment_indicators_filepath = self.download_dir+'/out/AssessmentIndicators-%s.csv' % self.job_id
+        output_dir = f'{self.download_dir}/out/{self.process_id}_job_{self.job_id}'
+        output_url = f'{self.download_url}/out/{self.process_id}_job_{self.job_id}'
+        os.makedirs(output_dir, exist_ok=True)
+        LOGGER.debug(f'All results will be stored     in: {output_dir}')
+        LOGGER.debug(f'All results will be accessible in: {output_url}')
+
+        # Where to store output data
+        out_assessment_indicators_filepath = f'{output_dir}/AssessmentIndicators-{self.job_id}.csv'
 
         # Where to access output data
-        out_assessment_indicators_url      = self.download_url+'/out/AssessmentIndicators-%s.csv' % self.job_id
+        out_assessment_indicators_url = out_assessment_indicators_filepath.replace(self.download_dir, self.download_url)
 
 
         ###########
@@ -128,13 +143,13 @@ class HEAT4Processor(BaseProcessor):
             in_configIndicatorUnitsFilePath,
             out_assessment_indicators_filepath,
         ]
-        returncode, stdout, stderr, user_err_msg = run_docker_container(
+        returncode, stdout, stderr, user_err_msg = run_docker_container2(
             self.docker_executable,
             self.image_name,
             script_name,
-            self.job_id,
-            self.download_dir,
-            self.inputs_read_only,
+            input_dir,
+            output_dir,
+            readonly_dir,
             r_args
         )
         # There are no results, except for one CSV of the Assessment Indicator:

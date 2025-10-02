@@ -8,7 +8,7 @@ import traceback
 import zipfile
 import glob
 import geopandas as gpd
-from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
+from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_path
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
@@ -39,6 +39,7 @@ class HEAT1Processor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
         self.job_id = None
+        self.process_id = self.metadata["id"]
 
         # Set config:
         config_file_path = os.environ.get('AQUAINFRA_CONFIG_FILE', "./config.json")
@@ -90,17 +91,22 @@ class HEAT1Processor(BaseProcessor):
         ### Input data ###
         ##################
 
-        # Directory where static input data can be found. It will be mounted read-only to the container:
-        path_input_data = self.inputs_read_only
+        # Where to store input data (will be mounted read-write into container):
+        input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
+        os.makedirs(input_dir, exist_ok=True)
+
+        # Directory where static input data can be found (will be mounted readonly into container):
+        #readonly_dir = self.inputs_read_only
+        readonly_dir = None # not needed, so will not be mounted!
 
         ## Download input shape:
         in_unitsFileName = spatial_units_url.split('/')[-1]
-        #in_unitsGriddedFilePath = download_file(units_gridded_url, self.download_dir+'/out/', in_unitsGriddedFileName)
-        ## TODO: Zipped shapes, be careful!!
-        in_unitsFilePath = download_zipped_data(spatial_units_url, self.download_dir+'/out/', in_unitsFileName, suffix="shp")
+        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+        # yet, so temporarily, I will download this in this python process file.
+        in_unitsFilePath = download_zipped_data(spatial_units_url, input_dir, in_unitsFileName, suffix="shp")
 
         # Download config table (instead of retrieving from static data)...
-        in_unitGridSizePath = download_file(grid_size_table_url, self.download_dir+'/out/', 'gridsizes-%s.csv' % self.job_id)
+        in_unitGridSizePath = download_file(grid_size_table_url, input_dir, 'gridsizes-%s.csv' % self.job_id)
 
 
         ###############
@@ -108,12 +114,20 @@ class HEAT1Processor(BaseProcessor):
         ###############
 
         # Where to store output data
-        out_units_gridded_filepath = self.download_dir+'/out/units_gridded-%s.shp' % self.job_id
-        out_units_cleaned_filepath = self.download_dir+'/out/units_cleaned-%s.shp' % self.job_id
+        output_dir = f'{self.download_dir}/out/{self.process_id}_job_{self.job_id}'
+        output_url = f'{self.download_url}/out/{self.process_id}_job_{self.job_id}'
+        os.makedirs(output_dir, exist_ok=True)
+        LOGGER.debug(f'All results will be stored     in: {output_dir}')
+        LOGGER.debug(f'All results will be accessible in: {output_url}')
+
+        # Where to store output data
+        out_units_gridded_filepath = f'{output_dir}/units_gridded-{self.job_id}.shp'
+        out_units_cleaned_filepath = f'{output_dir}/units_cleaned-{self.job_id}.shp'
 
         # Where to access output data
-        out_units_gridded_url      = self.download_url+'/out/units_gridded-%s.shp' % self.job_id
-        out_units_cleaned_url      = self.download_url+'/out/units_cleaned-%s.shp' % self.job_id
+        out_units_gridded_url = out_units_gridded_filepath.replace(self.download_dir, self.download_url)
+        out_units_cleaned_url = out_units_cleaned_filepath.replace(self.download_dir, self.download_url)
+
 
         ###########
         ### Run ###
@@ -122,13 +136,13 @@ class HEAT1Processor(BaseProcessor):
         # Actually call R script:
         script_name = 'run_heat1_csv_generic.R'
         r_args = [in_unitsFilePath, in_unitGridSizePath, out_units_cleaned_filepath, out_units_gridded_filepath]
-        returncode, stdout, stderr, user_err_msg = run_docker_container(
+        returncode, stdout, stderr, user_err_msg = run_docker_container2(
             self.docker_executable,
             self.image_name,
             script_name,
-            self.job_id,
-            self.download_dir,
-            self.inputs_read_only,
+            input_dir,
+            output_dir,
+            readonly_dir,
             r_args
         )
         # Return R error message if exit code not 0:
@@ -193,7 +207,11 @@ class HEAT1Processor(BaseProcessor):
         geojson_url = out_units_gridded_url.replace("zip", "json")
 
         # Return a link to the viewer:
-        viewer_url = self.download_url.replace('/download', '')+"/viewer.html?filebase=units_gridded&job_id=" + self.job_id
+        filename = 'units_gridded'
+        viewer_url = self.download_url.replace('/download', '')
+        viewer_url += f'/viewer.html?filebase={filename}&job_id={self.job_id}&process_id={self.process_id}'
+
+
 
         ######################
         ### Return results ###
