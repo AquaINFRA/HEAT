@@ -9,7 +9,7 @@ import traceback
 import pandas as pd
 import geopandas as gpd
 import shapely.geometry
-from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container
+from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
 from pygeoapi.process.HEAT.pygeoapi_processes.heat2 import get_path_bottle_input_data
 from pygeoapi.process.HEAT.pygeoapi_processes.heat2 import get_path_ctd_input_data
@@ -44,6 +44,7 @@ class HEAT2Processor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
         self.job_id = None
+        self.process_id = self.metadata["id"]
 
         # Set config:
         config_file_path = os.environ.get('AQUAINFRA_CONFIG_FILE', "./config.json")
@@ -102,21 +103,26 @@ class HEAT2Processor(BaseProcessor):
         ### Input data ###
         ##################
 
-        # Directory where static input data can be found. It will be mounted read-only to the container:
-        path_input_data = self.inputs_read_only
+        # Where to store input data (will be mounted read-write into container):
+        input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
+        os.makedirs(input_dir, exist_ok=True)
+
+        # Directory where static input data can be found (will be mounted readonly into container):
+        readonly_dir = self.inputs_read_only
 
         ## Download input shape:
         in_unitsGriddedFileName = units_gridded_url.split('/')[-1]
-        #in_unitsGriddedFilePath = download_file(units_gridded_url, self.download_dir+'/out/', in_unitsGriddedFileName)
-        ## TODO: Zipped shapes, be careful!!
-        in_unitsGriddedFilePath = download_zipped_data(units_gridded_url, self.download_dir+'/out/', in_unitsGriddedFileName, suffix="shp")
+        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+        # yet, so temporarily, I will download this in this python process file.
+        in_unitsGriddedFilePath = download_zipped_data(units_gridded_url, input_dir, in_unitsGriddedFileName, suffix="shp")
 
         # Download input data, or provide path to default, or None
-        # (Currently, downloading+unzipping is not allowed, because it is unsafe)
+        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
+        # yet, so temporarily, I will download this in this python process file.
         # TODO: We can use these methods if we are ok with a default, and provide a default assessment period!
-        in_stationSamplesBOTFilePath = get_path_bottle_input_data("1877-9999", bot_url, path_input_data, self.download_dir)
-        in_stationSamplesCTDFilePath = get_path_ctd_input_data("1877-9999", ctd_url, path_input_data, self.download_dir)
-        in_stationSamplesPMPFilePath = get_path_pmp_input_data("1877-9999", pmp_url, path_input_data, self.download_dir)
+        in_stationSamplesBOTFilePath = get_path_bottle_input_data("1877-9999", bot_url, readonly_dir, input_dir)
+        in_stationSamplesCTDFilePath = get_path_ctd_input_data("1877-9999", ctd_url, readonly_dir, input_dir)
+        in_stationSamplesPMPFilePath = get_path_pmp_input_data("1877-9999", pmp_url, readonly_dir, input_dir)
 
 
         ###############
@@ -124,16 +130,23 @@ class HEAT2Processor(BaseProcessor):
         ###############
 
         # Where to store output data
-        out_stationSamplesTableCSVFilePath = self.download_dir+'/out/StationSamples-%s.csv' % self.job_id
-        out_stationSamplesBOTFilePath      = self.download_dir+"/out/StationSamplesBOT-%s.csv" % self.job_id
-        out_stationSamplesCTDFilePath      = self.download_dir+"/out/StationSamplesCTD-%s.csv" % self.job_id
-        out_stationSamplesPMPFilePath      = self.download_dir+"/out/StationSamplesPMP-%s.csv" % self.job_id
+        output_dir = f'{self.download_dir}/out/{self.process_id}_job_{self.job_id}'
+        output_url = f'{self.download_url}/out/{self.process_id}_job_{self.job_id}'
+        os.makedirs(output_dir, exist_ok=True)
+        LOGGER.debug(f'All results will be stored     in: {output_dir}')
+        LOGGER.debug(f'All results will be accessible in: {output_url}')
+
+        # Where to store output data
+        out_stationSamplesTableCSVFilePath = f'{output_dir}/StationSamples-{self.job_id}.csv'
+        out_stationSamplesBOTFilePath      = f'{output_dir}/StationSamplesBOT-{self.job_id}.csv'
+        out_stationSamplesCTDFilePath      = f'{output_dir}/StationSamplesCTD-{self.job_id}.csv'
+        out_stationSamplesPMPFilePath      = f'{output_dir}/StationSamplesPMP-{self.job_id}.csv'
 
         # Where to access output data
-        out_stationSamplesTableCSV_url = self.download_url+'/out/StationSamples-%s.csv' % self.job_id
-        out_stationSamplesBOT_url      = self.download_url+"/out/StationSamplesBOT-%s.csv" % self.job_id
-        out_stationSamplesCTD_url      = self.download_url+"/out/StationSamplesCTD-%s.csv" % self.job_id
-        out_stationSamplesPMP_url      = self.download_url+"/out/StationSamplesPMP-%s.csv" % self.job_id
+        out_stationSamplesTableCSV_url = out_stationSamplesTableCSVFilePath.replace(self.download_dir, self.download_url)
+        out_stationSamplesBOT_url      = out_stationSamplesBOTFilePath.replace(self.download_dir, self.download_url)
+        out_stationSamplesCTD_url      = out_stationSamplesCTDFilePath.replace(self.download_dir, self.download_url)
+        out_stationSamplesPMP_url      = out_stationSamplesPMPFilePath.replace(self.download_dir, self.download_url)
 
 
         ###########
@@ -152,13 +165,13 @@ class HEAT2Processor(BaseProcessor):
             out_stationSamplesPMPFilePath,
             out_stationSamplesTableCSVFilePath
         ]
-        returncode, stdout, stderr, user_err_msg = run_docker_container(
+        returncode, stdout, stderr, user_err_msg = run_docker_container2(
             self.docker_executable,
             self.image_name,
             script_name,
-            self.job_id,
-            self.download_dir,
-            self.inputs_read_only,
+            input_dir,
+            output_dir,
+            readonly_dir,
             r_args
         )
         # Results:
@@ -195,7 +208,9 @@ class HEAT2Processor(BaseProcessor):
         geojson_url = out_stationSamplesTableCSV_url.replace("csv", "json")
 
         # Return a link to the viewer:
-        viewer_url = self.download_url.replace('/download', '')+"/viewer.html?filebase=StationSamples&job_id=" + self.job_id
+        filename = 'StationSamples'
+        viewer_url = self.download_url.replace('/download', '')
+        viewer_url += f'/viewer.html?filebase={filename}&job_id={self.job_id}&process_id={self.process_id}'
 
 
         ######################
