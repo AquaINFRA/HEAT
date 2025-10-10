@@ -1,5 +1,6 @@
 library(data.table) # fread
 source("../R/all_heat_functions.R")
+source("../src/utils_download.R")
 
 
 #################
@@ -8,11 +9,12 @@ source("../R/all_heat_functions.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_AssessmentIndicatorPath = args[1]
+in_AssessmentIndicatorPathOrUrl = args[1]
 in_configIndicatorsFilePath = args[2]
 in_configIndicatorUnitsFilePath = args[3]
 out_AssessmentPath = args[4]
-verbose = args[5]
+input_dir = args[5]
+verbose = args[6]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -21,6 +23,25 @@ if (is.na(verbose)) {
     verbose <- FALSE
 } else {
     verbose <- TRUE
+}
+
+## Input dir, for data that has to be downloaded:
+if (is.na(input_dir)) {
+    input_dir = "."
+} else if (endsWith(input_dir, '/')) {
+    input_dir = sub("/+$", "", input_dir)
+}
+
+#######################
+### Download inputs ###
+#######################
+
+# Download tabular data
+if (startsWith(in_AssessmentIndicatorPathOrUrl, 'http')) {
+  targetpath = paste0(input_dir, "/assessment_indicators")
+  in_AssessmentIndicatorPath <- download_maybe_unzip(in_AssessmentIndicatorPathOrUrl, targetpath)
+} else {
+  in_AssessmentIndicatorPath <- in_AssessmentIndicatorPathOrUrl
 }
 
 
