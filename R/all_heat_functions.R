@@ -424,7 +424,8 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
 
     if (verbose) message("Reading station sample data...")
 
-    # Ocean hydro chemistry - Bottle and low resolution CTD data
+    ########################################################################
+    ### (1/3) Ocean hydro chemistry - Bottle and low resolution CTD data ###
     if (is.na(stationSamplesBOTFile)) {
       message('No bottle data provided.')
       stationSamplesBOT <- NULL
@@ -452,7 +453,8 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       stationSamplesBOT <- replaceColnamesICES(stationSamplesBOT, 'BOT data', verbose)
     }
 
-    # Ocean hydro chemistry - High resolution CTD data
+    ##############################################################
+    ### (2/3) Ocean hydro chemistry - High resolution CTD data ###
     if (is.na(stationSamplesCTDFile)) {
       message('No CTD data provided.')
       stationSamplesCTD <- NULL
@@ -464,8 +466,9 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       # Try reading data with comma separator:
       if (ncol(stationSamplesCTD) == 1) {
         message(paste('Only one column found in:', stationSamplesCTDFile))
-        message('Probably used the wrong separator (tab). Should try with comma...')
-        stop('Not implemented yet: Parsing CTD data with comma.') # TODO: Implement this
+        message('Probably used the wrong separator. Should try with tab')
+        stop('Not implemented yet: Parsing CTD data with comma.')  # Note: Unsure whether really comma is used!
+        # TODO: Implement this
       }
 
       # Set "Type" to C:
@@ -480,7 +483,8 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       stationSamplesCTD <- replaceColnamesICES(stationSamplesCTD, 'CTD data', verbose)
     }
 
-    # Ocean hydro chemistry - Pump data
+    ###############################################
+    ### (3/3) Ocean hydro chemistry - Pump data ###
     if (is.na(stationSamplesPMPFile)) {
       message('No pump data provided.')
       stationSamplesPMP <- NULL
@@ -508,7 +512,8 @@ prepare_station_samples <- function(stationSamplesBOTFile, stationSamplesCTDFile
       stationSamplesPMP <- replaceColnamesICES(stationSamplesPMP, 'PMP data', verbose)
     }
 
-    # Combine station samples
+    ###############################
+    ### Combine station samples ###
     stationSamples <- rbindlist(list(stationSamplesBOT, stationSamplesCTD, stationSamplesPMP), use.names = TRUE, fill = TRUE)
 
     if (length(stationSamples) == 0) {

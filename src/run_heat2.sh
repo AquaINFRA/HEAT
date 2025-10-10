@@ -7,6 +7,7 @@
 assessmentPeriod=$1
 if [[ -z "$assessmentPeriod" ]]; then echo "Please provide an assessment period."; echo "Stopping."; exit 1; fi
 
+input_dir="." # only if the paths are sent as URLs, this is where the data would be downloaded to
 in_stationSamplesBOTFilePath="../Input/${assessmentPeriod}/StationSamples${assessmentPeriod}BOT_2022-12-09.txt.gz" # tab-separated
 #in_stationSamplesBOTFilePath="../adapted_inputs/ICESDataPortalDownload_Ocean_fb56918f-4cb5-40e0-bab8-f138f1238d6e/7908cc01-42d4-460c-8b47-c960f97191ef.csv" # comma-separated
 in_stationSamplesCTDFilePath="../Input/${assessmentPeriod}/StationSamples${assessmentPeriod}CTD_2022-12-09.txt.gz"
@@ -19,4 +20,4 @@ out_stationSamplesTableCSVFilePath="../testoutputs/StationSamples${assessmentPer
 
 # Run R script:
 echo "Running run_heat2.R for assessment period "${assessmentPeriod}
-Rscript --vanilla run_heat2.R $in_stationSamplesBOTFilePath $in_stationSamplesCTDFilePath $in_stationSamplesPMPFilePath $in_unitsGriddedFilePath $out_stationSamplesBOTFilePath $out_stationSamplesCTDFilePath $out_stationSamplesPMPFilePath $out_stationSamplesTableCSVFilePath
+Rscript --vanilla run_heat2.R $input_dir $in_stationSamplesBOTFilePath $in_stationSamplesCTDFilePath $in_stationSamplesPMPFilePath $in_unitsGriddedFilePath $out_stationSamplesBOTFilePath $out_stationSamplesCTDFilePath $out_stationSamplesPMPFilePath $out_stationSamplesTableCSVFilePath

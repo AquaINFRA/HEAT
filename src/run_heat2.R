@@ -1,5 +1,6 @@
 library(sf) # st_read
 source("../R/all_heat_functions.R")
+source("../src/utils_download.R")
 
 
 #################
@@ -8,15 +9,16 @@ source("../R/all_heat_functions.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_stationSamplesBOTFilePath = args[1]
-in_stationSamplesCTDFilePath = args[2]
-in_stationSamplesPMPFilePath = args[3]
-in_unitsGriddedFilePath = args[4]
-out_stationSamplesBOTFilePath = args[5]
-out_stationSamplesCTDFilePath = args[6]
-out_stationSamplesPMPFilePath = args[7]
-out_stationSamplesTableCSVFilePath = args[8]
-verbose = args[9]
+input_dir = args[1]
+in_stationSamplesBOTFilePathOrUrl = args[2]
+in_stationSamplesCTDFilePathOrUrl = args[3]
+in_stationSamplesPMPFilePathOrUrl = args[4]
+in_unitsGriddedPathOrUrl = args[5]
+out_stationSamplesBOTFilePath = args[6]
+out_stationSamplesCTDFilePath = args[7]
+out_stationSamplesPMPFilePath = args[8]
+out_stationSamplesTableCSVFilePath = args[9]
+verbose = args[10]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -27,10 +29,73 @@ if (is.na(verbose)) {
     verbose <- TRUE
 }
 
+
+## Input dir, for data that has to be downloaded:
+if (is.na(input_dir)) {
+    input_dir = "."
+} else if (endsWith(input_dir, '/')) {
+    input_dir = sub("/+$", "", input_dir)
+}
+
 ## If users pass "null" for a file:
-if (in_stationSamplesBOTFilePath == 'null') in_stationSamplesBOTFilePath <- NA
-if (in_stationSamplesCTDFilePath == 'null') in_stationSamplesCTDFilePath <- NA
-if (in_stationSamplesPMPFilePath == 'null') in_stationSamplesPMPFilePath <- NA
+if (in_stationSamplesBOTFilePathOrUrl == 'null') in_stationSamplesBOTFilePathOrUrl <- NA
+if (in_stationSamplesCTDFilePathOrUrl == 'null') in_stationSamplesCTDFilePathOrUrl <- NA
+if (in_stationSamplesPMPFilePathOrUrl == 'null') in_stationSamplesPMPFilePathOrUrl <- NA
+
+
+#######################
+### Download inputs ###
+#######################
+
+# Gridded spatial units (zipped shapefile)
+if (startsWith(in_unitsGriddedPathOrUrl, 'http')) {
+  message("DEBUG: Shapefile provided as URL: ", in_unitsGriddedPathOrUrl)
+  targetpath = paste0(input_dir, "/griddedUnits.zip")
+  in_unitsGriddedFilePath <- download_unzip_shapefile(in_unitsGriddedPathOrUrl, targetpath)
+} else {
+  message("DEBUG: Shapefile provided as path: ", in_unitsGriddedPathOrUrl)
+  in_unitsGriddedFilePath <- in_unitsGriddedPathOrUrl
+}
+
+
+# Download tabular data (3 files):
+
+if (is.na(in_stationSamplesBOTFilePathOrUrl)) {
+  in_stationSamplesBOTFilePath <- NA # passing NA is allowed
+  message("DEBUG: No BOT data provided, using NA...")
+} else if (startsWith(in_stationSamplesBOTFilePathOrUrl, 'http')) {
+  message("DEBUG: BOT data provided as URL: ", in_stationSamplesBOTFilePathOrUrl)
+  targetpath = paste0(input_dir, "/downloaded_bot_data")
+  in_stationSamplesBOTFilePath <- download_maybe_unzip(in_stationSamplesBOTFilePathOrUrl, targetpath)
+} else {
+  message("DEBUG: BOT data provided as path: ", in_stationSamplesBOTFilePathOrUrl)
+  in_stationSamplesBOTFilePath <- in_stationSamplesBOTFilePathOrUrl
+}
+
+if (is.na(in_stationSamplesCTDFilePathOrUrl)) {
+  in_stationSamplesCTDFilePath <- NA # passing NA is allowed
+  message("DEBUG: No CTD data provided, using NA...")
+} else if (startsWith(in_stationSamplesCTDFilePathOrUrl, 'http')) {
+  message("DEBUG: CTD data provided as URL: ", in_stationSamplesCTDFilePathOrUrl)
+  targetpath = paste0(input_dir, "/downloaded_ctd_data")
+  in_stationSamplesCTDFilePath <- download_maybe_unzip(in_stationSamplesCTDFilePathOrUrl, targetpath)
+} else {
+  message("DEBUG: CTD data provided as path: ", in_stationSamplesCTDFilePathOrUrl)
+  in_stationSamplesCTDFilePath <- in_stationSamplesCTDFilePathOrUrl
+}
+
+if (is.na(in_stationSamplesPMPFilePathOrUrl)) {
+  in_stationSamplesPMPFilePath <- NA # passing NA is allowed
+  message("DEBUG: No PMP data provided, using NA...")
+} else if (startsWith(in_stationSamplesPMPFilePathOrUrl, 'http')) {
+  message("DEBUG: PMP data provided as URL: ", in_stationSamplesPMPFilePathOrUrl)
+  targetpath = paste0(input_dir, "/downloaded_pmp_data")
+  in_stationSamplesPMPFilePath <- download_maybe_unzip(in_stationSamplesPMPFilePathOrUrl, targetpath)
+} else {
+  message("DEBUG: PMP data provided as path: ", in_stationSamplesPMPFilePathOrUrl)
+  in_stationSamplesPMPFilePath <- in_stationSamplesPMPFilePathOrUrl
+}
+
 
 
 ###################

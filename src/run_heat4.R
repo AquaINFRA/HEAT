@@ -1,5 +1,7 @@
 library(data.table)
 source("../R/all_heat_functions.R")
+source("../src/utils_download.R")
+
 
 
 #################
@@ -8,10 +10,11 @@ source("../R/all_heat_functions.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_AnnualIndicatorPath = args[1]
-in_configurationFilePath = args[2]
-out_AssessmentIndicatorPath = args[3]
-verbose = args[4]
+input_dir = args[1]
+in_AnnualIndicatorPathOrUrl = args[2]
+in_configurationFilePath = args[3] # has to be local, cannot be downloaded yet
+out_AssessmentIndicatorPath = args[4]
+verbose = args[5]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -20,6 +23,25 @@ if (is.na(verbose)) {
     verbose <- FALSE
 } else {
     verbose <- TRUE
+}
+
+## Input dir, for data that has to be downloaded:
+if (is.na(input_dir)) {
+    input_dir = "."
+} else if (endsWith(input_dir, '/')) {
+    input_dir = sub("/+$", "", input_dir)
+}
+
+#######################
+### Download inputs ###
+#######################
+
+# Download tabular data
+if (startsWith(in_AnnualIndicatorPathOrUrl, 'http')) {
+  targetpath = paste0(input_dir, "/annual_indicators")
+  in_AnnualIndicatorPath <- download_maybe_unzip(in_AnnualIndicatorPathOrUrl, targetpath)
+} else {
+  in_AnnualIndicatorPath <- in_AnnualIndicatorPathOrUrl
 }
 
 

@@ -1,6 +1,7 @@
 library(sf) # st_read
 library(data.table) # fread
 source("../R/all_heat_functions.R")
+source("../src/utils_download.R")
 
 
 #################
@@ -9,14 +10,15 @@ source("../R/all_heat_functions.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_relevantStationSamplesPath = args[1]
-in_unitsCleanedFilePath = args[2]
-in_configIndicatorsFilePath = args[3]
-in_configIndicatorUnitsFilePath = args[4]
-in_configIndicatorUnitResultsFilePath = args[5]
-combined_Chlorophylla_IsWeighted = args[6]
-out_AnnualIndicatorPath = args[7]
-verbose = args[8]
+input_dir = args[1]
+in_relevantStationSamplesPathOrUrl = args[2]
+in_unitsCleanedFilePathOrUrl = args[3]
+in_configIndicatorsFilePath = args[4]
+in_configIndicatorUnitsFilePath = args[5]
+in_configIndicatorUnitResultsFilePath = args[6]
+combined_Chlorophylla_IsWeighted = args[7]
+out_AnnualIndicatorPath = args[8]
+verbose = args[9]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -25,6 +27,13 @@ if (is.na(verbose)) {
     verbose <- FALSE
 } else {
     verbose <- TRUE
+}
+
+## Input dir, for data that has to be downloaded:
+if (is.na(input_dir)) {
+    input_dir = "."
+} else if (endsWith(input_dir, '/')) {
+    input_dir = sub("/+$", "", input_dir)
 }
 
 # Flag to determine if the combined chlorophyll a in-situ/satellite indicator is
@@ -36,6 +45,30 @@ if (tolower(combined_Chlorophylla_IsWeighted) == 'true') {
 }
 if (verbose) message(paste('combined_Chlorophylla_IsWeighted:', combined_Chlorophylla_IsWeighted))
 
+
+#######################
+### Download inputs ###
+#######################
+
+# Cleaned spatial units (zipped shapefile)
+if (startsWith(in_unitsCleanedFilePathOrUrl, 'http')) {
+  message("DEBUG: Shapefile provided as URL: ", in_unitsCleanedFilePathOrUrl)
+  targetpath = paste0(input_dir, "/cleanedUnits.zip")
+  in_unitsCleanedFilePath <- download_unzip_shapefile(in_unitsCleanedFilePathOrUrl, targetpath)
+} else {
+  message("DEBUG: Shapefile provided as path: ", in_unitsCleanedFilePathOrUrl)
+  in_unitsCleanedFilePath <- in_unitsCleanedFilePathOrUrl
+}
+
+# Download tabular data
+if (is.na(in_relevantStationSamplesPathOrUrl)) {
+  in_relevantStationSamplesPath <- NA # passing NAs is allowed!
+} else if (startsWith(in_relevantStationSamplesPathOrUrl, 'http')) {
+  targetpath = paste0(input_dir, "/stationSamples")
+  in_relevantStationSamplesPath <- download_maybe_unzip(in_relevantStationSamplesPathOrUrl, targetpath)
+} else {
+  in_relevantStationSamplesPath <- in_relevantStationSamplesPathOrUrl
+}
 
 ###################
 ### Read inputs ###

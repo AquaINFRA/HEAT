@@ -1,6 +1,8 @@
 library(sf) # st_read
 library(data.table) # fread
 source("../R/all_heat_functions.R")
+source("../src/utils_download.R")
+
 
 
 #################
@@ -9,12 +11,13 @@ source("../R/all_heat_functions.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_relevantStationSamplesPath = args[1]
-in_unitsCleanedFilePath = args[2]
-in_configurationFilePath = args[3]
-combined_Chlorophylla_IsWeighted = args[4]
-out_AnnualIndicatorPath = args[5]
-verbose = args[6]
+input_dir = args[1]
+in_relevantStationSamplesPathOrUrl = args[2]
+in_unitsCleanedFilePathOrUrl = args[3]
+in_configurationFilePath = args[4] # Must be local, cannot be downloaded yet!
+combined_Chlorophylla_IsWeighted = args[5]
+out_AnnualIndicatorPath = args[6]
+verbose = args[7]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -33,6 +36,38 @@ if (tolower(combined_Chlorophylla_IsWeighted) == 'true') {
   combined_Chlorophylla_IsWeighted <- FALSE
 }
 if (verbose) message(paste('combined_Chlorophylla_IsWeighted:', combined_Chlorophylla_IsWeighted))
+
+
+## Input dir, for data that has to be downloaded:
+if (is.na(input_dir)) {
+    input_dir = "."
+} else if (endsWith(input_dir, '/')) {
+    input_dir = sub("/+$", "", input_dir)
+}
+
+#######################
+### Download inputs ###
+#######################
+
+# Cleaned spatial units (zipped shapefile)
+if (startsWith(in_unitsCleanedFilePathOrUrl, 'http')) {
+  message("DEBUG: Shapefile provided as URL: ", in_unitsCleanedFilePathOrUrl)
+  targetpath = paste0(input_dir, "/cleanedUnits.zip")
+  in_unitsCleanedFilePath <- download_unzip_shapefile(in_unitsCleanedFilePathOrUrl, targetpath)
+} else {
+  message("DEBUG: Shapefile provided as path: ", in_unitsCleanedFilePathOrUrl)
+  in_unitsCleanedFilePath <- in_unitsCleanedFilePathOrUrl
+}
+
+# Download tabular data
+if (is.na(in_relevantStationSamplesPathOrUrl)) {
+  in_relevantStationSamplesPath <- NA # passing NAs is allowed!
+} else if (startsWith(in_relevantStationSamplesPathOrUrl, 'http')) {
+  targetpath = paste0(input_dir, "/stationSamples")
+  in_relevantStationSamplesPath <- download_maybe_unzip(in_relevantStationSamplesPathOrUrl, targetpath)
+} else {
+  in_relevantStationSamplesPath <- in_relevantStationSamplesPathOrUrl
+}
 
 
 ###################
