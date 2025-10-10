@@ -49,7 +49,7 @@ class HEAT3Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250708"
+            self.image_name = "heat:20251010"
 
 
     def set_job_id(self, job_id: str):
@@ -107,12 +107,19 @@ class HEAT3Processor(BaseProcessor):
         elif assessment_period == 'other':
             assessment_period = '1877-9999'
 
+        # Check data url
+        if unitsCleanedFileUrl is None:
+            raise ProcessorExecuteError('Missing parameter units_cleaned". Please provide a URL or the word "default".')
+        elif not (unitsCleanedFileUrl == "default" or unitsCleanedFileUrl.startswith('http')):
+            raise ProcessorExecuteError('Malformed parameter units_cleaned". Please provide a URL or the word "default".')
+
 
         ##################
         ### Input data ###
         ##################
 
-        # Where to store input data (will be mounted read-write into container):
+        # Where to store input data (will be mounted read-write into container,
+        # so that inside the container the input file can be downloaded into here):
         input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
         os.makedirs(input_dir, exist_ok=True)
 
@@ -123,23 +130,13 @@ class HEAT3Processor(BaseProcessor):
         if unitsCleanedFileUrl == "default":
             in_unitsCleanedFilePathOrUrl = get_path_default_cleaned_units(assessment_period, readonly_dir)
         else:
-            ## TODO Maybe steal this from advanced.
-            LOGGER.info('Client provided claned spatial units: %s' % unitsCleanedFileUrl)
-            # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-            # yet, so temporarily, I will download this in this python process file.
-            filename = unitsCleanedFileUrl.split('/')[-1]
-            in_unitsCleanedFilePath = download_zipped_data(unitsCleanedFileUrl, input_dir, filename, suffix="shp")
+            LOGGER.info('Client provided URL for cleaned spatial units: %s' % unitsCleanedFileUrl)
+            in_unitsCleanedFilePathOrUrl = unitsCleanedFileUrl
 
         # Define paths to static input paths depending on assessment_period
         in_configIndicatorsFilePath = get_config_file_path('Indicators', assessment_period, readonly_dir)
         in_configIndicatorUnitsFilePath = get_config_file_path('IndicatorUnits', assessment_period, readonly_dir)
         in_configIndicatorUnitResultsFilePath = get_config_file_path('IndicatorUnitResults', assessment_period, readonly_dir)
-
-        # Download station samples from user...
-        filename_samples = 'samples-%s.csv' % self.job_id
-        in_relevantStationSamplesPath = download_file(samples_url, input_dir, filename_samples)
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
 
 
         ###############
@@ -167,8 +164,9 @@ class HEAT3Processor(BaseProcessor):
         # Actually call R script:
         script_name = 'run_heat3_csv.R'
         r_args = [
-            in_relevantStationSamplesPath,
-            in_unitsCleanedFilePath,
+            input_dir,
+            samples_url,
+            in_unitsCleanedFilePathOrUrl,
             in_configIndicatorsFilePath,
             in_configIndicatorUnitsFilePath,
             in_configIndicatorUnitResultsFilePath,

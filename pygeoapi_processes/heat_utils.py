@@ -25,9 +25,11 @@ def get_config_file_path(which_config, assessment_period, path_input_data):
 
 
 def download_file(data_url, download_dir, filename):
-    # TODO: Make better download function! SAFER!
-
+    # Downloading user-provided data uncritically may be a security threat.
+    # Instead, have the R scripts inside the docker container download user data.
     LOGGER.debug('Downloading file: %s from %s' % (filename, data_url))
+    raise NotImplementedError("Not implemented yet: Download of input files must be moved" +\to
+        " to a different place in the code. Failed to download file:" + data_url)
 
     if not (data_url.startswith('http://') or data_url.startswith('https://')):
         err_msg = "Cannot download. URL lacks http/https: %s" % data_url
@@ -76,9 +78,13 @@ def download_file(data_url, download_dir, filename):
 
 
 def download_zipped_data(data_url, download_dir, filename, suffix="csv"):
-    #filename = data_url.split('/')[-1]
+    # Downloading user-provided data uncritically (especially unzipping them!) may be a security threat.
+    # Instead, have the R scripts inside the docker container download user data.
     LOGGER.debug('Downloading zipped file: %s from %s' % (filename, data_url))
+    raise NotImplementedError("Not implemented yet: Download of zipped input files" +\
+        " must be moved to a different place in the code. Failed to download file:" + data_url)
 
+    #filename = data_url.split('/')[-1]
     data_path = download_file(data_url, download_dir, filename)
 
     ## Unzip downloaded data, if zipped, and return the first csv file found
@@ -189,7 +195,7 @@ def get_path_default_ctd_data(assessment_period, readonly_dir):
         return readonly_dir+"/original_inputs/2016-2021/StationSamples2016-2021CTD_2022-12-09.txt.gz"
 
 
-def get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, target_dir):
+def get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, target_dir=None):
 
     if bot_url is None:
         # If the user passed nothing or "null", no bottle data is used!
@@ -204,13 +210,13 @@ def get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, target_
     elif bot_url is not None and bot_url.startswith('http'):
         LOGGER.info('Client requested bottle data: %s' % bot_url)
         #raise NotImplementedError("Currently, only default bottle data can be used!")
-        # TODO: Ideally, the download should not happen here (in the process python file), but
-        # inside the docker container.
-        filename = bot_url.split('/')[-1]
-        bot_path = download_zipped_data(bot_url, target_dir, filename, suffix="csv")
-        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
-        return bot_path
+        ## Downloading was moved into the R script that happens inside the R script,
+        ## so we just return the URL...
+        return bot_url
+        ## If you wanted to download them here (less safe):
+        #filename = bot_url.split('/')[-1]
+        #bot_path = download_zipped_data(bot_url, target_dir, filename, suffix="csv")
+        #return bot_path
 
     else:
         err_msg = 'Could not understand bottle data: %s' % bot_url
@@ -218,7 +224,7 @@ def get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, target_
         raise ProcessorExecuteError(err_msg)
 
 
-def get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, target_dir):
+def get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, target_dir=None):
 
     if pmp_url is None:
         # If the user passed nothing or "null", no pump data is used!
@@ -233,13 +239,13 @@ def get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, target_dir
     elif pmp_url is not None and pmp_url.startswith('http'):
         LOGGER.info('Client requested pump data: %s' % pmp_url)
         #raise NotImplementedError("Currently, only default pump data can be used!")
-        # TODO: Ideally, the download should not happen here (in the process python file), but
-        # inside the docker container.
-        filename = pmp_url.split('/')[-1]
-        pmp_path = download_zipped_data(pmp_url, target_dir, filename, suffix="csv")
-        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
-        return pmp_path
+        ## Downloading was moved into the R script that happens inside the R script,
+        ## so we just return the URL...
+        return pmp_url
+        ## If you wanted to download them here (less safe):
+        #filename = pmp_url.split('/')[-1]
+        #pmp_path = download_zipped_data(pmp_url, target_dir, filename, suffix="csv")
+        #return pmp_path
 
     else:
         err_msg = 'Could not understand pump data: %s' % pmp_url
@@ -247,7 +253,7 @@ def get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, target_dir
         raise ProcessorExecuteError(err_msg)
 
 
-def get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, target_dir):
+def get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, target_dir=None):
 
     if ctd_url is None:
         # If the user passed nothing or "null", no pump data is used!
@@ -262,13 +268,13 @@ def get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, target_dir
     elif ctd_url is not None and ctd_url.startswith('http'):
         LOGGER.info('Client requested ctd data: %s' % ctd_url)
         #raise NotImplementedError("Currently, only default ctd data can be used!")
-        # TODO: Ideally, the download should not happen here (in the process python file), but
-        # inside the docker container.
-        filename = ctd_url.split('/')[-1]
-        ctd_path = download_zipped_data(ctd_url, target_dir, filename, suffix="csv")
-        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
-        return ctd_path
+        ## Downloading was moved into the R script that happens inside the R script,
+        ## so we just return the URL...
+        return ctd_url
+        ## If you wanted to download them here (less safe):
+        #filename = ctd_url.split('/')[-1]
+        #ctd_path = download_zipped_data(ctd_url, target_dir, filename, suffix="csv")
+        #return ctd_path
 
     else:
         err_msg = 'Could not understand ctd data: %s' % ctd_url

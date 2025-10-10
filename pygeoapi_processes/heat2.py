@@ -78,7 +78,7 @@ class HEAT2Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250708"
+            self.image_name = "heat:20251010"
 
 
     def set_job_id(self, job_id: str):
@@ -131,12 +131,19 @@ class HEAT2Processor(BaseProcessor):
         elif assessment_period == 'other':
             assessment_period = '1877-9999'
 
+        # Check data url
+        if unitsGriddedFileUrl is None:
+            raise ProcessorExecuteError('Missing parameter units_gridded". Please provide a URL or the word "default".')
+        elif not (unitsGriddedFileUrl == "default" or unitsGriddedFileUrl.startswith('http')):
+            raise ProcessorExecuteError('Malformed parameter units_gridded". Please provide a URL or the word "default".')
+
 
         ##################
         ### Input data ###
         ##################
 
-        # Where to store input data (will be mounted read-write into container):
+        # Where to store input data (will be mounted read-write into container,
+        # so that inside the container the input file can be downloaded into here):
         input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
         os.makedirs(input_dir, exist_ok=True)
 
@@ -147,19 +154,15 @@ class HEAT2Processor(BaseProcessor):
         if unitsGriddedFileUrl == "default":
             in_unitsGriddedFilePath = get_path_default_gridded_units(assessment_period, readonly_dir)
         else:
-            ## TODO Maybe steal this from advanced.
+            ## Downloading was moved into the R script that happens inside the R script!
             LOGGER.info('Client provided gridded spatial units: %s' % unitsGriddedFileUrl)
-            # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-            # yet, so temporarily, I will download this in this python process file.
-            filename = unitsGriddedFileUrl.split('/')[-1]
-            in_unitsGriddedFilePath = download_zipped_data(unitsGriddedFileUrl, input_dir, filename, suffix="shp")
+            in_unitsGriddedFilePath = unitsGriddedFileUrl
 
-        # Download input data, or provide path to default, or None
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
-        in_stationSamplesBOTFilePath = get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, input_dir)
-        in_stationSamplesCTDFilePath = get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, input_dir)
-        in_stationSamplesPMPFilePath = get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, input_dir)
+        # Provide path to default input data, or pass URL on to the R script inside the container
+        # that will download them inside the container:
+        in_stationSamplesBOTFilePath = get_path_bottle_input_data(assessment_period, bot_url, readonly_dir)
+        in_stationSamplesCTDFilePath = get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir)
+        in_stationSamplesPMPFilePath = get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir)
 
 
         ###############
@@ -193,6 +196,7 @@ class HEAT2Processor(BaseProcessor):
         # Actually call R script:
         script_name = 'run_heat2.R'
         r_args = [
+            input_dir,
             in_stationSamplesBOTFilePath,
             in_stationSamplesCTDFilePath,
             in_stationSamplesPMPFilePath,

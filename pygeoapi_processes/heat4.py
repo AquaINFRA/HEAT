@@ -46,7 +46,7 @@ class HEAT4Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250708"
+            self.image_name = "heat:20251010"
 
 
     def set_job_id(self, job_id: str):
@@ -102,7 +102,8 @@ class HEAT4Processor(BaseProcessor):
         ### Input data ###
         ##################
 
-        # Where to store input data (will be mounted read-write into container):
+        # Where to store input data (will be mounted read-write into container,
+        # so that inside the container the input file can be downloaded into here):
         input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
         os.makedirs(input_dir, exist_ok=True)
 
@@ -114,10 +115,7 @@ class HEAT4Processor(BaseProcessor):
         in_configIndicatorUnitsFilePath = get_config_file_path('IndicatorUnits', assessment_period, readonly_dir)
 
         # Download input csv provided by user:
-        filename_annual_indicators = 'annual_indicators-%s.csv' % self.job_id
-        in_AnnualIndicatorPath = download_file(annual_indicators_csv_url, input_dir, filename_annual_indicators)
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
+        # Not downloading, will be done inside the container by the R script!
 
 
         ###############
@@ -145,10 +143,11 @@ class HEAT4Processor(BaseProcessor):
         # Actually call R script:
         script_name = 'run_heat4_csv.R'
         r_args = [
-            in_AnnualIndicatorPath,
+            input_dir,
+            annual_indicators_csv_url,
             in_configIndicatorsFilePath,
             in_configIndicatorUnitsFilePath,
-            out_assessment_indicators_filepath,
+            out_assessment_indicators_filepath
         ]
         returncode, stdout, stderr, user_err_msg = run_docker_container2(
             self.docker_executable,
