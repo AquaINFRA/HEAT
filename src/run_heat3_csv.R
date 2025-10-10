@@ -10,14 +10,14 @@ source("../src/utils_download.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_relevantStationSamplesPathOrUrl = args[1]
-in_unitsCleanedFilePathOrUrl = args[2]
-in_configIndicatorsFilePath = args[3]
-in_configIndicatorUnitsFilePath = args[4]
-in_configIndicatorUnitResultsFilePath = args[5]
-combined_Chlorophylla_IsWeighted = args[6]
-out_AnnualIndicatorPath = args[7]
-input_dir = args[8]
+input_dir = args[1]
+in_relevantStationSamplesPathOrUrl = args[2]
+in_unitsCleanedFilePathOrUrl = args[3]
+in_configIndicatorsFilePath = args[4]
+in_configIndicatorUnitsFilePath = args[5]
+in_configIndicatorUnitResultsFilePath = args[6]
+combined_Chlorophylla_IsWeighted = args[7]
+out_AnnualIndicatorPath = args[8]
 verbose = args[9]
 
 ## Verbosity

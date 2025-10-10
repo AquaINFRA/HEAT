@@ -9,15 +9,15 @@ source("../src/utils_download.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_stationSamplesBOTFilePathOrUrl = args[1]
-in_stationSamplesCTDFilePathOrUrl = args[2]
-in_stationSamplesPMPFilePathOrUrl = args[3]
-in_unitsGriddedPathOrUrl = args[4]
-out_stationSamplesBOTFilePath = args[5]
-out_stationSamplesCTDFilePath = args[6]
-out_stationSamplesPMPFilePath = args[7]
-out_stationSamplesTableCSVFilePath = args[8]
-input_dir = args[9]
+input_dir = args[1]
+in_stationSamplesBOTFilePathOrUrl = args[2]
+in_stationSamplesCTDFilePathOrUrl = args[3]
+in_stationSamplesPMPFilePathOrUrl = args[4]
+in_unitsGriddedPathOrUrl = args[5]
+out_stationSamplesBOTFilePath = args[6]
+out_stationSamplesCTDFilePath = args[7]
+out_stationSamplesPMPFilePath = args[8]
+out_stationSamplesTableCSVFilePath = args[9]
 verbose = args[10]
 
 ## Verbosity

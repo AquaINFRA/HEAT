@@ -9,11 +9,11 @@ source("../src/utils_download.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_AssessmentIndicatorPathOrUrl = args[1]
-in_configIndicatorsFilePath = args[2]
-in_configIndicatorUnitsFilePath = args[3]
-out_AssessmentPath = args[4]
-input_dir = args[5]
+input_dir = args[1]
+in_AssessmentIndicatorPathOrUrl = args[2]
+in_configIndicatorsFilePath = args[3]
+in_configIndicatorUnitsFilePath = args[4]
+out_AssessmentPath = args[5]
 verbose = args[6]
 
 ## Verbosity
