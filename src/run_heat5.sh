@@ -7,10 +7,11 @@
 assessmentPeriod=$1
 if [[ -z "$assessmentPeriod" ]]; then echo "Please provide an assessment period."; echo "Stopping."; exit 1; fi
 
+input_dir="." # only if the paths are sent as URLs, this is where the data would be downloaded to
 in_AssessmentIndicatorPath="../testoutputs/AssessmentIndicators${assessmentPeriod}.csv"
 in_configurationFilePath="../Input/${assessmentPeriod}/Configuration${assessmentPeriod}.xlsx"
 out_AssessmentPath="../testoutputs/Assessment${assessmentPeriod}.csv"
 
 # Run R script:
 echo "Running run_heat5.R for assessment period "${assessmentPeriod}
-Rscript --vanilla run_heat5.R $in_AssessmentIndicatorPath $in_configurationFilePath $out_AssessmentPath
+Rscript --vanilla run_heat5.R $input_dir $in_AssessmentIndicatorPath $in_configurationFilePath $out_AssessmentPath
