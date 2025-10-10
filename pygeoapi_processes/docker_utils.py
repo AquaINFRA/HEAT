@@ -115,6 +115,11 @@ def run_docker_container2(
     LOGGER.debug('Mounted dirs /out,/in,/readonly, outside container: %s, %s, %s' %
         (host_out, host_in, host_readonly))
 
+    # Make sure no trailing slash:
+    host_out      = host_out.rstrip("/")      if host_out else None
+    host_in       = host_in.rstrip("/")       if host_in  else None
+    host_readonly = host_readonly.rstrip("/") if host_readonly else None
+
     # Sanitize arguments passed to container!
     # i.e.: Replace host file paths by mounted file paths, convert args to formats
     # that can be passed to docker and understood/parsed in the R script inside docker:
@@ -122,7 +127,11 @@ def run_docker_container2(
     sanitized_args = []
     for arg in script_args:
         newarg = arg
-        if isinstance(arg, bool):
+        if arg is None or arg == 'None':
+            # R scripts may be more familiar with receiving "null" than "None"
+            # But they still have to parse them to a proper NULL data type.
+            newarg = 'null'
+        elif isinstance(arg, bool):
             newarg = "true" if arg else "false"
             #LOGGER.debug(f'Arg: {arg}, type {type(arg)}, newarg {newarg}, type {type(newarg)}...)')
         elif host_in is not None and host_in in arg:
@@ -134,10 +143,6 @@ def run_docker_container2(
         elif host_readonly is not None and host_readonly in arg:
             newarg = arg.replace(host_readonly, container_readonly)
             LOGGER.debug("Replaced argument %s by %s..." % (arg, newarg))
-        elif arg == 'None' or arg is None:
-            # R scripts may be more familiar with receiving "null" than "None"
-            # But they still have to parse them to a proper NULL data type.
-            newarg = 'null'
         sanitized_args.append(newarg)
 
     # Prepare container command
