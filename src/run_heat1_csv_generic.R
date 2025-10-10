@@ -1,6 +1,7 @@
 library(sf) # st_write
 source("../R/all_heat_functions.R")
 source("../R/heat_plot_functions.R")
+source("../src/utils_download.R", echo=TRUE)
 
 
 #################
@@ -9,12 +10,13 @@ source("../R/heat_plot_functions.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 print(paste0('R Command line args: ', args))
-in_unitsFilePath = args[1]
-in_unitGridSizePath = args[2]
-out_unitsCleanedFilePath = args[3]
-out_unitsGriddedFilePath = args[4]
-out_plotsPath = args[5] # NA if not passed by user, then interpreted as "don't plot"
-verbose = args[6]
+input_dir = args[1]
+in_unitsFilePathOrUrl = args[2]
+in_unitGridSizePathOrUrl = args[3]
+out_unitsCleanedFilePath = args[4]
+out_unitsGriddedFilePath = args[5]
+out_plotsPath = args[6] # NA if not passed by user, then interpreted as "don't plot"
+verbose = args[7]
 
 ## Verbosity
 if (is.na(verbose)) {
@@ -25,11 +27,48 @@ if (is.na(verbose)) {
     verbose <- TRUE
 }
 
+## Input dir, for data that has to be downloaded:
+if (is.na(input_dir)) {
+    input_dir = "."
+} else if (endsWith(input_dir, '/')) {
+    input_dir = sub("/+$", "", input_dir)
+}
+
+
+#######################
+### Download inputs ###
+#######################
+
+# Spatial units (zipped shapefile)
+if (startsWith(in_unitsFilePathOrUrl, 'http')) {
+  message("DEBUG: Shapefile provided as URL: ", in_unitsFilePathOrUrl)
+  targetpath = paste0(input_dir, "/spatialUnits.zip")
+  message("DEBUG: Will download shapefile to: ", targetpath)
+  in_unitsFilePath <- download_unzip_shapefile(in_unitsFilePathOrUrl, targetpath)
+  message("DEBUG: Downloaded shapefile to: ", in_unitsFilePath)
+} else {
+  message("DEBUG: Shapefile provided as path: ", in_unitsFilePathOrUrl)
+  in_unitsFilePath <- in_unitsGriddedPathOrUrl
+  message("DEBUG: Shapefile sitting here: ", in_unitsFilePath)
+}
+
+# Grid size table:
+if (startsWith(in_unitGridSizePathOrUrl, 'http')) {
+  message("DEBUG: Grid size table provided as URL: ", in_unitGridSizePathOrUrl)
+  targetpath = paste0(input_dir, "/downloaded_bot_data")
+  in_unitGridSizePath <- download_maybe_unzip(in_unitGridSizePathOrUrl, targetpath)
+} else {
+  message("DEBUG: Grid size table provided as path: ", in_unitGridSizePathOrUrl)
+  in_unitGridSizePath <- in_unitGridSizePathOrUrl
+}
+
 
 ###################
 ### Read inputs ###
 ###################
 
+# Spatial units are read inside get_units() by sf::st_read()
+# Grid size table will be read in side get_unit_grid_size_table() by readr::read_delim or readxl::read_excel
 
 ####################
 ### Computing... ###

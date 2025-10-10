@@ -13,9 +13,9 @@ print(paste0('R Command line args: ', args))
 input_dir = args[1]
 in_relevantStationSamplesPathOrUrl = args[2]
 in_unitsCleanedFilePathOrUrl = args[3]
-in_configIndicatorsFilePath = args[4]
-in_configIndicatorUnitsFilePath = args[5]
-in_configIndicatorUnitResultsFilePath = args[6]
+in_configIndicatorsFilePathOrUrl = args[4]
+in_configIndicatorUnitsFilePathOrUrl = args[5]
+in_configIndicatorUnitResultsFilePathOrUrl = args[6]
 combined_Chlorophylla_IsWeighted = args[7]
 out_AnnualIndicatorPath = args[8]
 verbose = args[9]
@@ -69,6 +69,37 @@ if (is.na(in_relevantStationSamplesPathOrUrl)) {
 } else {
   in_relevantStationSamplesPath <- in_relevantStationSamplesPathOrUrl
 }
+
+
+# Download config tables:
+# (1/3)
+if (startsWith(in_configIndicatorsFilePathOrUrl, 'http')) {
+  message("DEBUG: Indicators table provided as URL: ", in_configIndicatorsFilePathOrUrl)
+  targetpath = paste0(input_dir, "/indicators")
+  in_configIndicatorsFilePath <- download_maybe_unzip(in_configIndicatorsFilePathOrUrl, targetpath)
+} else {
+  message("DEBUG: Indicators table provided as path: ", in_configIndicatorsFilePathOrUrl)
+  in_configIndicatorsFilePath <- in_configIndicatorsFilePathOrUrl
+}
+# (2/3)
+if (startsWith(in_configIndicatorUnitsFilePathOrUrl, 'http')) {
+  message("DEBUG: Grid size table provided as URL: ", in_configIndicatorUnitsFilePathOrUrl)
+  targetpath = paste0(input_dir, "/indicator_units")
+  in_configIndicatorUnitsFilePath <- download_maybe_unzip(in_configIndicatorUnitsFilePathOrUrl, targetpath)
+} else {
+  message("DEBUG: Grid size table provided as path: ", in_configIndicatorUnitsFilePathOrUrl)
+  in_configIndicatorUnitsFilePath <- in_configIndicatorUnitsFilePathOrUrl
+}
+# (3/3)
+if (startsWith(in_configIndicatorUnitResultsFilePathOrUrl, 'http')) {
+  message("DEBUG: Grid size table provided as URL: ", in_configIndicatorUnitResultsFilePathOrUrl)
+  targetpath = paste0(input_dir, "/indicator_unit_results")
+  in_configIndicatorUnitResultsFilePath <- download_maybe_unzip(in_configIndicatorUnitResultsFilePathOrUrl, targetpath)
+} else {
+  message("DEBUG: Grid size table provided as path: ", in_configIndicatorUnitResultsFilePathOrUrl)
+  in_configIndicatorUnitResultsFilePath <- in_configIndicatorUnitResultsFilePathOrUrl
+}
+
 
 ###################
 ### Read inputs ###
