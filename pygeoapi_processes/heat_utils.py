@@ -202,12 +202,12 @@ def get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, target_
         # TODO: Dont return/store results for BOT, if no bottle inputs are given!
         return None
 
-    elif bot_url is not None and bot_url.lower() == 'default':
+    elif bot_url.lower() == 'default':
         LOGGER.info('Client did not provide bottle data, using pre-stored ones...')
         bot_path = get_path_default_bottle_data(assessment_period, readonly_dir)
         return bot_path
 
-    elif bot_url is not None and bot_url.startswith('http'):
+    elif bot_url.startswith('http'):
         LOGGER.info('Client requested bottle data: %s' % bot_url)
         #raise NotImplementedError("Currently, only default bottle data can be used!")
         ## Downloading was moved into the R script that happens inside the R script,
@@ -236,7 +236,7 @@ def get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, target_dir
         pmp_path = get_path_default_pmp_data(assessment_period, readonly_dir)
         return pmp_path
 
-    elif pmp_url is not None and pmp_url.startswith('http'):
+    elif pmp_url.startswith('http'):
         LOGGER.info('Client requested pump data: %s' % pmp_url)
         #raise NotImplementedError("Currently, only default pump data can be used!")
         ## Downloading was moved into the R script that happens inside the R script,
@@ -265,7 +265,7 @@ def get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, target_dir
         ctd_path = get_path_default_pmp_data(assessment_period, readonly_dir)
         return ctd_path
 
-    elif ctd_url is not None and ctd_url.startswith('http'):
+    elif ctd_url.startswith('http'):
         LOGGER.info('Client requested ctd data: %s' % ctd_url)
         #raise NotImplementedError("Currently, only default ctd data can be used!")
         ## Downloading was moved into the R script that happens inside the R script,
