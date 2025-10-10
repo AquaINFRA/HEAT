@@ -54,7 +54,7 @@ class HEAT2Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250708"
+            self.image_name = "heat:20251010"
 
 
     def set_job_id(self, job_id: str):
@@ -83,7 +83,7 @@ class HEAT2Processor(BaseProcessor):
         ##############
 
         # Retrieve user inputs:
-        units_gridded_url = data.get('units_gridded').lower()
+        units_gridded_url = data.get('units_gridded')
         bot_url = data.get('bottle_data', None)
         ctd_url = data.get('ctd_data', None)
         pmp_url = data.get('pump_data', None)
@@ -111,18 +111,8 @@ class HEAT2Processor(BaseProcessor):
         readonly_dir = self.inputs_read_only
 
         ## Download input shape:
-        in_unitsGriddedFileName = units_gridded_url.split('/')[-1]
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
-        in_unitsGriddedFilePath = download_zipped_data(units_gridded_url, input_dir, in_unitsGriddedFileName, suffix="shp")
-
-        # Download input data, or provide path to default, or None
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
-        # TODO: We can use these methods if we are ok with a default, and provide a default assessment period!
-        in_stationSamplesBOTFilePath = get_path_bottle_input_data("1877-9999", bot_url, readonly_dir, input_dir)
-        in_stationSamplesCTDFilePath = get_path_ctd_input_data("1877-9999", ctd_url, readonly_dir, input_dir)
-        in_stationSamplesPMPFilePath = get_path_pmp_input_data("1877-9999", pmp_url, readonly_dir, input_dir)
+        ## Download input data:
+        ## Downloading was moved into the R script that happens inside the R script!
 
 
         ###############
@@ -156,10 +146,11 @@ class HEAT2Processor(BaseProcessor):
         # Actually call R script:
         script_name = 'run_heat2.R'
         r_args = [
-            in_stationSamplesBOTFilePath,
-            in_stationSamplesCTDFilePath,
-            in_stationSamplesPMPFilePath,
-            in_unitsGriddedFilePath,
+            input_dir,
+            bot_url,
+            ctd_url,
+            pmp_url,
+            units_gridded_url,
             out_stationSamplesBOTFilePath,
             out_stationSamplesCTDFilePath,
             out_stationSamplesPMPFilePath,

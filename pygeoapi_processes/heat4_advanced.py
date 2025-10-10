@@ -47,7 +47,7 @@ class HEAT4Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250708"
+            self.image_name = "heat:20251010"
 
 
     def set_job_id(self, job_id: str):
@@ -100,17 +100,9 @@ class HEAT4Processor(BaseProcessor):
         # Directory where static input data can be found (will be mounted readonly into container):
         readonly_dir = self.inputs_read_only
 
-        # Download config tables (instead of retrieving from static data)...
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
-        in_configIndicatorsFilePath = download_file(table_indicators_url, input_dir, 'indicators-%s.csv' % self.job_id)
-        in_configIndicatorUnitsFilePath = download_file(table_indicator_units_url, input_dir, 'indicatorunits-%s.csv' % self.job_id)
-
-        # Download input csv provided by user: (same as in HOLAS)
-        filename = 'annual_indicators-%s.csv' % self.job_id
-        in_AnnualIndicatorPath = download_file(annual_indicators_csv_url, input_dir, filename)
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
+        # Download config tables (instead of retrieving from static data):
+        # Download input csv provided by user: (same as in HOLAS):
+        # Downloading was moved into the R script that happens inside the R script!
 
 
         ###############
@@ -138,9 +130,10 @@ class HEAT4Processor(BaseProcessor):
         # Actually call R script:
         script_name = 'run_heat4_csv.R'
         r_args = [
-            in_AnnualIndicatorPath,
-            in_configIndicatorsFilePath,
-            in_configIndicatorUnitsFilePath,
+            input_dir,
+            annual_indicators_csv_url,
+            table_indicators_url,
+            table_indicator_units_url,
             out_assessment_indicators_filepath,
         ]
         returncode, stdout, stderr, user_err_msg = run_docker_container2(

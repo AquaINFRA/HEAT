@@ -49,7 +49,7 @@ class HEAT1Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250708"
+            self.image_name = "heat:20251010"
 
 
     def set_job_id(self, job_id: str):
@@ -100,13 +100,8 @@ class HEAT1Processor(BaseProcessor):
         readonly_dir = None # not needed, so will not be mounted!
 
         ## Download input shape:
-        in_unitsFileName = spatial_units_url.split('/')[-1]
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
-        in_unitsFilePath = download_zipped_data(spatial_units_url, input_dir, in_unitsFileName, suffix="shp")
-
-        # Download config table (instead of retrieving from static data)...
-        in_unitGridSizePath = download_file(grid_size_table_url, input_dir, 'gridsizes-%s.csv' % self.job_id)
+        ## Download config table (instead of retrieving from static data)...
+        ## Downloading was moved into the R script that happens inside the R script!
 
 
         ###############
@@ -135,7 +130,13 @@ class HEAT1Processor(BaseProcessor):
 
         # Actually call R script:
         script_name = 'run_heat1_csv_generic.R'
-        r_args = [in_unitsFilePath, in_unitGridSizePath, out_units_cleaned_filepath, out_units_gridded_filepath]
+        r_args = [
+            input_dir,
+            spatial_units_url,
+            grid_size_table_url,
+            out_units_cleaned_filepath,
+            out_units_gridded_filepath
+        ]
         returncode, stdout, stderr, user_err_msg = run_docker_container2(
             self.docker_executable,
             self.image_name,

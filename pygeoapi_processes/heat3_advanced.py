@@ -51,7 +51,7 @@ class HEAT3Processor(BaseProcessor):
             self.download_url = config["download_url"].rstrip('/')
             self.inputs_read_only = config["helcom_heat"]["input_dir"].rstrip('/')
             self.docker_executable = config["docker_executable"]
-            self.image_name = "heat:20250708"
+            self.image_name = "heat:20251010"
 
 
     def set_job_id(self, job_id: str):
@@ -118,23 +118,9 @@ class HEAT3Processor(BaseProcessor):
         readonly_dir = self.inputs_read_only
 
         ## Download input shape:
-        in_unitsCleanedFileName = units_cleaned_url.split('/')[-1]
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
-        in_unitsCleanedFilePath = download_zipped_data(units_cleaned_url, input_dir, in_unitsCleanedFileName, suffix="shp")
-
-        # Download config tables (instead of retrieving from static data)...
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
-        in_configIndicatorsFilePath = download_file(table_indicators_url, input_dir, 'indicators-%s.csv' % self.job_id)
-        in_configIndicatorUnitsFilePath = download_file(table_indicator_units_url, input_dir, 'indicatorunits-%s.csv' % self.job_id)
-        in_configIndicatorUnitResultsFilePath = download_file(table_indicator_unit_results_url, input_dir, 'indicatorunitresults-%s.csv' % self.job_id)
-
-        # Download input csv provided by user: (same as in HOLAS)
-        filename = 'station_samples-%s.csv' % self.job_id
-        in_relevantStationSamplesPath = download_file(station_samples_url, input_dir, filename)
-        # TODO: Ihe inputs should be downloaded inside the container, which is not implemented
-        # yet, so temporarily, I will download this in this python process file.
+        ## Download input csv provided by user: (same as in HOLAS)
+        ## Download config tables (instead of retrieving from static data)...
+        ## Downloading was moved into the R script that happens inside the R script!
 
 
         ###############
@@ -162,11 +148,12 @@ class HEAT3Processor(BaseProcessor):
         # Actually call R script:
         script_name = 'run_heat3_csv.R'
         r_args = [
-            in_relevantStationSamplesPath,
-            in_unitsCleanedFilePath,
-            in_configIndicatorsFilePath,
-            in_configIndicatorUnitsFilePath,
-            in_configIndicatorUnitResultsFilePath,
+            input_dir,
+            station_samples_url,
+            units_cleaned_url,
+            table_indicators_url,
+            table_indicator_units_url,
+            table_indicator_unit_results_url,
             combined_Chlorophylla_IsWeighted,
             out_annual_indicators_filepath
         ]
