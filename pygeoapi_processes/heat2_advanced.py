@@ -11,9 +11,9 @@ import geopandas as gpd
 import shapely.geometry
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
-from pygeoapi.process.HEAT.pygeoapi_processes.heat2 import get_path_bottle_input_data
-from pygeoapi.process.HEAT.pygeoapi_processes.heat2 import get_path_ctd_input_data
-from pygeoapi.process.HEAT.pygeoapi_processes.heat2 import get_path_pmp_input_data
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_bottle_input_data
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_ctd_input_data
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_pmp_input_data
 
 
 

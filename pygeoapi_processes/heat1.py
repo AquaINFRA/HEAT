@@ -10,6 +10,7 @@ import traceback
 import geopandas as gpd
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_path
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_default_units
 
 
 '''
@@ -119,7 +120,7 @@ class HEAT1Processor(BaseProcessor):
         readonly_dir = self.inputs_read_only
 
         # Define paths to static input paths depending on assessment_period
-        in_unitsFilePath = get_unit_file_path(assessment_period, readonly_dir)
+        in_unitsFilePath = get_path_default_units(assessment_period, readonly_dir)
         in_unitGridSizePath = get_config_file_path('UnitGridSize', assessment_period, readonly_dir)
 
 
@@ -264,12 +265,4 @@ class HEAT1Processor(BaseProcessor):
         return 'application/json', outputs
 
 
-def get_unit_file_path(assessment_period, readonly_dir):
-
-    if assessment_period == "1877-9999":
-        return readonly_dir+"/original_inputs/1877-9999/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
-    elif assessment_period == "2011-2016":
-        return readonly_dir+"/original_inputs/2011-2016/AssessmentUnits.shp"
-    elif assessment_period == "2016-2021":
-        return readonly_dir+"/original_inputs/2016-2021/HELCOM_subbasin_with_coastal_WFD_waterbodies_or_watertypes_2022_eutro.shp"
 

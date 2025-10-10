@@ -12,7 +12,10 @@ from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_container2
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import zip_a_shapefile
-
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_bottle_input_data
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_ctd_input_data
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_pmp_input_data
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_default_gridded_units
 
 
 '''
@@ -142,7 +145,7 @@ class HEAT2Processor(BaseProcessor):
 
         ## If user provided input shapes, use them, else use pre-computed input shapes (they are always the same anyway):
         if unitsGriddedFileUrl == "default":
-            in_unitsGriddedFilePath = get_path_gridded_units(assessment_period, readonly_dir)
+            in_unitsGriddedFilePath = get_path_default_gridded_units(assessment_period, readonly_dir)
         else:
             ## TODO Maybe steal this from advanced.
             LOGGER.info('Client provided gridded spatial units: %s' % unitsGriddedFileUrl)
@@ -315,138 +318,3 @@ class HEAT2Processor(BaseProcessor):
         }
 
         return 'application/json', outputs
-
-def get_path_gridded_units(assessment_period, readonly_dir):
-
-    unitsGriddedFilePath = None
-    if assessment_period == "1877-9999":
-        unitsGriddedFilePath = readonly_dir+"/adapted_inputs/1877-9999/units_gridded.shp"
-    elif assessment_period == "2011-2016":
-        unitsGriddedFilePath = readonly_dir+"/adapted_inputs/2011-2016/units_gridded.shp"
-    elif assessment_period == "2016-2021":
-        unitsGriddedFilePath = readonly_dir+"/adapted_inputs/2016-2021/units_gridded.shp"
-    return unitsGriddedFilePath
-
-
-def get_path_default_bottle_data(assessment_period, readonly_dir):
-
-    bot_path = None
-    if assessment_period == "1877-9999":
-        bot_path = readonly_dir+"/original_inputs/1877-9999/StationSamples1877-9999BOT_2022-12-09.txt.gz"
-    elif assessment_period == "2011-2016":
-        bot_path = readonly_dir+"/original_inputs/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz"
-    elif assessment_period == "2016-2021":
-        bot_path = readonly_dir+"/original_inputs/2016-2021/StationSamples2016-2021BOT_2022-12-09.txt.gz"
-    return bot_path
-
-
-def get_path_default_pmp_data(assessment_period, readonly_dir):
-
-    pmp_path = None
-    if assessment_period == "1877-9999":
-        pmp_path = readonly_dir+"/original_inputs/1877-9999/StationSamples1877-9999PMP_2022-12-09.txt.gz"
-    elif assessment_period == "2011-2016":
-        pmp_path = readonly_dir+"/original_inputs/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz"
-    elif assessment_period == "2016-2021":
-        pmp_path = readonly_dir+"/original_inputs/2016-2021/StationSamples2016-2021PMP_2022-12-09.txt.gz"
-    return pmp_path
-
-
-def get_path_default_ctd_data(assessment_period, readonly_dir):
-
-    ctd_path = None
-    if assessment_period == "1877-9999":
-        ctd_path = readonly_dir+"/original_inputs/1877-9999/StationSamples1877-9999CTD_2022-12-09.txt.gz"
-    elif assessment_period == "2011-2016":
-        ctd_path = readonly_dir+"/original_inputs/2011-2016/StationSamples2011-2016CTD_2022-12-09.txt.gz"
-    elif assessment_period == "2016-2021":
-        ctd_path = readonly_dir+"/original_inputs/2016-2021/StationSamples2016-2021CTD_2022-12-09.txt.gz"
-    return ctd_path
-
-
-def get_path_bottle_input_data(assessment_period, bot_url, readonly_dir, target_dir):
-
-    if bot_url is None:
-        # If the user passed nothing or "null", no bottle data is used!
-        # TODO: Dont return/store results for BOT, if no bottle inputs are given!
-        return None
-
-    elif bot_url is not None and bot_url.lower() == 'default':
-        LOGGER.info('Client did not provide bottle data, using pre-stored ones...')
-        bot_path = get_path_default_bottle_data(assessment_period, readonly_dir)
-        return bot_path
-
-    elif bot_url is not None and bot_url.startswith('http'):
-        LOGGER.info('Client requested bottle data: %s' % bot_url)
-        #raise NotImplementedError("Currently, only default bottle data can be used!")
-        # TODO: Ideally, the download should not happen here (in the process python file), but
-        # inside the docker container.
-        filename = bot_url.split('/')[-1]
-        bot_path = download_zipped_data(bot_url, target_dir, filename, suffix="csv")
-        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
-        return bot_path
-
-    else:
-        err_msg = 'Could not understand bottle data: %s' % bot_url
-        LOGGER.error(err_msg)
-        raise ProcessorExecuteError(err_msg)
-
-
-def get_path_pmp_input_data(assessment_period, pmp_url, readonly_dir, target_dir):
-
-    if pmp_url is None:
-        # If the user passed nothing or "null", no pump data is used!
-        # TODO: Dont return/store results for PMP, if no PMP inputs are given!
-        return None
-
-    elif pmp_url.lower() == 'default':
-        LOGGER.info('Client did not provide pump data, using pre-stored ones...')
-        pmp_path = get_path_default_pmp_data(assessment_period, readonly_dir)
-        return pmp_path
-
-    elif pmp_url is not None and pmp_url.startswith('http'):
-        LOGGER.info('Client requested pump data: %s' % pmp_url)
-        #raise NotImplementedError("Currently, only default pump data can be used!")
-        # TODO: Ideally, the download should not happen here (in the process python file), but
-        # inside the docker container.
-        filename = pmp_url.split('/')[-1]
-        pmp_path = download_zipped_data(pmp_url, target_dir, filename, suffix="csv")
-        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
-        return pmp_path
-
-    else:
-        err_msg = 'Could not understand pump data: %s' % pmp_url
-        LOGGER.error(err_msg)
-        raise ProcessorExecuteError(err_msg)
-
-
-def get_path_ctd_input_data(assessment_period, ctd_url, readonly_dir, target_dir):
-
-    if ctd_url is None:
-        # If the user passed nothing or "null", no pump data is used!
-        # TODO: Dont return/store results for CTD, if no CTD inputs are given!
-        return None
-
-    elif ctd_url.lower() == 'default':
-        LOGGER.info('Client did not provide ctd data, using pre-stored ones...')
-        ctd_path = get_path_default_pmp_data(assessment_period, readonly_dir)
-        return ctd_path
-
-    elif ctd_url is not None and ctd_url.startswith('http'):
-        LOGGER.info('Client requested ctd data: %s' % ctd_url)
-        #raise NotImplementedError("Currently, only default ctd data can be used!")
-        # TODO: Ideally, the download should not happen here (in the process python file), but
-        # inside the docker container.
-        filename = ctd_url.split('/')[-1]
-        ctd_path = download_zipped_data(ctd_url, target_dir, filename, suffix="csv")
-        # TODO: /out/ is for the outputs, the inputs should be downloaded inside the container to /in, which is
-        # not mounted. So temporarily, I will download this input to /out, just so it gets mounted...
-        return ctd_path
-
-    else:
-        err_msg = 'Could not understand ctd data: %s' % ctd_url
-        LOGGER.error(err_msg)
-        raise ProcessorExecuteError(err_msg)
-

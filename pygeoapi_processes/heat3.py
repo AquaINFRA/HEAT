@@ -9,6 +9,7 @@ from pygeoapi.process.HEAT.pygeoapi_processes.docker_utils import run_docker_con
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_config_file_path
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
 from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_data
+from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_default_cleaned_units
 
 
 '''
@@ -118,12 +119,9 @@ class HEAT3Processor(BaseProcessor):
         # Directory where static input data can be found (will be mounted readonly into container):
         readonly_dir = self.inputs_read_only
 
-        ## Use pre-computed input shapes, as they are always the same anyway:
-        in_unitsCleanedFilePath = get_path_cleaned_units(assessment_period, readonly_dir)
-
         ## If user provided input shapes, use them, else use pre-computed input shapes (they are always the same anyway):
         if unitsCleanedFileUrl == "default":
-            in_unitsCleanedFilePath = get_path_cleaned_units(assessment_period, readonly_dir)
+            in_unitsCleanedFilePathOrUrl = get_path_default_cleaned_units(assessment_period, readonly_dir)
         else:
             ## TODO Maybe steal this from advanced.
             LOGGER.info('Client provided claned spatial units: %s' % unitsCleanedFileUrl)
@@ -212,14 +210,4 @@ class HEAT3Processor(BaseProcessor):
 
         return 'application/json', outputs
 
-
-def get_path_cleaned_units(assessment_period, readonly_dir):
-    # TODO: Merge with same function for gridded...
-
-    if assessment_period == "1877-9999":
-        return readonly_dir+"/adapted_inputs/1877-9999/units_cleaned.shp"
-    elif assessment_period == "2011-2016":
-        return readonly_dir+"/adapted_inputs/2011-2016/units_cleaned.shp"
-    elif assessment_period == "2016-2021":
-        return readonly_dir+"/adapted_inputs/2016-2021/units_cleaned.shp"
 
