@@ -11,15 +11,22 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
 
 
 '''
-curl -X POST 'http://localhost:5000/processes/heat5advanced/execution' \
+## Testing with dummy input data, that was output from previous dummy runs.
+## Those were generated using dummy spatial units and dummy grid sizes
+## (created on QGIS; they don't make any sense in the real world, except being located in the Baltic Sea)
+## and with station samples derived from the bottle, pump and ctd data 
+## that was provided as default by HELCOM, for HOLAS period 2 (I think)...
+
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat5advanced/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
-        "assessment_indicators": "https://testserver.com/download/AssessmentIndicators.csv",
-        "table_indicators": "https://example.fi/download/table_indicators.csv",
-        "table_indicator_units": "https://example.fi/download/table_indicator_units.csv"
+        "assessment_indicators": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/AssessmentIndicators_20251012.csv",
+        "table_indicators": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/Configuration_dummy_Indicators.csv",
+        "table_indicator_units": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/Configuration_dummy_IndicatorUnits.csv"
     }
-}'
+}'; date
 
 '''
 

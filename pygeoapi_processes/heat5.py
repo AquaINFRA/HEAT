@@ -11,15 +11,29 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
 
 
 '''
-curl -X POST 'http://localhost:5000/processes/heat5/execution' \
+## There are not many different cases to test, as there is only one input file,
+## and no defaults allowed...
+## Testing two holas periods:
+
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat5/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
         "assessment_period": "holas-2",
-        "assessment_indicators": "https://example.com/download/AssessmentIndicators.csv"
+        "assessment_indicators": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2011-2016/AssessmentIndicators_20250516.csv"
     }
-}'
+}'; date
 
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat5/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-3",
+        "assessment_indicators": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2016-2021/AssessmentIndicators_20250516.csv"
+    }
+}'; date
 '''
 
 

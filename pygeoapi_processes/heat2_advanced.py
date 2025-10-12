@@ -18,16 +18,21 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_pmp_inp
 
 
 '''
-curl -X POST 'http://localhost:5000/processes/heat2advanced/execution' \
+## Testing with dummy spatial units and dummy grid sizes
+## (created on QGIS; they don't make any sense in the real world, except being located in the Baltic Sea)
+## and with the bottle, pump and ctd data provided as default by HELCOM, for HOLAS period 2...
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat2advanced/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
-        "units_gridded": "https://example.fi/download/gridded.shp.zip",
-        "bottle_data": "https://example.fi/download/bot.csv",
-        "pump_data": "https://example.fi/download/pmp.csv",
-        "ctd_data": "https://example.fi/download/ctd.csv"
+        "units_gridded": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/units_gridded_20250701.zip",
+        "bottle_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz",
+        "pump_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016CTD_2022-12-09.txt.gz",
+        "ctd_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz"
     }
-}'
+}'; date
+
 '''
 
 

@@ -14,22 +14,42 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_default
 
 
 '''
-curl -X POST 'http://localhost:5000/processes/heat1/execution' \
+# Tested 2025-10-10
+curl -X POST https://${PYSERVER}/processes/heat1/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
         "assessment_period": "holas-2"
     }
-}'
+}'; date
+
+# Tested 2025-10-10
+curl -X POST https://${PYSERVER}/processes/heat1/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-3"
+    }
+}'; date
+
+# Tested 2025-10-10
+curl -X POST 'https://aquainfra.ogc.igb-berlin.de/pygeoapi-dev/processes/heat1/execution' \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "other"
+    }
+}'; date
+
 
 # This one will complain:
-curl -X POST 'http://localhost:5000/processes/heat1/execution' \
+curl -X POST https://${PYSERVER}/processes/heat1/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
         "assessment_period": "2016-2021"
     }
-}'
+}'; date
 
 '''
 

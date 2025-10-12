@@ -13,15 +13,33 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_default
 
 
 '''
-curl -X POST 'http://localhost:5000/processes/heat3/execution' \
+## Using default spatial units (as should...)
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat3/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
         "assessment_period": "holas-2",
-        "station_samples": "https://example.com/download/StationSamplesCombined.csv",
-        "combined_Chlorophylla_IsWeighted": true
+        "station_samples": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2011-2016/StationSamples_20250516.csv",
+        "combined_Chlorophylla_IsWeighted": true,
+        "units_cleaned": "default"
     }
-}'
+}'; date
+
+
+## Provide custom spatial units
+## (but we use the same as default, as the whole process is tailored to these, and should be used with these...)
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat3/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-2",
+        "station_samples": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2011-2016/StationSamples_20250516.csv",
+        "combined_Chlorophylla_IsWeighted": true,
+        "units_cleaned": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2011-2016/units_cleaned.zip"
+    }
+}'; date
 
 '''
 

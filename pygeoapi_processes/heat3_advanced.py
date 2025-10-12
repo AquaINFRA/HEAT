@@ -12,18 +12,24 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_zipped_
 
 
 '''
-curl -X POST 'http://localhost:5000/processes/heat3advanced/execution' \
+## Testing with dummy spatial units and dummy grid sizes
+## (created on QGIS; they don't make any sense in the real world, except being located in the Baltic Sea)
+## and with station samples derived from the bottle, pump and ctd data 
+## that was provided as default by HELCOM, for HOLAS period 2...
+
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat3advanced/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
-        "station_samples": "https://testserver.com/download/StationSamples.csv",
-        "spatial_units": "https://testserver.com/download/units_cleaned.shp.zip",
+        "station_samples": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2011-2016/StationSamples_20250516.csv",
+        "spatial_units": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/units_cleaned_20250701.zip",
         "combined_Chlorophylla_IsWeighted": true,
-        "table_indicators": "https://example.fi/download/table_indicators.csv",
-        "table_indicator_units": "https://example.fi/download/table_indicator_units.csv",
-        "table_indicator_unit_results": "https://example.fi/download/table_indicator_unit_results.csv"
+        "table_indicators": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/Configuration_dummy_Indicators.csv",
+        "table_indicator_units": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/Configuration_dummy_IndicatorUnits.csv",
+        "table_indicator_unit_results": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/Configuration_dummy_IndicatorUnitResults.csv"
     }
-}'
+}'; date
 
 '''
 

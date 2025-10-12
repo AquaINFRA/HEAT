@@ -19,8 +19,9 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import get_path_default
 
 
 '''
-# Using default (static on server) for all three:
-curl -X POST 'http://localhost:5000/processes/heat2/execution' \
+## Using default (static on server) for all three:
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat2/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
@@ -30,27 +31,112 @@ curl -X POST 'http://localhost:5000/processes/heat2/execution' \
         "ctd_data": "default",
         "units_gridded": "default"
     }
-}'
+}'; date
 
-# Omitting PMP and CTD:
-curl -X POST 'http://localhost:5000/processes/heat2/execution' \
+## Same, for another holas period:
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat2/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-3",
+        "bottle_data": "default",
+        "pump_data": "default",
+        "ctd_data": "default",
+        "units_gridded": "default"
+    }
+}'; date
+
+## Same, for another holas period:
+# Tested 2025-10-12
+curl -i -X POST https://${PYSERVER}/processes/heat2/execution \
+--header 'Content-Type: application/json' \
+--header 'Prefer: respond-async' \
+--data '{
+    "inputs": {
+        "assessment_period": "other",
+        "bottle_data": "default",
+        "pump_data": "default",
+        "ctd_data": "default",
+        "units_gridded": "default"
+    }
+}'; date
+
+## Providing tab-separated bottle data. Pump omitted, CTD omitted.
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat2/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
         "assessment_period": "holas-2",
-        "bottle_data": "default"
+        "units_gridded": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2011-2016/units_gridded.zip",
+        "bottle_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz"
     }
-}'
+}'; date
+
+
+## Provide comma-separated bottle data. Provide tab-separated pump data. CTD omitted.
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat2/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-2",
+        "bottle_data": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2011-2016/StationSamplesCTD_20250516.csv",
+        "pump_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz",
+        "units_gridded": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2011-2016/units_gridded.zip"
+    }
+}'; date
+
+## Various other combinations of defaults and input data
+## Just omitting pump data (rest default)
+curl -X POST https://${PYSERVER}/processes/heat2/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-2",
+        "bottle_data": "default",
+        "units_gridded": "default"
+    }
+}'; date
 
 # Omitting PMP and CTD, using external data for BOT:
-curl -X POST 'http://localhost:5000/processes/heat2/execution' \
+curl -X POST https://${PYSERVER}/processes/heat2/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
         "assessment_period": "holas-2",
-        "bottle_data": "https://example.com/download/StationSamplesBOT.txt.gz"
+        "bottle_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz",
+        "units_gridded": "default"
     }
-}'
+}'; date
+
+# Using external data for all:
+curl -X POST https://${PYSERVER}/processes/heat2/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-2",
+        "bottle_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016BOT_2022-12-09.txt.gz",
+        "pump_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016PMP_2022-12-09.txt.gz",
+        "ctd_data": "https://aquainfra.ogc.igb-berlin.de/download/readonly/helcom/original_inputs/2011-2016/StationSamples2011-2016CTD_2022-12-09.txt.gz",
+        "units_gridded": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2016-2021/units_gridded.zip"
+    }
+}'; date
+
+# Providing custom gridded units:
+curl -X POST https://${PYSERVER}/processes/heat2/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "assessment_period": "holas-3",
+        "bottle_data": "default",
+        "pump_data": "default",
+        "ctd_data": "default",
+        "units_gridded": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/2016-2021/units_gridded.zip"
+    }
+}'; date
+
 
 '''
 

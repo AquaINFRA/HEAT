@@ -16,14 +16,28 @@ from pygeoapi.process.HEAT.pygeoapi_processes.heat_utils import download_file
 
 
 '''
-curl -X POST 'http://localhost:5000/processes/heat1advanced/execution' \
+## Testing with dummy spatial units and dummy grid sizes
+## (created on QGIS; they don't make any sense in the real world, except being located in the Baltic Sea)
+# Tested 2025-10-12
+curl -X POST https://${PYSERVER}/processes/heat1advanced/execution \
 --header 'Content-Type: application/json' \
 --data '{
     "inputs": {
-        "spatial_units": "http://example.com/exampledata/helcom/dummy/dummytest_epsg4326_unitid.zip",
-        "grid_size_table": "http://example.com/exampledata/helcom/dummy/Configuration_dummy_UnitGridSize.csv"
+        "spatial_units": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/dummytest_epsg4326_unitid.zip",
+        "grid_size_table": "https://aquainfra.ogc.igb-berlin.de/exampledata/helcom/dummy/Configuration_dummy_UnitGridSize.csv"
     }
-}'
+}'; date
+
+## This one, with test inputs provided by HELCOM, leads to an error due to the input data format:
+## GDAL Error 6: Geometry type of `3D Polygon' not supported in shapefiles.
+curl -X POST https://${PYSERVER}/processes/heat1advanced/execution \
+--header 'Content-Type: application/json' \
+--data '{
+    "inputs": {
+        "spatial_units": "https://drive.usercontent.google.com/download?id=17o252m1oKsycLrPi434scwVoAJkZCQU3&export=download&authuser=0",
+        "grid_size_table": "https://drive.usercontent.google.com/download?id=1kOJRQbuGJkDNiRdQsRtjsdBSGc-3SJ4R&export=download&authuser=0"
+    }
+}'; date
 
 '''
 
