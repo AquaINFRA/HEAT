@@ -28,7 +28,7 @@ def download_file(data_url, download_dir, filename):
     # Downloading user-provided data uncritically may be a security threat.
     # Instead, have the R scripts inside the docker container download user data.
     LOGGER.debug('Downloading file: %s from %s' % (filename, data_url))
-    raise NotImplementedError("Not implemented yet: Download of input files must be moved" +\to
+    raise NotImplementedError("Not implemented yet: Download of input files must be moved" + \
         " to a different place in the code. Failed to download file:" + data_url)
 
     if not (data_url.startswith('http://') or data_url.startswith('https://')):

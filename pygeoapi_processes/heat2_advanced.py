@@ -97,7 +97,12 @@ class HEAT2Processor(BaseProcessor):
             raise ProcessorExecuteError('Missing parameter "ctd_data". Please provide URL.')
         if pmp_url is None:
             raise ProcessorExecuteError('Missing parameter "pump_data". Please provide URL.')
-
+        if bot_url == "default":
+            raise ProcessorExecuteError('Malformed parameter "bottle_data". Please provide URL.')
+        if ctd_url == "default":
+            raise ProcessorExecuteError('Malformed parameter "ctd_data". Please provide URL.')
+        if pmp_url == "default":
+            raise ProcessorExecuteError('Malformed parameter "pump_data". Please provide URL.')
 
         ##################
         ### Input data ###
