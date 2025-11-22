@@ -19,7 +19,7 @@ console.log('Will display '+fileNameBase+' of job '+jobId);
 
 // Load GeoJSON from local server
 //fetch('download/out/units_gridded-236a1ca8-56bb-11f0-bf80-fa163e42fba0.json')
-fetch('download/out/'+processId+'_job_'+jobId+'/'+geojsonFilename)
+fetch('download/out/'+processId+'/job_'+jobId+'/'+geojsonFilename)
   .then((response) => {
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

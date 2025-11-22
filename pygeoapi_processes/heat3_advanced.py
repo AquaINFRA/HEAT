@@ -117,7 +117,7 @@ class HEAT3Processor(BaseProcessor):
         ##################
 
         # Where to store input data (will be mounted read-write into container):
-        input_dir = f'{self.download_dir}/in/{self.process_id}_job_{self.job_id}'
+        input_dir = f'{self.download_dir}/in/{self.process_id}/job_{self.job_id}'
         os.makedirs(input_dir, exist_ok=True)
 
         # Directory where static input data can be found (will be mounted readonly into container):
@@ -134,8 +134,8 @@ class HEAT3Processor(BaseProcessor):
         ###############
 
         # Where to store output data
-        output_dir = f'{self.download_dir}/out/{self.process_id}_job_{self.job_id}'
-        output_url = f'{self.download_url}/out/{self.process_id}_job_{self.job_id}'
+        output_dir = f'{self.download_dir}/out/{self.process_id}/job_{self.job_id}'
+        output_url = f'{self.download_url}/out/{self.process_id}/job_{self.job_id}'
         os.makedirs(output_dir, exist_ok=True)
         LOGGER.debug(f'All results will be stored     in: {output_dir}')
         LOGGER.debug(f'All results will be accessible in: {output_url}')
