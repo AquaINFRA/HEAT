@@ -44,7 +44,7 @@ unitGridSizeTable <- get_unit_grid_size_table(in_unitGridSizePath, format='xlsx'
 ####################
 
 ## Generate assessment units and gridunits
-units <- get_units(assessmentPeriod, in_unitsFilePath, verbose)
+units <- get_units(assessmentPeriod, in_unitsFilePath, verbose, generic=FALSE)
 gridunits <- get_gridunits_generic(units, unitGridSizeTable, verbose)
 if (verbose) message('Calculation done.')
 

@@ -27,9 +27,12 @@ if (is.na(verbose)) {
 }
 
 ## Convert to proper null, in case you do not want to set the assessment period:
+# TODO: To be tested! (Not sure this script was ever meant for running without the assessment period.)
+# Note: If assessmentPeriod is NULL, then generic=FALSE is ignored in get_units()
 if (tolower(assessmentPeriod)=="null") {
     assessmentPeriod <- NULL
 }
+
 
 ###################
 ### Read inputs ###
@@ -42,7 +45,7 @@ if (tolower(assessmentPeriod)=="null") {
 
 ## Generate assessment units and gridunits
 ## Units: ETRS_1989_LAEA
-units <- get_units(assessmentPeriod, in_unitsFilePath, verbose)
+units <- get_units(assessmentPeriod, in_unitsFilePath, verbose, generic=FALSE)
 unitGridSizeTable <- get_unit_grid_size_table(in_unitGridSizePath, format='csv')
 gridunits <- get_gridunits(units, unitGridSizeTable, verbose)
 if (verbose) message('Calculation done.')

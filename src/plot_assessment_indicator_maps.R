@@ -23,6 +23,12 @@ if (is.na(verbose)) {
     verbose <- TRUE
 }
 
+## Convert to proper null, in case you do not want to set the assessment period:
+# TODO: To be tested! (Not sure this script was ever meant for running without the assessment period.)
+# Note: If assessmentPeriod is NULL, then generic=FALSE is ignored in get_units()
+if (tolower(assessmentPeriod)=="null") {
+    assessmentPeriod <- NULL
+}
 
 ###################
 ### Read inputs ###
@@ -31,7 +37,7 @@ if (is.na(verbose)) {
 if (verbose) message(paste('Reading input table from', in_wk5_path, '...'))
 wk5 = data.table::fread(file=in_wk5_path)
 if (verbose) message(paste('Reading input units from', in_unitsFilePath, '...'))
-units <- get_units(assessmentPeriod, in_unitsFilePath, verbose)
+units <- get_units(assessmentPeriod, in_unitsFilePath, verbose, generic=FALSE)
 if (verbose) message(paste('Reading input indicators from', in_configIndicatorsFilePath, '...'))
 indicators <- get_indicators_table(in_configIndicatorsFilePath, format="xlsx")
 

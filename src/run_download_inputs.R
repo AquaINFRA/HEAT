@@ -7,6 +7,12 @@ print(paste0('R Command line args: ', args))
 assessmentPeriod = args[1]
 inputPath = args[2]
 
+## Convert to proper null, in case you do not want to set the assessment period:
+# TODO: To be tested! (Not sure this script was ever meant for running without the assessment period.)
+if (tolower(assessmentPeriod)=="null") {
+    assessmentPeriod <- NULL
+}
+
 # Remove trailing slash from input path
 if (endsWith(inputPath, "/")) {
     inputPath <- str_sub(inputPath, end = -2)

@@ -77,7 +77,7 @@ if (startsWith(in_unitGridSizePathOrUrl, 'http')) {
 ## Generate assessment units and gridunits
 # Units: Transform to EPSG 3035, filter based on Code=SEA if applicable, ...
 holas_period <- NULL # Not operating on any predefined HOLAS period here!
-units <- get_units(holas_period, in_unitsFilePath, verbose)
+units <- get_units(holas_period, in_unitsFilePath, verbose, generic=TRUE)
 unitGridSizeTable <- get_unit_grid_size_table(in_unitGridSizePath, format='csv')
 if (verbose) message(paste('unitGridSizeTable: ', paste(unitGridSizeTable$GridSize, collapse=", ")))
 #gridunits <- get_gridunits(units, unitGridSizeTable, verbose)
