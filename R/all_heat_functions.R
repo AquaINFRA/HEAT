@@ -186,8 +186,12 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
     units[3,] <- sf::st_union(units[3,], sf::st_as_sfc("POLYGON((12.73333 55.85,12.73333 55.88334,12.76667 55.88334,12.76667 55.85,12.73333 55.85))", crs = 4326))
     
     # Assign IDs
+    if ("UnitID" %in% names(units)) {
+      units$UnitID_Old <- units$UnitID
+      warning("Re-assigning UnitIDs to your spatial units, as stations were added.")
+    }
     units$UnitID = 1:nrow(units)
-    
+
     # Transform projection into ETRS_1989_LAEA
     units <- sf::st_transform(units, crs = 3035)
     
@@ -209,8 +213,12 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
     # Order, Rename and Remove columns
     units <- as.data.table(units)[order(HELCOM_ID), .(Code = HELCOM_ID, Description = Name, GEOM = geometry)] %>%
       sf::st_sf()
-    
+
     # Assign IDs
+    if ("UnitID" %in% names(units)) {
+      units$UnitID_Old <- units$UnitID
+      warning("Re-assigning UnitIDs to your spatial units, as stations were added.")
+    }
     units$UnitID = 1:nrow(units)
 
     # Identify invalid geometries
