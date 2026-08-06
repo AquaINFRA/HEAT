@@ -26,6 +26,11 @@ if (is.na(verbose)) {
     verbose <- TRUE
 }
 
+## Convert to proper null, in case you do not want to set the assessment period:
+if (tolower(assessmentPeriod)=="null") {
+    assessmentPeriod <- NULL
+}
+
 
 ###################
 ### Read inputs ###
