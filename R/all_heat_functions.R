@@ -239,6 +239,20 @@ get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
 get_gridunits <- function(units, unitGridSize, verbose=TRUE) {
   if (verbose) message(paste("START: get_gridunits"))
 
+  # Check for and warn about "lonely" spatial units:
+  diff <- setdiff(units$UnitID, unitGridSizeTable$UnitID)
+  warning('These spatial units have no corresponding entry in the ',
+    'grid size table (and thus will have no gridded units): UnitID=',
+    paste(diff, collapse=","))
+
+  # Check whether any units will be generated at all:
+  common_ids <- intersect(unitGridSize$UnitID, units$UnitID)
+  if (length(common_ids)==0) {
+    if (verbose) message('All ids of the spatial units:   UnitID=', paste(unique(units$UnitID), collapse=", "))
+    if (verbose) message('All ids in the grid size table: UnitID=', paste(unique(unitGridSize$UnitID), collapse=", "))
+    warning('None of the spatial units have a corresponding entry in the grid size table!')
+  }
+
   gridunits10 <- make.gridunits(units, 10000, verbose)
   gridunits30 <- make.gridunits(units, 30000, verbose)
   gridunits60 <- make.gridunits(units, 60000, verbose)
@@ -252,6 +266,10 @@ get_gridunits <- function(units, unitGridSize, verbose=TRUE) {
 
   rm(a,b,c)
 
+  if (nrow(gridunits) == 0) {
+    stop('Zero spatial units created.')
+  }
+
   if (verbose) message(paste("END:   get_gridunits"))
   return(gridunits)
 }
@@ -259,6 +277,20 @@ get_gridunits <- function(units, unitGridSize, verbose=TRUE) {
 
 get_gridunits_generic <- function(units, unitGridSize, verbose=TRUE) {
   if (verbose) message(paste("START: get_gridunits_generic"))
+
+  # Check for and warn about "lonely" spatial units:
+  diff <- setdiff(units$UnitID, unitGridSizeTable$UnitID)
+  warning('These spatial units have no corresponding entry in the ',
+    'grid size table (and thus will have no gridded units): UnitID=',
+    paste(diff, collapse=","))
+
+  # Check whether any units will be generated at all:
+  common_ids <- intersect(unitGridSize$UnitID, units$UnitID)
+  if (length(common_ids)==0) {
+    if (verbose) message('All ids of the spatial units:   UnitID=', paste(unique(units$UnitID), collapse=", "))
+    if (verbose) message('All ids in the grid size table: UnitID=', paste(unique(unitGridSize$UnitID), collapse=", "))
+    warning('None of the spatial units have a corresponding entry in the grid size table!')
+  }
 
   gridSizes <- unique(unitGridSize$GridSize)
   mylist = list()
@@ -273,6 +305,10 @@ get_gridunits_generic <- function(units, unitGridSize, verbose=TRUE) {
 
   gridunits <- sf::st_as_sf(rbindlist(mylist))
   gridunits <- sf::st_cast(gridunits)
+
+  if (nrow(gridunits) == 0) {
+    stop('Zero spatial units created.')
+  }
 
   if (verbose) message(paste("END:   get_gridunits_generic"))
   return(gridunits)
