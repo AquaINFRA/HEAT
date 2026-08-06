@@ -130,11 +130,19 @@ get_unit_grid_size_table <- function(configurationFilePath, format='xlsx') {
 }
 
 
-get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE) {
+get_units <- function(assessmentPeriod, unitsFile, verbose=TRUE, generic=FALSE) {
   if (verbose) message(paste("START: get_units"))
 
   if (is.null(assessmentPeriod)) {
     if (verbose) message("Preparing units for no particular HOLAS period...")
+    generic <- TRUE
+  } else {
+    if (generic) {
+      warning("Ignoring the assessment period while preparing the units, as generic is set to TRUE.")
+    }
+  }
+
+  if (generic) {
     units <- sf::st_read(unitsFile)
     bbox <- st_bbox(units)
     if (verbose) message(paste("bbox xmin =", bbox$xmin, "ymin =", bbox$ymin, "xmax =", bbox$xmax, "ymax =", bbox$ymax))
